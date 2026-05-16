@@ -1,6 +1,7 @@
 const supremeService = require("./supremeService");
 const ebayService = require("./ebayService");
 const imageService = require("./imageService");
+const trackedItems = require("../config/trackedItems");
 const { readHistory, writeHistory, mergeSnapshots } = require("./historyService");
 
 async function buildMarketData() {
@@ -8,7 +9,12 @@ async function buildMarketData() {
   const completedItems = [];
 
   for (const supremeItem of supremeItems) {
-    const ebayResult = await ebayService.fetchEbayForItem(supremeItem.name);
+    const trackedItem = findTrackedItemByName(supremeItem.name);
+
+    const ebayResult = await ebayService.fetchEbayForItem(
+      supremeItem.name,
+      trackedItem?.ebayQueries
+    );
     const bestListing = ebayResult?.best ?? null;
     const imageUrl = await imageService.getImageForItem(supremeItem);
 
@@ -41,6 +47,10 @@ async function buildMarketData() {
   await writeHistory(mergedItems);
 
   return mergedItems;
+}
+
+function findTrackedItemByName(itemName) {
+  return trackedItems.find((item) => item.name === itemName) || null;
 }
 
 module.exports = {

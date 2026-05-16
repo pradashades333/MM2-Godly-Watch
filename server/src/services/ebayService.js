@@ -137,27 +137,37 @@ function pickBestListing(listings, itemName) {
   return cheapest;
 }
 
-async function fetchEbayForItem(itemName) {
+async function fetchEbayForItem(itemName, customQueries = []) {
   const token = await getEbayAccessToken();
-  const query = `Murder Mystery 2 ${itemName}`;
-  const results = await searchEbay(query, token);
+  const queries =
+    customQueries.length > 0
+      ? customQueries
+      : [`Murder Mystery 2 ${itemName}`];
+  const allListings = [];
 
-  const listings = (results.itemSummaries || []).map((listing) =>
-    normalizeEbayListing(listing, query)
-  );
+  for (const query of queries) {
+    const results = await searchEbay(query, token);
 
-  const best = pickBestListing(listings, itemName);
+    const listings = (results.itemSummaries || []).map((listing) =>
+      normalizeEbayListing(listing, query)
+    );
+
+    allListings.push(...listings);
+  }
+
+  const best = pickBestListing(allListings, itemName);
 
   return {
-    query,
-    listings,
+    queries,
+    listings: allListings,
     best
   };
 }
 
-async function test() {
-  const result = await fetchEbayForItem("Bat");
-  console.log(JSON.stringify(result, null, 2));
-}
-
-test().catch(console.error);
+module.exports = {
+  getEbayAccessToken,
+  searchEbay,
+  normalizeEbayListing,
+  pickBestListing,
+  fetchEbayForItem
+};
