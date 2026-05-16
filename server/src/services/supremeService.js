@@ -79,6 +79,3 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-scrapeGodlies().then((data) => {
-  console.log(JSON.stringify(data.slice(0, 3), null, 2));
-});
