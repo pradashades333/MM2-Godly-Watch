@@ -21,7 +21,7 @@ router.get("/items", async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/items/:id", async (req, res, next) => {
   try {
     const data = await marketService.getMarketItemById(req.params.id)
     res.json(data);
@@ -34,3 +34,23 @@ router.get("/", async (req, res, next) => {
     next(err);
   }
 });
+
+router.get("/recentmoves", async (req, res, next) => {
+  try {
+    const data = await marketService.getRecentMoves();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/stats", async (req, res, next) => {
+  try {
+    const data = await marketService.getStats();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+module.exports = router;
