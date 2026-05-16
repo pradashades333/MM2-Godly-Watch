@@ -14,7 +14,7 @@ router.get("/", async (req, res, next) => {
 
 router.get("/items", async (req, res, next) => {
   try {
-    const data = await marketService.getMarketItems()
+    const data = await marketService.getMarketItems();
     res.json(data);
   } catch (err) {
     next(err);
@@ -23,19 +23,19 @@ router.get("/items", async (req, res, next) => {
 
 router.get("/items/:id", async (req, res, next) => {
   try {
-    const data = await marketService.getMarketItemById(req.params.id)
-    res.json(data);
+    const item = await marketService.getMarketItemById(req.params.id);
 
     if (!item) {
-        return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({ message: "Item not found" });
     }
 
+    res.json(item);
   } catch (err) {
     next(err);
   }
 });
 
-router.get("/recentmoves", async (req, res, next) => {
+router.get("/recent-moves", async (req, res, next) => {
   try {
     const data = await marketService.getRecentMoves();
     res.json(data);
