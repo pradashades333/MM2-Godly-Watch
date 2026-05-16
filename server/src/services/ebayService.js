@@ -139,10 +139,12 @@ function pickBestListing(listings, itemName) {
 
 async function fetchEbayForItem(itemName, customQueries = []) {
   const token = await getEbayAccessToken();
+
   const queries =
     customQueries.length > 0
       ? customQueries
       : [`Murder Mystery 2 ${itemName}`];
+
   const allListings = [];
 
   for (const query of queries) {
