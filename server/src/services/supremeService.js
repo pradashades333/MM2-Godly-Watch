@@ -79,3 +79,6 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+module.exports = {
+  scrapeGodlies
+};
