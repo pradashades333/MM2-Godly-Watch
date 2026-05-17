@@ -11,6 +11,7 @@ const EBAY_API_ROOT =
   EBAY_ENV === "sandbox"
     ? "https://api.sandbox.ebay.com"
     : "https://api.ebay.com";
+const exchangeRateCache = new Map();
 
 async function getEbayAccessToken() {
   const credentials = Buffer.from(
@@ -35,7 +36,7 @@ async function getEbayAccessToken() {
   return data.access_token;
 }
 
-async function searchEbay(query, accessToken) {
+async function searchEbay(query, accessToken, marketplaceId = EBAY_MARKETPLACE_ID) {
   const url = new URL(`${EBAY_API_ROOT}/buy/browse/v1/item_summary/search`);
   url.searchParams.set("q", query);
   url.searchParams.set("limit", "10");
@@ -44,7 +45,7 @@ async function searchEbay(query, accessToken) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
-      "X-EBAY-C-MARKETPLACE-ID": EBAY_MARKETPLACE_ID
+      "X-EBAY-C-MARKETPLACE-ID": marketplaceId
     }
   });
 
@@ -56,7 +57,47 @@ async function searchEbay(query, accessToken) {
   return response.json();
 }
 
-function normalizeEbayListing(listing, matchedQuery) {
+async function getExchangeRate(fromCurrency, toCurrency = "EUR") {
+  if (!fromCurrency || fromCurrency === toCurrency) {
+    return 1;
+  }
+
+  const cacheKey = `${fromCurrency}:${toCurrency}`;
+
+  if (exchangeRateCache.has(cacheKey)) {
+    return exchangeRateCache.get(cacheKey);
+  }
+
+  const url = new URL("https://api.frankfurter.app/latest");
+  url.searchParams.set("from", fromCurrency);
+  url.searchParams.set("to", toCurrency);
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`FX lookup failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const rate = data?.rates?.[toCurrency];
+
+  if (!rate) {
+    throw new Error(`Missing FX rate for ${fromCurrency} to ${toCurrency}`);
+  }
+
+  exchangeRateCache.set(cacheKey, rate);
+  return rate;
+}
+
+async function convertAmountToEUR(amount, currency) {
+  if (amount == null) return null;
+  if (!currency || currency === "EUR") return amount;
+
+  const rate = await getExchangeRate(currency, "EUR");
+  return Number((amount * rate).toFixed(2));
+}
+
+async function normalizeEbayListing(listing, matchedQuery) {
   const sourcePrice = listing?.price?.value ? Number(listing.price.value) : null;
   const sourceCurrency = listing?.price?.currency ?? null;
 
@@ -69,14 +110,13 @@ function normalizeEbayListing(listing, matchedQuery) {
   const shippingCurrency =
     shippingOption?.shippingCost?.currency ?? sourceCurrency;
 
-  const priceEUR =
-    sourceCurrency === "EUR" ? sourcePrice : null;
-
-  const shippingPriceEUR =
-    shippingCurrency === "EUR" ? rawShippingPrice : 0;
+  const priceEUR = await convertAmountToEUR(sourcePrice, sourceCurrency);
+  const shippingPriceEUR = await convertAmountToEUR(rawShippingPrice, shippingCurrency);
 
   const totalPriceEUR =
-    priceEUR != null ? Number((priceEUR + shippingPriceEUR).toFixed(2)) : null;
+    priceEUR != null && shippingPriceEUR != null
+      ? Number((priceEUR + shippingPriceEUR).toFixed(2))
+      : null;
 
   return {
     itemId: listing?.itemId ?? null,
@@ -93,6 +133,61 @@ function normalizeEbayListing(listing, matchedQuery) {
     itemGroupType: listing?.itemGroupType ?? null,
     listingMarketplaceId: listing?.listingMarketplaceId ?? null
   };
+}
+
+function dedupeQueries(queries) {
+  return [...new Set(queries.filter(Boolean))];
+}
+
+function buildFallbackQueries(itemName) {
+  return dedupeQueries([
+    `MM2 ${itemName}`
+  ]);
+}
+
+function shouldExpandSearch(bestListing) {
+  if (!bestListing) {
+    return true;
+  }
+
+  const title = String(bestListing.title || "").toLowerCase();
+
+  return (
+    bestListing.itemGroupType === "SELLER_DEFINED_VARIATIONS" ||
+    title.includes(" godlies") ||
+    title.includes(" ancients")
+  );
+}
+
+async function fetchListingsForQueries(queries, accessToken) {
+  const allListings = [];
+
+  for (const query of queries) {
+    const marketplaces = customMarketplaceOrder(query);
+
+    for (const marketplaceId of marketplaces) {
+      const results = await searchEbay(query, accessToken, marketplaceId);
+      const listings = await Promise.all(
+        (results.itemSummaries || []).map((listing) =>
+          normalizeEbayListing(listing, query)
+        )
+      );
+
+      allListings.push(...listings);
+    }
+  }
+
+  return allListings;
+}
+
+function customMarketplaceOrder(query) {
+  const normalizedQuery = String(query || "").toLowerCase();
+
+  if (normalizedQuery.includes("sunrise") || normalizedQuery.includes("sunset")) {
+    return [EBAY_MARKETPLACE_ID, "EBAY_GB"];
+  }
+
+  return [EBAY_MARKETPLACE_ID];
 }
 
 function pickBestListing(listings, itemName) {
@@ -140,27 +235,29 @@ function pickBestListing(listings, itemName) {
 async function fetchEbayForItem(itemName, customQueries = []) {
   const token = await getEbayAccessToken();
 
-  const queries =
+  const primaryQueries =
     customQueries.length > 0
-      ? customQueries
+      ? dedupeQueries(customQueries)
       : [`Murder Mystery 2 ${itemName}`];
+  const allListings = await fetchListingsForQueries(primaryQueries, token);
+  let queriesUsed = [...primaryQueries];
+  let best = pickBestListing(allListings, itemName);
 
-  const allListings = [];
-
-  for (const query of queries) {
-    const results = await searchEbay(query, token);
-
-    const listings = (results.itemSummaries || []).map((listing) =>
-      normalizeEbayListing(listing, query)
+  if (!customQueries.length && shouldExpandSearch(best)) {
+    const fallbackQueries = buildFallbackQueries(itemName).filter(
+      (query) => !queriesUsed.includes(query)
     );
 
-    allListings.push(...listings);
+    if (fallbackQueries.length) {
+      const fallbackListings = await fetchListingsForQueries(fallbackQueries, token);
+      allListings.push(...fallbackListings);
+      queriesUsed = [...queriesUsed, ...fallbackQueries];
+      best = pickBestListing(allListings, itemName);
+    }
   }
 
-  const best = pickBestListing(allListings, itemName);
-
   return {
-    queries,
+    queries: queriesUsed,
     listings: allListings,
     best
   };
