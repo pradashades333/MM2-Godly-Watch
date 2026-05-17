@@ -15,4 +15,15 @@ app.use(express.json());
 app.use("/api/market", marketRoutes);
 app.use("/api/refresh", refreshRoutes);
 
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({
+    message: err.message || "Internal server error"
+  });
+});
+
 module.exports = app;
