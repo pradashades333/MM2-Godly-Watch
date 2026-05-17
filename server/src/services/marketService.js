@@ -1,4 +1,5 @@
 const supremeService = require("./supremeService");
+const setService = require("./setService");
 const ebayService = require("./ebayService");
 const imageService = require("./imageService");
 const trackedItems = require("../config/trackedItems");
@@ -10,26 +11,33 @@ const {
 } = require("./historyService");
 
 async function buildMarketData() {
-  const supremeItems = await supremeService.scrapeGodlies();
+  const [godlyItems, setItems] = await Promise.all([
+    supremeService.scrapeGodlies(),
+    setService.scrapeSets()
+  ]);
+  const sourceItems = [...godlyItems, ...setItems];
   const completedItems = [];
 
-  for (const supremeItem of supremeItems) {
-    const trackedItem = findTrackedItemByName(supremeItem.name);
-
-    const ebayResult = await ebayService.fetchEbayForItem(
-      supremeItem.name,
-      trackedItem?.ebayQueries
-    );
+  for (const sourceItem of sourceItems) {
+    const trackedItem = findTrackedItemByName(sourceItem.name);
+    const shouldFetchEbay =
+      sourceItem.category !== "sets" || Array.isArray(trackedItem?.ebayQueries);
+    const ebayResult = shouldFetchEbay
+      ? await ebayService.fetchEbayForItem(
+          sourceItem.name,
+          trackedItem?.ebayQueries
+        )
+      : null;
     const bestListing = ebayResult?.best ?? null;
-    const imageUrl = await imageService.getImageForItem(supremeItem);
+    const imageUrl = await imageService.getImageForItem(sourceItem);
 
     completedItems.push({
-      id: supremeItem.id,
-      name: supremeItem.name,
-      category: supremeItem.category,
+      id: sourceItem.id,
+      name: sourceItem.name,
+      category: sourceItem.category,
       imageUrl,
       current: {
-        supreme: supremeItem.current?.supreme ?? null,
+        supreme: sourceItem.current?.supreme ?? null,
         ebay: bestListing
           ? {
               priceEUR: bestListing.priceEUR,
@@ -42,7 +50,7 @@ async function buildMarketData() {
             }
           : null
       },
-      lastCheckedAt: supremeItem.lastCheckedAt || new Date().toISOString(),
+      lastCheckedAt: sourceItem.lastCheckedAt || new Date().toISOString(),
       history: []
     });
   }
@@ -69,10 +77,11 @@ async function refreshMarketData() {
 
 async function getMarketData() {
   const items = await readHistory();
+  const hydratedItems = await hydrateItemImages(items);
 
   return {
-    items,
-    refreshedAt: items[0]?.lastCheckedAt ?? null
+    items: hydratedItems,
+    refreshedAt: hydratedItems[0]?.lastCheckedAt ?? null
   };
 }
 
@@ -121,6 +130,27 @@ async function getStats() {
     averageSupremeValue,
     averageEbayPriceEUR
   };
+}
+
+async function hydrateItemImages(items) {
+  return Promise.all(
+    items.map(async (item) => {
+      if (item?.imageUrl) {
+        return item;
+      }
+
+      const imageUrl = await imageService.getImageForItem(item);
+
+      if (!imageUrl) {
+        return item;
+      }
+
+      return {
+        ...item,
+        imageUrl
+      };
+    })
+  );
 }
 
 module.exports = {
