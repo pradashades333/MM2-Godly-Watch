@@ -1,3 +1,16 @@
 export function calculateMarketStats(items) {
-  return {};
+  const safeItems = Array.isArray(items) ? items : [];
+  const topValueItem = [...safeItems]
+    .filter((item) => item.current?.supreme?.value != null)
+    .sort((left, right) => right.current.supreme.value - left.current.supreme.value)[0] || null;
+  const cheapestEbayItem = [...safeItems]
+    .filter((item) => item.current?.ebay?.totalPriceEUR != null)
+    .sort((left, right) => left.current.ebay.totalPriceEUR - right.current.ebay.totalPriceEUR)[0] || null;
+
+  return {
+    totalItems: safeItems.length,
+    itemsWithEbay: safeItems.filter((item) => item.current?.ebay?.priceEUR != null).length,
+    topValueItem,
+    cheapestEbayItem
+  };
 }
