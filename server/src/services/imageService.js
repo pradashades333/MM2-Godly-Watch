@@ -3,9 +3,13 @@ const imageMappings = require("../config/imageMappings");
 
 const GODLY_WEAPONS_API_URL =
   "https://murder-mystery-2.fandom.com/api.php?action=parse&page=Godly_Weapons&prop=text&formatversion=2&format=json";
+const WIKI_API_ROOT = "https://murder-mystery-2.fandom.com/api.php";
 
-let cachedWikiMappings = null;
-let wikiMappingsPromise = null;
+let cachedGodlyMappings = null;
+let godlyMappingsPromise = null;
+let cachedSetPageMappings = null;
+let setPageMappingsPromise = null;
+let cachedSetImageMappings = {};
 
 async function getImageForItem(item) {
   const manualImage =
@@ -15,31 +19,168 @@ async function getImageForItem(item) {
     return manualImage;
   }
 
-  const wikiMappings = await loadWikiMappings();
-  return wikiMappings[item?.id] ?? wikiMappings[normalizeItemKey(item?.name)] ?? null;
-}
-
-async function loadWikiMappings() {
-  if (cachedWikiMappings) {
-    return cachedWikiMappings;
+  if (item?.category === "sets") {
+    return getSetImageForItem(item);
   }
 
-  if (!wikiMappingsPromise) {
-    wikiMappingsPromise = fetchAndBuildWikiMappings()
+  const godlyMappings = await loadGodlyMappings();
+  return godlyMappings[item?.id] ?? godlyMappings[normalizeItemKey(item?.name)] ?? null;
+}
+
+async function loadGodlyMappings() {
+  if (cachedGodlyMappings) {
+    return cachedGodlyMappings;
+  }
+
+  if (!godlyMappingsPromise) {
+    godlyMappingsPromise = fetchAndBuildGodlyMappings()
       .then((mappings) => {
-        cachedWikiMappings = mappings;
+        cachedGodlyMappings = mappings;
         return mappings;
       })
       .catch((error) => {
-        console.error("Failed to load wiki image mappings", error);
+        console.error("Failed to load godly image mappings", error);
         return {};
       });
   }
 
-  return wikiMappingsPromise;
+  return godlyMappingsPromise;
 }
 
-async function fetchAndBuildWikiMappings() {
+async function getSetImageForItem(item) {
+  const itemKey = normalizeItemKey(item?.name || item?.id);
+
+  if (cachedSetImageMappings[itemKey]) {
+    return cachedSetImageMappings[itemKey];
+  }
+
+  const setPageMappings = await loadSetPageMappings();
+  let imageUrl = setPageMappings[item?.id] ?? setPageMappings[itemKey] ?? null;
+
+  if (!imageUrl) {
+    imageUrl = await fetchWikiImageByTitle(item?.name || "");
+  }
+
+  if (imageUrl) {
+    cachedSetImageMappings[itemKey] = imageUrl;
+  }
+
+  return imageUrl;
+}
+
+const SET_WIKI_ALIASES = {
+  "ever-set":              "Evergreen",
+  "chroma-ever-set":       "Chroma Evergreen",
+  "full-ice-set":          "Ice Dragon",
+  "travelers-set":         "Traveler's Gun",
+  "spectral-set":          "Spectre",
+  "colored-seer-set":      "Seer",
+  "full-bringer-set":      "Darkbringer",
+  "full-luger-set":        "Luger",
+  "full-elite-set":        "Blue Seer",
+  "chroma-weapon-set":     "Chroma Darkbringer",
+  "full-chroma-set":       "Chroma Slasher",
+  "santas-set-legendary":  "Cookiecane",
+  "gingerbread-set-2019":  "Gingerblade",
+  "gingerbread-set":       "Gingerblade",
+  "vampire-set-legend":    "Vampire's Gun",
+  "vampire-set-rare":      "Vampire's Gun",
+  "vampire-set":           "Vampire's Gun",
+  "pumpkin-set":           "Hallowgun",
+  "pumpkin-set-2019":      "Hallowgun",
+  "pumpkin-set-2020":      "Hallowgun",
+  "pumpkin-set-2021":      "Hallowgun",
+  "aurora-set-legend":     "Australis",
+  "aurora-set-rare":       "Australis",
+  "aurora-set":            "Australis",
+};
+
+async function fetchWikiImageByTitle(itemName) {
+  const base = String(itemName || "").trim();
+  const key = normalizeItemKey(base);
+
+  // Check hand-curated alias first
+  const alias = SET_WIKI_ALIASES[key];
+  if (alias) {
+    const url = await fetchWikiPageImage(alias);
+    if (url) return url;
+  }
+
+  // Try exact name, then name without parentheticals, then strip " Set"
+  const withoutParens = base.replace(/\s*\([^)]*\)/g, "").trim();
+  const withoutSet = withoutParens.replace(/ Set$/, "").trim();
+
+  const candidates = [...new Set([base, withoutParens, withoutSet])].filter(Boolean);
+
+  for (const title of candidates) {
+    const url = await fetchWikiPageImage(title);
+    if (url) return url;
+  }
+
+  return null;
+}
+
+async function fetchWikiPageImage(title) {
+  const url = new URL(WIKI_API_ROOT);
+  url.searchParams.set("action", "query");
+  url.searchParams.set("prop", "pageimages");
+  url.searchParams.set("pithumbsize", "400");
+  url.searchParams.set("titles", title);
+  url.searchParams.set("format", "json");
+  url.searchParams.set("origin", "*");
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+
+    const payload = await response.json();
+    const pages = Object.values(payload?.query?.pages || {});
+
+    for (const page of pages) {
+      if ("missing" in page) continue;
+      const found = page?.thumbnail?.source ?? null;
+      if (found) return found;
+    }
+  } catch {
+    // swallow
+  }
+
+  return null;
+}
+
+async function loadSetPageMappings() {
+  if (cachedSetPageMappings) {
+    return cachedSetPageMappings;
+  }
+
+  if (!setPageMappingsPromise) {
+    setPageMappingsPromise = fetchAndBuildSetPageMappings()
+      .then((mappings) => {
+        cachedSetPageMappings = mappings;
+        return mappings;
+      })
+      .catch((error) => {
+        console.error("Failed to load set image mappings", error);
+        return {};
+      });
+  }
+
+  return setPageMappingsPromise;
+}
+
+async function fetchAndBuildSetPageMappings() {
+  const setPages = await fetchAllSetCategoryMembers();
+  const mappings = {};
+
+  for (const batch of chunkArray(setPages, 50)) {
+    const batchMappings = await fetchSetImageBatch(batch);
+    Object.assign(mappings, batchMappings);
+  }
+
+  return mappings;
+}
+
+async function fetchAndBuildGodlyMappings() {
   const response = await fetch(GODLY_WEAPONS_API_URL);
 
   if (!response.ok) {
@@ -94,6 +235,94 @@ function extractWikiImageUrl(cell) {
   }
 
   return null;
+}
+
+function cleanSetWikiLabel(value) {
+  return String(value || "")
+    .replace(/^Murder Mystery 2 Wiki:Wiki-Bot\//i, "")
+    .replace(/^Wiki-Bot\//i, "")
+    .replace(/^Category:/i, "")
+    .replace(/_/g, " ")
+    .trim();
+}
+
+async function fetchAllSetCategoryMembers() {
+  const pages = [];
+  let continueToken = null;
+
+  do {
+    const url = new URL(WIKI_API_ROOT);
+    url.searchParams.set("action", "query");
+    url.searchParams.set("list", "categorymembers");
+    url.searchParams.set("cmtitle", "Category:Wiki-Bot");
+    url.searchParams.set("cmlimit", "500");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("origin", "*");
+
+    if (continueToken) {
+      url.searchParams.set("cmcontinue", continueToken);
+    }
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Set category request failed with ${response.status}`);
+    }
+
+    const payload = await response.json();
+    pages.push(...(payload?.query?.categorymembers || []));
+    continueToken = payload?.continue?.cmcontinue ?? null;
+  } while (continueToken);
+
+  return pages;
+}
+
+async function fetchSetImageBatch(setPages) {
+  if (!setPages.length) {
+    return {};
+  }
+
+  const titles = setPages.map((page) => page.title).join("|");
+  const url = new URL(WIKI_API_ROOT);
+  url.searchParams.set("action", "query");
+  url.searchParams.set("prop", "pageimages");
+  url.searchParams.set("pithumbsize", "400");
+  url.searchParams.set("titles", titles);
+  url.searchParams.set("format", "json");
+  url.searchParams.set("origin", "*");
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Set image batch request failed with ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const pages = Object.values(payload?.query?.pages || {});
+  const mappings = {};
+
+  for (const page of pages) {
+    const imageUrl = page?.thumbnail?.source ?? null;
+
+    if (!imageUrl) {
+      continue;
+    }
+
+    const cleanedName = cleanSetWikiLabel(page.title);
+    mappings[normalizeItemKey(cleanedName)] = imageUrl;
+  }
+
+  return mappings;
+}
+
+function chunkArray(values, size) {
+  const chunks = [];
+
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+
+  return chunks;
 }
 
 function normalizeItemKey(value) {
