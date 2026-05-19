@@ -5,13 +5,14 @@ const { scoreListing } = require("./matchingService");
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID;
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET;
 const EBAY_ENV = process.env.EBAY_ENV || "production";
-const EBAY_MARKETPLACE_ID = process.env.EBAY_MARKETPLACE_ID || "EBAY_DE";
 
 const EBAY_API_ROOT =
   EBAY_ENV === "sandbox"
     ? "https://api.sandbox.ebay.com"
     : "https://api.ebay.com";
-const exchangeRateCache = new Map();
+
+const PRIMARY_MARKETPLACE = "EBAY_BE";
+const SET_MARKETPLACES = ["EBAY_DE", "EBAY_BE", "EBAY_NL", "EBAY_ES", "EBAY_IT"];
 
 async function getEbayAccessToken() {
   const credentials = Buffer.from(
@@ -36,7 +37,7 @@ async function getEbayAccessToken() {
   return data.access_token;
 }
 
-async function searchEbay(query, accessToken, marketplaceId = EBAY_MARKETPLACE_ID) {
+async function searchEbay(query, accessToken, marketplaceId) {
   const url = new URL(`${EBAY_API_ROOT}/buy/browse/v1/item_summary/search`);
   url.searchParams.set("q", query);
   url.searchParams.set("limit", "10");
@@ -57,76 +58,27 @@ async function searchEbay(query, accessToken, marketplaceId = EBAY_MARKETPLACE_I
   return response.json();
 }
 
-async function getExchangeRate(fromCurrency, toCurrency = "EUR") {
-  if (!fromCurrency || fromCurrency === toCurrency) {
-    return 1;
-  }
-
-  const cacheKey = `${fromCurrency}:${toCurrency}`;
-
-  if (exchangeRateCache.has(cacheKey)) {
-    return exchangeRateCache.get(cacheKey);
-  }
-
-  const url = new URL("https://api.frankfurter.app/latest");
-  url.searchParams.set("from", fromCurrency);
-  url.searchParams.set("to", toCurrency);
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`FX lookup failed: ${response.status}`);
-  }
-
-  const data = await response.json();
-  const rate = data?.rates?.[toCurrency];
-
-  if (!rate) {
-    throw new Error(`Missing FX rate for ${fromCurrency} to ${toCurrency}`);
-  }
-
-  exchangeRateCache.set(cacheKey, rate);
-  return rate;
-}
-
-async function convertAmountToEUR(amount, currency) {
-  if (amount == null) return null;
-  if (!currency || currency === "EUR") return amount;
-
-  const rate = await getExchangeRate(currency, "EUR");
-  return Number((amount * rate).toFixed(2));
-}
-
-async function normalizeEbayListing(listing, matchedQuery) {
-  const sourcePrice = listing?.price?.value ? Number(listing.price.value) : null;
-  const sourceCurrency = listing?.price?.currency ?? null;
+function normalizeEbayListing(listing, matchedQuery) {
+  const price = listing?.price?.value ? Number(listing.price.value) : null;
+  const currency = listing?.price?.currency ?? null;
 
   const shippingOption = listing?.shippingOptions?.[0] ?? null;
-  const rawShippingPrice =
+  const shippingPrice =
     shippingOption?.shippingCost?.value != null
       ? Number(shippingOption.shippingCost.value)
       : 0;
 
-  const shippingCurrency =
-    shippingOption?.shippingCost?.currency ?? sourceCurrency;
-
-  const priceEUR = await convertAmountToEUR(sourcePrice, sourceCurrency);
-  const shippingPriceEUR = await convertAmountToEUR(rawShippingPrice, shippingCurrency);
-
-  const totalPriceEUR =
-    priceEUR != null && shippingPriceEUR != null
-      ? Number((priceEUR + shippingPriceEUR).toFixed(2))
-      : null;
+  const totalPrice =
+    price != null ? Number((price + shippingPrice).toFixed(2)) : null;
 
   return {
     itemId: listing?.itemId ?? null,
     legacyItemId: listing?.legacyItemId ?? null,
     title: listing?.title ?? "",
-    priceEUR,
-    sourcePrice,
-    sourceCurrency,
-    shippingPriceEUR,
-    totalPriceEUR,
+    price,
+    currency,
+    shippingPrice,
+    totalPrice,
     matchedQuery,
     url: listing?.itemWebUrl ?? null,
     seller: listing?.seller?.username ?? null,
@@ -136,13 +88,42 @@ async function normalizeEbayListing(listing, matchedQuery) {
 }
 
 function dedupeQueries(queries) {
-  return [...new Set(queries.filter(Boolean))];
+  return [...new Set(queries.filter(Boolean).map((query) => query.trim()))];
+}
+
+function buildSearchNameVariants(itemName) {
+  const baseName = String(itemName || "").replace(/\s+/g, " ").trim();
+  const withoutParentheses = baseName.replace(/\s*\([^)]*\)/g, "").trim();
+  const parentheticalAsWords = baseName
+    .replace(/\(([^)]+)\)/g, " $1 ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const withoutApostrophes = baseName.replace(/['']/g, "").trim();
+  const possessiveAsPlural = baseName.replace(/['']s\b/gi, "s").trim();
+
+  return dedupeQueries([
+    baseName,
+    withoutParentheses,
+    parentheticalAsWords,
+    withoutApostrophes,
+    possessiveAsPlural
+  ]);
 }
 
 function buildFallbackQueries(itemName) {
-  return dedupeQueries([
-    `MM2 ${itemName}`
-  ]);
+  const nameVariants = buildSearchNameVariants(itemName);
+  const queries = [];
+
+  for (const name of nameVariants) {
+    queries.push(`MM2 ${name}`);
+
+    if (name.toLowerCase().includes(" set")) {
+      queries.push(`Murder Mystery 2 ${name}`);
+      queries.push(`${name} MM2`);
+    }
+  }
+
+  return dedupeQueries(queries);
 }
 
 function shouldExpandSearch(bestListing) {
@@ -159,18 +140,24 @@ function shouldExpandSearch(bestListing) {
   );
 }
 
+function getMarketplacesForQuery(query) {
+  const normalizedQuery = String(query || "").toLowerCase();
+
+  if (normalizedQuery.includes(" set")) {
+    return SET_MARKETPLACES;
+  }
+
+  return [PRIMARY_MARKETPLACE];
+}
+
 async function fetchListingsForQueries(queries, accessToken) {
   const allListings = [];
 
   for (const query of queries) {
-    const marketplaces = customMarketplaceOrder(query);
-
-    for (const marketplaceId of marketplaces) {
+    for (const marketplaceId of getMarketplacesForQuery(query)) {
       const results = await searchEbay(query, accessToken, marketplaceId);
-      const listings = await Promise.all(
-        (results.itemSummaries || []).map((listing) =>
-          normalizeEbayListing(listing, query)
-        )
+      const listings = (results.itemSummaries || []).map((listing) =>
+        normalizeEbayListing(listing, query)
       );
 
       allListings.push(...listings);
@@ -178,16 +165,6 @@ async function fetchListingsForQueries(queries, accessToken) {
   }
 
   return allListings;
-}
-
-function customMarketplaceOrder(query) {
-  const normalizedQuery = String(query || "").toLowerCase();
-
-  if (normalizedQuery.includes("sunrise") || normalizedQuery.includes("sunset")) {
-    return [EBAY_MARKETPLACE_ID, "EBAY_GB"];
-  }
-
-  return [EBAY_MARKETPLACE_ID];
 }
 
 function pickBestListing(listings, itemName) {
@@ -199,33 +176,28 @@ function pickBestListing(listings, itemName) {
     .filter(
       (listing) =>
         listing.url &&
-        listing.sourcePrice != null &&
-        listing.relevanceScore > 0
+        listing.price != null &&
+        listing.relevanceScore >= 15
     )
     .sort((a, b) => {
-      if (b.relevanceScore !== a.relevanceScore) {
-        return b.relevanceScore - a.relevanceScore;
-      }
-
-      const leftPrice = a.totalPriceEUR ?? a.sourcePrice;
-      const rightPrice = b.totalPriceEUR ?? b.sourcePrice;
+      const leftPrice = a.totalPrice ?? a.price;
+      const rightPrice = b.totalPrice ?? b.price;
       return leftPrice - rightPrice;
     });
 
   if (!scored.length) return null;
 
-  const topFew = scored.slice(0, 4);
-  const cheapest = topFew[0];
-  const nextThree = topFew.slice(1);
+  const cheapest = scored[0];
+  const nextFew = scored.slice(1, 4);
 
-  if (nextThree.length >= 2) {
-    const cheapestPrice = cheapest.totalPriceEUR ?? cheapest.sourcePrice;
-    const nextPrices = nextThree.map((item) => item.totalPriceEUR ?? item.sourcePrice);
+  if (nextFew.length >= 2) {
+    const cheapestPrice = cheapest.totalPrice ?? cheapest.price;
+    const nextPrices = nextFew.map((item) => item.totalPrice ?? item.price);
     const averageNext =
       nextPrices.reduce((sum, value) => sum + value, 0) / nextPrices.length;
 
-    if (cheapestPrice < averageNext * 0.7) {
-      return nextThree[0];
+    if (cheapestPrice < averageNext * 0.4) {
+      return nextFew[0];
     }
   }
 
@@ -239,6 +211,7 @@ async function fetchEbayForItem(itemName, customQueries = []) {
     customQueries.length > 0
       ? dedupeQueries(customQueries)
       : [`Murder Mystery 2 ${itemName}`];
+
   const allListings = await fetchListingsForQueries(primaryQueries, token);
   let queriesUsed = [...primaryQueries];
   let best = pickBestListing(allListings, itemName);
