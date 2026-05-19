@@ -1,5 +1,14 @@
 module.exports = [
   {
+    name: "Alien Set",
+    category: "sets",
+    ebayQueries: [
+      "Murder Mystery 2 Alien Set",
+      "MM2 Alien Set",
+      "Alien Set MM2"
+    ]
+  },
+  {
     name: "Sunset",
     category: "godlies",
     ebayQueries: [
