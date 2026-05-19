@@ -11,15 +11,268 @@ import { formatValue } from "./utils/formatValue";
 
 const TABS = [
   { id: "board", label: "Board" },
-  { id: "values", label: "Values" },
   { id: "trade-checker", label: "Trade Checker" },
   { id: "inventory-tracker", label: "Inventory Tracker" },
-  { id: "recent-changes", label: "Recent Changes" },
   { id: "seller-dashboard", label: "Seller Dashboard" }
 ];
 
 const FAVORITES_STORAGE_KEY = "mm2-goldywatch-favorites";
 const TRADE_SLOT_COUNT = 4;
+
+// ── Module-level helpers ─────────────────────────────────────────────────────
+
+function deriveTier(item) {
+  const value = item.current?.supreme?.value ?? 0;
+  const name = (item.name ?? '').toLowerCase();
+  if (item.category === 'sets') {
+    if (name.includes('chroma')) return { key: 'legend', label: 'LEGEND', color: 'var(--tier-legend)' };
+    return { key: 'sets', label: 'SETS', color: 'var(--tier-vintage)' };
+  }
+  if (value >= 5000) return { key: 'legend', label: 'LEGEND', color: 'var(--tier-legend)' };
+  if (value >= 100) return { key: 'godly', label: 'GODLY', color: 'var(--tier-godly)' };
+  return { key: 'ancient', label: 'ANCIENT', color: 'var(--tier-ancient)' };
+}
+
+function formatSV(n) {
+  if (n == null) return '--';
+  if (n >= 10000) return (n / 1000).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function formatCheckedShort(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function getItemSerial(item) {
+  let h = 0;
+  for (let i = 0; i < (item.id ?? '').length; i++) {
+    h = Math.imul(31, h) + (item.id ?? '').charCodeAt(i) | 0;
+  }
+  return String(Math.abs(h) % 99999).padStart(5, '0');
+}
+
+function getItemTrend(item) {
+  const hist = (item.history ?? []).map(p => p.ebayPrice).filter(v => v != null);
+  if (hist.length < 2) return 0;
+  const a = hist[Math.max(0, hist.length - 8)];
+  const b = hist[hist.length - 1];
+  return a ? (b - a) / a : 0;
+}
+
+function getChartData(item) {
+  const hist = item.history ?? [];
+  const slice = hist.slice(-30);
+  const ebay = slice.map(p => p.ebayPrice ?? 0);
+  const sup = slice.map(p => p.supremeValue ?? 0);
+  if (ebay.length < 2) {
+    return { ebay: [0, 0], supreme: [0, 0] };
+  }
+  return { ebay, supreme: sup };
+}
+
+// ── New GW Card Components ───────────────────────────────────────────────────
+
+function GWDualLine({ data, upTone, id = "x" }) {
+  const W = 100, H = 60;
+  function norm(series) {
+    const max = Math.max(...series), min = Math.min(...series);
+    const range = max - min || 1;
+    return series.map((v, i) => [
+      (i / (series.length - 1)) * W,
+      H - ((v - min) / range) * (H - 8) - 4
+    ]);
+  }
+  function pts2path(pts) {
+    return pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  }
+  const ep = norm(data.ebay);
+  const sp = norm(data.supreme);
+  const gradId = `gw-fill-${id}`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none"
+      style={{ width: '100%', height: 32, display: 'block', overflow: 'visible' }}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={upTone} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={upTone} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={pts2path(ep) + ` L ${W} ${H} L 0 ${H} Z`} fill={`url(#${gradId})`} />
+      <path d={pts2path(sp)} fill="none" stroke="var(--ink-faint)" strokeWidth="1" strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />
+      <path d={pts2path(ep)} fill="none" stroke={upTone} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function GWGauge({ value, max = 5, color, label }) {
+  return (
+    <div className="gw-gauge">
+      <span className="gw-gauge-label">{label}</span>
+      <div className="gw-gauge-bar">
+        {Array.from({ length: max }).map((_, i) => (
+          <div key={i} className="gw-gauge-seg" style={{ background: i < value ? color : 'rgba(255,255,255,0.06)' }} />
+        ))}
+      </div>
+      <span className="gw-gauge-value">{value ?? '--'}</span>
+    </div>
+  );
+}
+
+function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart }) {
+  const tier = deriveTier(item);
+  const serial = getItemSerial(item);
+  const trend = getItemTrend(item);
+  const chartData = getChartData(item);
+  const ebayPrice = item.current?.ebay?.totalPrice ?? null;
+  const supremeValue = item.current?.supreme?.value ?? null;
+  const demand = item.current?.supreme?.demand ?? 0;
+  const rarity = item.current?.supreme?.rarity ?? 0;
+  const trendUp = trend >= 0;
+  const trendColor = trendUp ? 'var(--up)' : 'var(--down)';
+  const trendPct = (Math.abs(trend) * 100).toFixed(1);
+
+  return (
+    <article
+      className="gw-card"
+      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
+      onClick={onOpenChart}
+    >
+      <div className="gw-card-serial">#{serial}</div>
+      <button
+        className={`gw-card-fav${isFavorite ? ' active' : ''}`}
+        onClick={e => { e.stopPropagation(); onToggleFavorite(); }}
+        title={isFavorite ? 'Remove favorite' : 'Add to favorites'}
+      >★</button>
+
+      {/* Art */}
+      <div
+        className="gw-card-art"
+        style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}
+      >
+        {item.imageUrl ? (
+          <img className="gw-card-art-img" src={item.imageUrl} alt={item.name} />
+        ) : (
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--ink-ghost)' }}>
+            {item.name}
+          </span>
+        )}
+      </div>
+
+      <div className="gw-card-body">
+        <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
+
+        <h3 className="gw-card-name">{item.name}</h3>
+
+        <div className="gw-card-prices">
+          <div>
+            <div className="gw-price-label">eBay</div>
+            <div className="gw-price-value">
+              {ebayPrice != null ? `€${ebayPrice.toFixed(2)}` : '--'}
+            </div>
+          </div>
+          <div className="gw-price-right">
+            <div className="gw-price-label">Supreme</div>
+            <div className="gw-price-value">{formatSV(supremeValue)}</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="gw-card-trend-row">
+            <span
+              className="gw-trend-tag"
+              style={{ color: trendColor, background: `${trendColor}20` }}
+            >
+              <span>{trendUp ? '▲' : '▼'}</span>
+              <span className="gw-trend-pct">{trendPct}%</span>
+              <span className="gw-trend-period">7D</span>
+            </span>
+            <span className="gw-card-checked">{formatCheckedShort(item.lastCheckedAt)}</span>
+          </div>
+          <GWDualLine data={chartData} upTone={trendColor} id={item.id} />
+          <div className="gw-chart-legend">
+            <span className="gw-legend-entry">
+              <span className="gw-legend-swatch" style={{ background: trendColor }} />
+              eBay
+            </span>
+            <span className="gw-legend-entry">
+              <span className="gw-legend-swatch" style={{ background: 'var(--ink-faint)', backgroundImage: `repeating-linear-gradient(90deg, var(--ink-faint) 0 2px, transparent 2px 4px)` }} />
+              SV
+            </span>
+          </div>
+        </div>
+
+        <div className="gw-gauges">
+          <GWGauge value={demand} color="var(--tier-ancient)" label="DEM" />
+          <GWGauge value={rarity} color="var(--tier-vintage)" label="RAR" />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function GWSidebar({ items, activeTier, onTierChange, sortBy, onSortChange, refreshedAt, favoriteIds, recentMoves }) {
+  const tierCounts = useMemo(() => {
+    const counts = { legend: 0, godly: 0, ancient: 0, sets: 0 };
+    items.forEach(item => {
+      const t = deriveTier(item);
+      if (counts[t.key] != null) counts[t.key]++;
+    });
+    return [
+      { key: 'all', label: 'All', count: items.length, color: null },
+      { key: 'legend', label: 'Legend', count: counts.legend, color: 'var(--tier-legend)' },
+      { key: 'godly', label: 'Godly', count: counts.godly, color: 'var(--tier-godly)' },
+      { key: 'ancient', label: 'Ancient', count: counts.ancient, color: 'var(--tier-ancient)' },
+      { key: 'sets', label: 'Sets', count: counts.sets, color: 'var(--tier-vintage)' },
+    ];
+  }, [items]);
+
+  return (
+    <aside className="gw-sidebar">
+      <div>
+        <div className="gw-sidebar-section-label">Tier</div>
+        {tierCounts.map(t => (
+          <div
+            key={t.key}
+            className={`gw-tier-row${activeTier === t.key ? ' active' : ''}`}
+            onClick={() => onTierChange(t.key)}
+          >
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span className="gw-tier-dot" style={{ background: t.color ?? 'var(--ink-faint)' }} />
+              <span className="gw-tier-label">{t.label}</span>
+            </span>
+            <span className="gw-tier-count">{t.count}</span>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <div className="gw-sidebar-section-label">Filter</div>
+        <div className="gw-filter-row"><span className="gw-filter-label">★ Favorites</span><span className="gw-filter-count">{favoriteIds.length}</span></div>
+        <div className="gw-filter-row"><span className="gw-filter-label">Movers</span><span className="gw-filter-count">{recentMoves.length}</span></div>
+      </div>
+
+      <div>
+        <div className="gw-sidebar-section-label">Sort</div>
+        <select className="gw-sort-select" value={sortBy} onChange={e => onSortChange(e.target.value)}>
+          <option value="name">Name A–Z</option>
+          <option value="value-desc">Highest value</option>
+          <option value="value-asc">Lowest value</option>
+          <option value="ebay-desc">Highest eBay price</option>
+        </select>
+      </div>
+
+      <div className="gw-sidebar-footer">
+        <div className="gw-last-refresh-label">Last refresh</div>
+        <div className="gw-last-refresh-value">{formatTimestamp(refreshedAt)}</div>
+      </div>
+    </aside>
+  );
+}
+
+// ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("board");
@@ -38,6 +291,7 @@ export default function App() {
   const [wantTradeSlots, setWantTradeSlots] = useState(createEmptyTradeSide);
   const [haveTradeSearch, setHaveTradeSearch] = useState(createEmptyTradeSearch);
   const [wantTradeSearch, setWantTradeSearch] = useState(createEmptyTradeSearch);
+  const [activeTier, setActiveTier] = useState('all');
 
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
@@ -139,7 +393,7 @@ export default function App() {
       }
 
       if (sortBy === "ebay-desc") {
-        return (right.current?.ebay?.totalPriceEUR ?? -1) - (left.current?.ebay?.totalPriceEUR ?? -1);
+        return (right.current?.ebay?.totalPrice ?? -1) - (left.current?.ebay?.totalPrice ?? -1);
       }
 
       return 0;
@@ -160,12 +414,18 @@ export default function App() {
         id: item.id,
         name: item.name,
         current: item.current?.supreme?.value ?? null,
-        diff: item.current?.supreme?.lastChange ?? 0
+        diff: item.current?.supreme?.lastChange ?? 0,
+        timestamp: item.lastCheckedAt
       }));
   const tickerLoopItems = [...tickerItems, ...tickerItems];
 
   const shownCount = filteredItems.length;
   const boardItems = filteredItems;
+
+  const tierBoardItems = useMemo(() => {
+    if (activeTier === 'all') return boardItems;
+    return boardItems.filter(item => deriveTier(item).key === activeTier);
+  }, [boardItems, activeTier]);
 
   const yourTradeTotal = getTradeSideTotal(haveTradeSlots, itemLookup);
   const theirTradeTotal = getTradeSideTotal(wantTradeSlots, itemLookup);
@@ -287,6 +547,7 @@ export default function App() {
               searchValue: searchValues[slotIndex] || "",
               item: slot.itemId ? itemLookup.get(slot.itemId) : null,
               items,
+              currency: "EUR",
               applyTradeInput,
               updateTradeSlot,
               updateTradeQuantity,
@@ -303,7 +564,7 @@ export default function App() {
             </div>
             <div className="trade-side-values-copy">
               <span>eBay total</span>
-              <strong>{formatCurrency(getTradeSideEbayTotal(slots, itemLookup))}</strong>
+              <strong>{formatCurrency(getTradeSideEbayTotal(slots, itemLookup), "EUR")}</strong>
             </div>
             <button className="trade-clear-table-button" onClick={clearTradeState}>
               Clear Table
@@ -360,8 +621,8 @@ export default function App() {
           </div>
 
           <div className="trade-summary-foot">
-            <ValueBox label="Your eBay total" value={formatCurrency(yourTradeEbayTotal)} />
-            <ValueBox label="Their eBay total" value={formatCurrency(theirTradeEbayTotal)} />
+            <ValueBox label="Your eBay total" value={formatCurrency(yourTradeEbayTotal, "EUR")} />
+            <ValueBox label="Their eBay total" value={formatCurrency(theirTradeEbayTotal, "EUR")} />
           </div>
 
           <p className="trade-summary-note">
@@ -373,323 +634,148 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
-      <div className="background-glow glow-left" />
-      <div className="background-glow glow-right" />
-
-      <nav className="top-nav" aria-label="Primary">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={tab.id === activeTab ? "nav-pill active" : "nav-pill"}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-
-      <section className="ticker-bar">
-        <span className="ticker-label">Recent moves</span>
-        <div className="ticker-window">
-          <div className="ticker-track">
-            {tickerLoopItems.map((item, index) => (
-              <div key={`${item.id}-${index}`} className="ticker-pill">
-                <strong>{item.name}</strong>
-                <span>{formatValue(item.current)}</span>
-                <em className={item.diff > 0 ? "positive" : item.diff < 0 ? "negative" : ""}>
-                  {signedValue(item.diff)}
-                </em>
-              </div>
-            ))}
+    <div className="gw-page">
+      {/* TopBar */}
+      <header className="gw-topbar">
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="gw-wordmark">
+            godly<span className="gw-wordmark-accent">watch</span>
+            <span className="gw-wordmark-beta">BETA</span>
           </div>
+          <nav className="gw-nav">
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                className={`gw-nav-pill${activeTab === tab.id ? ' active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
-      </section>
+        <div className="gw-search">
+          <span className="gw-search-icon">⌕</span>
+          <input
+            className="gw-search-input"
+            type="search"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder={`search ${items.length} items`}
+          />
+          <span className="gw-keycap">⌘K</span>
+        </div>
+      </header>
 
-      {error ? <section className="banner error">{error}</section> : null}
-      {loading ? <section className="banner">Loading market board...</section> : null}
+      {/* Ticker */}
+      <div className="gw-ticker">
+        <div className="gw-ticker-live">● LIVE</div>
+        <div className="gw-ticker-track">
+          {[...tickerLoopItems, ...tickerLoopItems].map((item, i) => {
+            const tier = deriveTier(item);
+            return (
+              <span key={i} className="gw-ticker-entry">
+                <span className="gw-ticker-dot" style={{ background: tier.color }} />
+                <span className="gw-ticker-name">{item.name}</span>
+                <span>moved</span>
+                <span className="gw-ticker-price">{formatValue(item.current ?? item.current)}</span>
+                <span className="gw-ticker-ago">· {compactDate(item.timestamp ?? new Date().toISOString())}</span>
+                <span className="gw-ticker-sep">│</span>
+              </span>
+            );
+          })}
+        </div>
+      </div>
 
+      {/* Banners */}
+      {error ? <div className="gw-banner error">{error}</div> : null}
+      {loading ? <div className="gw-banner">Loading market data...</div> : null}
+
+      {/* Board tab */}
+      {!loading && activeTab === 'board' ? (
+        <div className="gw-board-body">
+          <GWSidebar
+            items={items}
+            activeTier={activeTier}
+            onTierChange={setActiveTier}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            refreshedAt={marketData.refreshedAt}
+            favoriteIds={favoriteIds}
+            recentMoves={recentMoves}
+          />
+          <main className="gw-main">
+            <div className="gw-main-header">
+              <div>
+                <h1 className="gw-main-title">Board</h1>
+                <p className="gw-main-sub">
+                  {shownCount} items · refreshed {formatTimestamp(marketData.refreshedAt)}
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <button className="refresh-button" onClick={handleRefresh} disabled={refreshing} style={{ padding: '8px 14px', fontSize: 13 }}>
+                  {refreshing ? 'Refreshing...' : 'Refresh'}
+                </button>
+                <div className="gw-view-toggle">
+                  <button className="gw-view-btn active">Grid</button>
+                  <button className="gw-view-btn">List</button>
+                </div>
+              </div>
+            </div>
+            <div className="gw-grid">
+              {tierBoardItems.map((item, index) => (
+                <GWCard
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  isFavorite={favoriteIds.includes(item.id)}
+                  onToggleFavorite={() => toggleFavorite(item.id)}
+                  onOpenChart={() => setSelectedChartItemId(item.id)}
+                />
+              ))}
+              {!tierBoardItems.length ? (
+                <p style={{ gridColumn: '1/-1', color: 'var(--ink-faint)', fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>
+                  No items match this filter.
+                </p>
+              ) : null}
+            </div>
+          </main>
+        </div>
+      ) : null}
+
+      {/* Non-board tabs */}
       {!loading ? (
         <>
-          <section className="hero-grid">
-            <article className="hero-card">
-              <p className="section-tag">Godly tracker</p>
-              <h1>Track MM2 value against real eBay pricing.</h1>
-              <p className="hero-copy">
-                Supreme stays in value units. eBay stays in euros. This board keeps the important parts readable:
-                price checks, recent movement, and the items you actually care about.
-              </p>
-            </article>
-
-            <aside className="hero-sidecard">
-              <button className="refresh-button" onClick={handleRefresh} disabled={refreshing}>
-                {refreshing ? "Refreshing market data..." : "Refresh Market Data"}
-              </button>
-
-              <div className="side-meta">
-                <p>Showing latest tracked data.</p>
-                <p>eBay is running through the backend refresh flow and history snapshots are already being stored.</p>
-              </div>
-            </aside>
-          </section>
-
-          <section className="stat-strip">
-            <MetricCard
-              label="Tracked items"
-              value={serverStats?.totalItems ?? 0}
-              note="Current items in history"
-            />
-            <MetricCard
-              label="Best Supreme value"
-              value={
-                derivedStats.topValueItem
-                  ? `${derivedStats.topValueItem.name} / ${formatValue(derivedStats.topValueItem.current?.supreme?.value)}`
-                  : "--"
-              }
-              note="Highest current item value"
-            />
-            <MetricCard
-              label="Cheapest eBay listing"
-              value={
-                derivedStats.cheapestEbayItem
-                  ? `${derivedStats.cheapestEbayItem.name} / ${formatCurrency(derivedStats.cheapestEbayItem.current?.ebay?.totalPriceEUR)}`
-                  : "--"
-              }
-              note="Lowest landed price we found"
-            />
-            <MetricCard
-              label="Last refresh"
-              value={formatTimestamp(marketData.refreshedAt)}
-              note="Latest saved market pull"
-            />
-          </section>
-
-          <section className="filter-bar">
-            <label className="filter-group search-group">
-              <span>Search items</span>
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by item name"
-              />
-            </label>
-
-            <label className="filter-group">
-              <span>Category</span>
-              <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category === "all" ? "All categories" : capitalize(category)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="filter-group">
-              <span>Sort</span>
-              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                <option value="name">Name A-Z</option>
-                <option value="value-desc">Highest value</option>
-                <option value="value-asc">Lowest value</option>
-                <option value="ebay-desc">Highest eBay price</option>
-              </select>
-            </label>
-
-            <div className="showing-box">
-              <span>Showing</span>
-              <strong>{formatValue(shownCount)} items</strong>
+          {activeTab === "trade-checker" ? (
+            <div className="gw-tab-content">
+              {renderTradeChecker()}
             </div>
-          </section>
-
-          {activeTab === "board" ? (
-            <>
-              <section className="shelf-header">
-                <div>
-                  <p className="section-tag">Pinned shelf</p>
-                  <h2>Favorites</h2>
-                  <p>
-                    Keep the items you care about most right at the top.
-                  </p>
-                </div>
-                <div className="shelf-count">{pinnedItems.length}</div>
-              </section>
-
-              <section className="favorite-grid">
-                {pinnedItems.length ? (
-                  pinnedItems.map((item, index) => (
-                    <BoardItemCard
-                      key={item.id}
-                      item={item}
-                      variant="favorite"
-                      index={index}
-                      pinned
-                      isFavorite={favoriteIds.includes(item.id)}
-                      onToggleFavorite={() => toggleFavorite(item.id)}
-                      onOpenChart={() => setSelectedChartItemId(item.id)}
-                    />
-                  ))
-                ) : (
-                  <article className="favorite-empty-card">
-                    <p className="section-tag">No favorites yet</p>
-                    <h3>Start pinning items from the board below.</h3>
-                    <p>
-                      Use the favorite button on any item card to build your own top shelf.
-                    </p>
-                  </article>
-                )}
-              </section>
-
-              <section className="board-section">
-                <div className="table-header">
-                  <div>
-                    <p className="section-tag">Board grid</p>
-                    <h2>Tracked market cards</h2>
-                    <p className="board-subcopy">
-                      Full tracked item board with charts, values, and live pinned items above.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="board-grid">
-                  {boardItems.map((item, index) => (
-                    <BoardItemCard
-                      key={item.id}
-                      item={item}
-                      variant="board"
-                      index={index}
-                      isFavorite={favoriteIds.includes(item.id)}
-                      onToggleFavorite={() => toggleFavorite(item.id)}
-                      onOpenChart={() => setSelectedChartItemId(item.id)}
-                    />
-                  ))}
-                </div>
-
-                {!boardItems.length ? (
-                  <article className="favorite-empty-card">
-                    <p className="section-tag">No items showing</p>
-                    <h3>No tracked items match this filter.</h3>
-                    <p>
-                      Try a broader search or switch categories.
-                    </p>
-                  </article>
-                ) : null}
-              </section>
-            </>
           ) : null}
 
-          {activeTab === "values" ? (
-            <section className="alt-panel">
-              <div className="panel-header">
-                <p className="section-tag">Values</p>
-                <h2>Full value ledger</h2>
+{activeTab === "inventory-tracker" ? (
+            <div className="gw-tab-content">
+              <div className="gw-placeholder-panel">
+                <span className="gw-placeholder-badge">Coming Soon</span>
+                <h1 className="gw-placeholder-title">Inventory Tracker</h1>
+                <p className="gw-placeholder-text">
+                  Track your owned items, quantities, and total portfolio value over time.
+                  The backend is ready — item shapes, history, and refresh flow are all in place.
+                </p>
               </div>
-
-              <div className="ledger-grid">
-                {filteredItems.map((item, index) => (
-                  <article key={item.id} className="ledger-card">
-                    <div className={`item-visual-stage ledger-visual visual-${index % 3}`}>
-                      {item.imageUrl ? (
-                        <img className="item-stage-image" src={item.imageUrl} alt={item.name} />
-                      ) : (
-                        <div className="item-stage-placeholder">
-                          <div className="item-stage-frame" />
-                          <strong>{item.name}</strong>
-                          <span>{capitalize(item.category)}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="ledger-body">
-                      <div className="ledger-top">
-                        <div>
-                          <h3>{item.name}</h3>
-                          <p>{capitalize(item.category)}</p>
-                        </div>
-                        <strong>{formatValue(item.current?.supreme?.value)}</strong>
-                      </div>
-
-                      <dl>
-                        <div><dt>eBay</dt><dd>{formatCurrency(item.current?.ebay?.totalPriceEUR)}</dd></div>
-                        <div><dt>Demand</dt><dd>{item.current?.supreme?.demand ?? "--"}</dd></div>
-                        <div><dt>Rarity</dt><dd>{item.current?.supreme?.rarity ?? "--"}</dd></div>
-                        <div><dt>Change</dt><dd>{signedValue(item.current?.supreme?.lastChange)}</dd></div>
-                      </dl>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {activeTab === "trade-checker" ? renderTradeChecker() : null}
-
-          {activeTab === "recent-changes" ? (
-            <section className="alt-panel">
-              <div className="panel-header">
-                <p className="section-tag">Recent changes</p>
-                <h2>Movement feed</h2>
-              </div>
-
-              <div className="moves-feed">
-                {recentMoves.length ? recentMoves.map((move) => (
-                  <article key={`${move.id}-${move.timestamp}`} className="move-card">
-                    <div>
-                      <h3>{move.name}</h3>
-                      <p>{capitalize(move.category)} {" - "} {compactDate(move.timestamp)}</p>
-                    </div>
-                    <div className="move-side">
-                      <span>{formatValue(move.previous)} to {formatValue(move.current)}</span>
-                      <strong className={move.diff > 0 ? "positive" : "negative"}>{signedValue(move.diff)}</strong>
-                    </div>
-                  </article>
-                )) : (
-                  <p className="empty-state">No move history yet.</p>
-                )}
-              </div>
-            </section>
-          ) : null}
-
-          {activeTab === "inventory-tracker" ? (
-            <section className="alt-panel">
-              <div className="panel-header">
-                <p className="section-tag">{activeTab.replace("-", " ")}</p>
-                <h2>{TABS.find((tab) => tab.id === activeTab)?.label}</h2>
-              </div>
-
-              <div className="placeholder-grid">
-                <article className="placeholder-card">
-                  <h3>Backend ready</h3>
-                  <p>The merged item shape, recent moves, stats, and refresh flow are already usable for this screen.</p>
-                </article>
-                <article className="placeholder-card">
-                  <h3>Best next feature</h3>
-                  <p>
-                    {activeTab === "inventory-tracker"
-                      ? "Track owned items, quantities, and value totals over time."
-                      : "Surface best listings, watch items, and mismatch alerts."}
-                  </p>
-                </article>
-              </div>
-            </section>
+            </div>
           ) : null}
 
           {activeTab === "seller-dashboard" ? (
-            <section className="alt-panel coming-soon-panel">
-              <div className="panel-header">
-                <p className="section-tag">Seller dashboard</p>
-                <h2>Coming Soon</h2>
-              </div>
-
-              <div className="coming-soon-card">
-                <span className="coming-soon-badge">In Progress</span>
-                <h3>Seller tools are on the way.</h3>
-                <p>
-                  This screen will eventually surface best listings, watch targets, mismatch alerts,
+            <div className="gw-tab-content">
+              <div className="gw-placeholder-panel">
+                <span className="gw-placeholder-badge">In Progress</span>
+                <h1 className="gw-placeholder-title">Seller Dashboard</h1>
+                <p className="gw-placeholder-text">
+                  Surface best eBay listings, watch targets, price mismatch alerts,
                   and item-level selling signals built from your tracked market data.
                 </p>
               </div>
-            </section>
+            </div>
           ) : null}
         </>
       ) : null}
@@ -697,6 +783,7 @@ export default function App() {
       {selectedChartItem ? (
         <ChartModal
           item={selectedChartItem}
+          currency={"EUR"}
           onClose={() => setSelectedChartItemId(null)}
         />
       ) : null}
@@ -704,100 +791,9 @@ export default function App() {
   );
 }
 
-function BoardItemCard({
-  item,
-  variant = "board",
-  index = 0,
-  pinned = false,
-  isFavorite = false,
-  onToggleFavorite,
-  onOpenChart
-}) {
-  const chartable = hasChartableData(item);
-  const historyNote = buildHistoryNote(item);
+// ── Preserved existing components ────────────────────────────────────────────
 
-  return (
-    <article className={`board-item-card ${variant === "favorite" ? "favorite-card" : ""}`}>
-      <div className={`item-visual-stage visual-${index % 3}`}>
-        {item.imageUrl ? (
-          <img className="item-stage-image" src={item.imageUrl} alt={item.name} />
-        ) : (
-          <div className="item-stage-placeholder">
-            <div className="item-stage-frame" />
-            <strong>{item.name}</strong>
-            <span>{capitalize(item.category)}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="item-card-body">
-        <div className="favorite-badges">
-          {pinned ? <span>Pinned</span> : null}
-          <span>{capitalize(item.category)}</span>
-        </div>
-
-        <div className="favorite-heading">
-          <div>
-            <h3>{item.name}</h3>
-            <p>Checked {formatTimestamp(item.lastCheckedAt)}</p>
-          </div>
-          <div className="favorite-links">
-            <span>{item.current?.supreme?.stability || "Stable"}</span>
-            <span>{chartable ? "History live" : "History thin"}</span>
-          </div>
-        </div>
-
-        <div className="card-actions-row">
-          <button
-            className={isFavorite ? "favorite-toggle active" : "favorite-toggle"}
-            onClick={onToggleFavorite}
-            type="button"
-          >
-            {isFavorite ? "Remove favorite" : "Add to favorites"}
-          </button>
-        </div>
-
-        <p className="favorite-note">{historyNote}</p>
-
-        <div className="favorite-metrics">
-          <ValueBox label="Supreme value" value={formatValue(item.current?.supreme?.value)} />
-          <ValueBox label="Lowest eBay price" value={formatCurrency(item.current?.ebay?.totalPriceEUR)} />
-          <ValueBox label="Demand / rarity" value={`${item.current?.supreme?.demand ?? "--"} / ${item.current?.supreme?.rarity ?? "--"}`} />
-        </div>
-
-        <div className="item-chart-panel">
-          <div className="item-chart-header">
-            <div>
-              <strong>History</strong>
-              <span>{chartable ? "Live" : "Muted"}</span>
-            </div>
-            <button className="chart-open-button" onClick={onOpenChart}>
-              Open detailed chart
-            </button>
-          </div>
-
-          <div className="item-chart-legends">
-            <span className="legend-pill ebay">eBay EUR</span>
-            <span className="legend-pill supreme">Supreme value</span>
-            <span className="legend-state">{summarizeHistory(item)}</span>
-          </div>
-
-          <div className="item-chart-surface">
-            <div className="axis-label left">eBay</div>
-            <div className="axis-label right">Supreme</div>
-            {chartable ? (
-              <DualHistoryChart item={item} compact />
-            ) : (
-              <div className="chart-empty-state">Not enough history yet to draw this item.</div>
-            )}
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function ChartModal({ item, onClose }) {
+function ChartModal({ item, currency = "EUR", onClose }) {
   const points = Array.isArray(item.history) ? item.history.length : 0;
 
   return (
@@ -812,7 +808,7 @@ function ChartModal({ item, onClose }) {
           </div>
           <div className="chart-modal-stats">
             <ValueBox label="Current Supreme" value={formatValue(item.current?.supreme?.value)} />
-            <ValueBox label="Current eBay" value={formatCurrency(item.current?.ebay?.totalPriceEUR)} />
+            <ValueBox label="Current eBay" value={formatCurrency(item.current?.ebay?.totalPrice, item.current?.ebay?.currency || currency)} />
             <ValueBox label="Sample count" value={formatValue(points)} />
           </div>
         </div>
@@ -906,13 +902,14 @@ function buildTradeSlot({
   searchValue,
   item,
   items,
+  currency = "EUR",
   applyTradeInput,
   updateTradeSlot,
   updateTradeQuantity,
   clearTradeSlot
 }) {
   const supremeValue = item?.current?.supreme?.value ?? null;
-  const ebayValue = item?.current?.ebay?.totalPriceEUR ?? null;
+  const ebayValue = item?.current?.ebay?.totalPrice ?? null;
   const stackSupremeValue = supremeValue != null ? supremeValue * slot.quantity : null;
   const stackEbayValue = ebayValue != null ? Number((ebayValue * slot.quantity).toFixed(2)) : null;
 
@@ -982,7 +979,7 @@ function buildTradeSlot({
         <div className="trade-slot-values">
           <ValueBox label="Per-item value" value={formatValue(supremeValue)} />
           <ValueBox label="Stack total" value={formatValue(stackSupremeValue)} />
-          <ValueBox label="eBay stack" value={formatCurrency(stackEbayValue)} />
+          <ValueBox label="eBay stack" value={formatCurrency(stackEbayValue, item?.current?.ebay?.currency || currency)} />
         </div>
       </div>
     </article>
@@ -1088,7 +1085,7 @@ function getTradeSideEbayTotal(slots, itemLookup) {
     }
 
     const item = itemLookup.get(slot.itemId);
-    const value = item?.current?.ebay?.totalPriceEUR;
+    const value = item?.current?.ebay?.totalPrice;
 
     if (value == null) {
       return sum;
@@ -1137,7 +1134,7 @@ function summarizeHistory(item) {
 
 function buildHistoryNote(item) {
   const latest = item?.history?.[item.history.length - 1];
-  const ebayLabel = latest?.ebayPriceEUR != null ? formatCurrency(latest.ebayPriceEUR) : "No eBay sample";
+  const ebayLabel = latest?.ebayPrice != null ? formatCurrency(latest.ebayPrice, latest.ebayCurrency) : "No eBay sample";
   const supremeLabel = latest?.supremeValue != null ? formatValue(latest.supremeValue) : "No Supreme sample";
   return `Latest sample ${ebayLabel} eBay / ${supremeLabel} Supreme`;
 }
@@ -1148,7 +1145,7 @@ function buildChartSeries(item) {
   const width = 1;
   const chartHeight = 1;
 
-  const ebayValues = history.map((point) => point.ebayPriceEUR).filter((value) => value != null);
+  const ebayValues = history.map((point) => point.ebayPrice).filter((value) => value != null);
   const supremeValues = history.map((point) => point.supremeValue).filter((value) => value != null);
 
   const ebayMin = ebayValues.length ? Math.min(...ebayValues) : 0;
@@ -1191,7 +1188,7 @@ function buildChartSeries(item) {
   }
 
   return {
-    ebayPoints: buildLine(history.map((point) => point.ebayPriceEUR), ebayMin, ebayMax),
+    ebayPoints: buildLine(history.map((point) => point.ebayPrice), ebayMin, ebayMax),
     supremePoints: buildLine(history.map((point) => point.supremeValue), supremeMin, supremeMax)
   };
 }
