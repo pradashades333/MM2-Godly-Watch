@@ -20,14 +20,10 @@ async function buildMarketData() {
 
   for (const sourceItem of sourceItems) {
     const trackedItem = findTrackedItemByName(sourceItem.name);
-    const shouldFetchEbay =
-      sourceItem.category !== "sets" || Array.isArray(trackedItem?.ebayQueries);
-    const ebayResult = shouldFetchEbay
-      ? await ebayService.fetchEbayForItem(
-          sourceItem.name,
-          trackedItem?.ebayQueries
-        )
-      : null;
+    const ebayResult = await ebayService.fetchEbayForItem(
+      sourceItem.name,
+      trackedItem?.ebayQueries
+    );
     const bestListing = ebayResult?.best ?? null;
     const imageUrl = await imageService.getImageForItem(sourceItem);
 
@@ -40,11 +36,10 @@ async function buildMarketData() {
         supreme: sourceItem.current?.supreme ?? null,
         ebay: bestListing
           ? {
-              priceEUR: bestListing.priceEUR,
-              sourcePrice: bestListing.sourcePrice,
-              sourceCurrency: bestListing.sourceCurrency,
-              shippingPriceEUR: bestListing.shippingPriceEUR,
-              totalPriceEUR: bestListing.totalPriceEUR,
+              price: bestListing.price,
+              currency: bestListing.currency,
+              shippingPrice: bestListing.shippingPrice,
+              totalPrice: bestListing.totalPrice,
               matchedQuery: bestListing.matchedQuery,
               url: bestListing.url
             }
@@ -103,7 +98,7 @@ async function getRecentMoves(limit = 20) {
 async function getStats() {
   const items = await getMarketItems();
   const itemsWithSupreme = items.filter((item) => item.current?.supreme?.value != null);
-  const itemsWithEbay = items.filter((item) => item.current?.ebay?.priceEUR != null);
+  const itemsWithEbay = items.filter((item) => item.current?.ebay?.price != null);
   const averageSupremeValue = itemsWithSupreme.length
     ? Math.round(
         itemsWithSupreme.reduce(
@@ -112,11 +107,11 @@ async function getStats() {
         ) / itemsWithSupreme.length
       )
     : null;
-  const averageEbayPriceEUR = itemsWithEbay.length
+  const averageEbayPrice = itemsWithEbay.length
     ? Number(
         (
           itemsWithEbay.reduce(
-            (sum, item) => sum + (item.current?.ebay?.priceEUR ?? 0),
+            (sum, item) => sum + (item.current?.ebay?.price ?? 0),
             0
           ) / itemsWithEbay.length
         ).toFixed(2)
@@ -128,7 +123,7 @@ async function getStats() {
     itemsWithSupremeValue: itemsWithSupreme.length,
     itemsWithEbayPrice: itemsWithEbay.length,
     averageSupremeValue,
-    averageEbayPriceEUR
+    averageEbayPrice
   };
 }
 

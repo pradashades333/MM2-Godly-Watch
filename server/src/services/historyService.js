@@ -26,7 +26,8 @@ function createHistoryPoint(item) {
   return {
     timestamp: item.lastCheckedAt || new Date().toISOString(),
     supremeValue: item.current?.supreme?.value ?? null,
-    ebayPriceEUR: item.current?.ebay?.priceEUR ?? null
+    ebayPrice: item.current?.ebay?.price ?? null,
+    ebayCurrency: item.current?.ebay?.currency ?? null
   };
 }
 
@@ -39,7 +40,7 @@ function appendHistoryPoint(existingHistory, item) {
   const isDuplicate =
     lastPoint &&
     lastPoint.supremeValue === nextPoint.supremeValue &&
-    lastPoint.ebayPriceEUR === nextPoint.ebayPriceEUR;
+    lastPoint.ebayPrice === nextPoint.ebayPrice;
 
   if (!isDuplicate) {
     history.push(nextPoint);
