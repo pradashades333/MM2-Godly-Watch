@@ -21,3 +21,4 @@ export function refreshMarketData() {
     method: "POST"
   });
 }
+
