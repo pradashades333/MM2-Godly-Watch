@@ -156,6 +156,7 @@ async function fetchListingsForQueries(queries, accessToken) {
 
   for (const query of queries) {
     for (const marketplaceId of getMarketplacesForQuery(query)) {
+      await new Promise(r => setTimeout(r, 250));
       const results = await searchEbay(query, accessToken, marketplaceId);
       for (const listing of (results.itemSummaries || [])) {
         const id = listing.itemId;
