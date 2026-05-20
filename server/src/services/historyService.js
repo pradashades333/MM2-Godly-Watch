@@ -1,7 +1,9 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const HISTORY_FILE = path.join(__dirname, "..", "data", "history.json");
+const HISTORY_FILE = process.env.DATA_DIR
+  ? path.join(process.env.DATA_DIR, "history.json")
+  : path.join(__dirname, "..", "data", "history.json");
 const MAX_HISTORY_POINTS = 180;
 
 async function readHistory() {

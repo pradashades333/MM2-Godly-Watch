@@ -6,8 +6,22 @@ const refreshRoutes = require("./routes/refreshRoutes");
 
 const app = express();
 
+const ALLOWED_ORIGINS = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://godlywatch.com",
+  "https://www.godlywatch.com",
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked: ${origin}`));
+    }
+  },
 }));
 
 app.use(express.json());

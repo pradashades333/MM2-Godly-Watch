@@ -152,15 +152,17 @@ function getMarketplacesForQuery(query) {
 
 async function fetchListingsForQueries(queries, accessToken) {
   const allListings = [];
+  const seenIds = new Set();
 
   for (const query of queries) {
     for (const marketplaceId of getMarketplacesForQuery(query)) {
       const results = await searchEbay(query, accessToken, marketplaceId);
-      const listings = (results.itemSummaries || []).map((listing) =>
-        normalizeEbayListing(listing, query)
-      );
-
-      allListings.push(...listings);
+      for (const listing of (results.itemSummaries || [])) {
+        const id = listing.itemId;
+        if (id && seenIds.has(id)) continue;
+        if (id) seenIds.add(id);
+        allListings.push(normalizeEbayListing(listing, query));
+      }
     }
   }
 
@@ -177,7 +179,8 @@ function pickBestListing(listings, itemName) {
       (listing) =>
         listing.url &&
         listing.price != null &&
-        listing.relevanceScore >= 15
+        listing.relevanceScore >= 15 &&
+        listing.itemGroupType !== "SELLER_DEFINED_VARIATIONS"
     )
     .sort((a, b) => {
       const leftPrice = a.totalPrice ?? a.price;

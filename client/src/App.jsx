@@ -213,7 +213,129 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart }) {
   );
 }
 
-function GWSidebar({ items, activeTier, onTierChange, sortBy, onSortChange, refreshedAt, favoriteIds, recentMoves }) {
+function GWSparkline({ data, up, w = 120, h = 28 }) {
+  const vals = (data || []).filter(v => v != null);
+  if (vals.length < 2) return <svg width={w} height={h} />;
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const pad = 2;
+  const xs = i => pad + (i / (data.length - 1)) * (w - pad * 2);
+  const ys = v => v == null ? h / 2 : h - pad - ((v - min) / range) * (h - pad * 2);
+  const d = data.map((v, i) => `${i === 0 ? 'M' : 'L'}${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).join(' ');
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+      <path d={d} fill="none" stroke={up ? '#4ade80' : '#ef4444'} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart }) {
+  const tier = deriveTier(item);
+  const trend = getItemTrend(item);
+  const trendUp = trend >= 0;
+  const trendPct = (Math.abs(trend) * 100).toFixed(1);
+  const pctVal = trend * 100;
+  const ebayPrice = item.current?.ebay?.totalPrice;
+  const supValue = item.current?.supreme?.value;
+  const demand = item.current?.supreme?.demand ?? 0;
+  const rarity = item.current?.supreme?.rarity ?? 0;
+  const chartData = getChartData(item);
+  const serial = getItemSerial(item);
+
+  function pctClass(v) {
+    if (v === 0) return 'p0';
+    if (v > 8) return 'p3'; if (v > 2) return 'p2'; if (v > 0) return 'p1';
+    if (v < -8) return 'n3'; if (v < -2) return 'n2'; return 'n1';
+  }
+
+  return (
+    <tr className="gw-list-row" onClick={onOpenChart}>
+      <td className="gw-row-mark"><span style={{ background: tier.color }} /></td>
+      <td className="gw-row-idx">{String(index + 1).padStart(3, ' ')}</td>
+      <td className="gw-row-thumb">
+        <div className="gw-thumb-wrap">
+          {item.imageUrl
+            ? <img src={item.imageUrl} alt={item.name} />
+            : <span style={{ fontSize: 8, color: 'var(--ink-faint)', textAlign: 'center', lineHeight: 1.2 }}>{item.name.slice(0, 3)}</span>
+          }
+        </div>
+      </td>
+      <td className="l gw-row-name">
+        <span className="gw-item-name">{item.name}</span>
+        <span className="gw-item-sym">#{serial}</span>
+      </td>
+      <td className="l gw-row-tier">
+        <span className="gw-tier-tag" style={{ color: tier.color }}>
+          <span className="gw-tier-d" style={{ background: tier.color }} />
+          {tier.label}
+        </span>
+      </td>
+      <td className="gw-num gw-muted">{ebayPrice != null ? ebayPrice.toFixed(2) : '—'}</td>
+      <td className="gw-num gw-big">{supValue != null ? supValue.toLocaleString() : '—'}</td>
+      <td className="gw-pct">
+        <span className={`gw-pct-cell ${pctClass(pctVal)}`}>{trendUp ? '+' : ''}{trendPct}%</span>
+      </td>
+      <td className="gw-spark c">
+        <GWSparkline data={chartData.ebay} up={trendUp} />
+      </td>
+      <td className="gw-dr gw-list-hide-mobile">
+        <div className="gw-drbar">
+          <span>D</span>
+          <div className="gw-drpips">{Array.from({ length: 5 }).map((_, n) => <i key={n} style={{ background: n < demand ? 'var(--amber)' : undefined }} />)}</div>
+          <span style={{ marginLeft: 4 }}>R</span>
+          <div className="gw-drpips">{Array.from({ length: 5 }).map((_, n) => <i key={n} style={{ background: n < rarity ? 'var(--cyan)' : undefined }} />)}</div>
+        </div>
+      </td>
+      <td className="gw-action">
+        <button
+          className={`gw-row-star${isFavorite ? ' active' : ''}`}
+          onClick={e => { e.stopPropagation(); onToggleFavorite(); }}
+        >{isFavorite ? '★' : '☆'}</button>
+      </td>
+    </tr>
+  );
+}
+
+function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart }) {
+  return (
+    <div className="gw-table-wrap">
+      <table className="gw-table">
+        <thead>
+          <tr>
+            <th style={{ width: 4 }} />
+            <th className="l" style={{ width: 40 }}>#</th>
+            <th style={{ width: 50 }} />
+            <th className="l">Item</th>
+            <th className="l">Tier</th>
+            <th>eBay €</th>
+            <th>Supreme</th>
+            <th>7d</th>
+            <th className="c">Trend</th>
+            <th className="gw-list-hide-mobile">Dem · Rar</th>
+            <th style={{ width: 40 }} />
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, i) => (
+            <GWListRow
+              key={item.id}
+              item={item}
+              index={i}
+              isFavorite={favoriteIds.includes(item.id)}
+              onToggleFavorite={() => onToggleFavorite(item.id)}
+              onOpenChart={() => onOpenChart(item.id)}
+            />
+          ))}
+          {!items.length ? (
+            <tr><td colSpan={11} style={{ textAlign: 'center', padding: '40px', color: 'var(--ink-faint)', fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>No items match this filter.</td></tr>
+          ) : null}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChange, sortBy, onSortChange, refreshedAt, favoriteIds, recentMoves }) {
   const tierCounts = useMemo(() => {
     const counts = { legend: 0, godly: 0, ancient: 0, sets: 0 };
     items.forEach(item => {
@@ -250,8 +372,22 @@ function GWSidebar({ items, activeTier, onTierChange, sortBy, onSortChange, refr
 
       <div>
         <div className="gw-sidebar-section-label">Filter</div>
-        <div className="gw-filter-row"><span className="gw-filter-label">★ Favorites</span><span className="gw-filter-count">{favoriteIds.length}</span></div>
-        <div className="gw-filter-row"><span className="gw-filter-label">Movers</span><span className="gw-filter-count">{recentMoves.length}</span></div>
+        <div
+          className={`gw-filter-row${activeFilter === 'favorites' ? ' active' : ''}`}
+          onClick={() => onFilterChange(activeFilter === 'favorites' ? 'all' : 'favorites')}
+          style={{ cursor: 'pointer', borderRadius: 4, background: activeFilter === 'favorites' ? 'var(--card-hi)' : 'transparent' }}
+        >
+          <span className="gw-filter-label" style={{ color: activeFilter === 'favorites' ? 'var(--amber)' : undefined }}>★ Favorites</span>
+          <span className="gw-filter-count">{favoriteIds.length}</span>
+        </div>
+        <div
+          className={`gw-filter-row${activeFilter === 'movers' ? ' active' : ''}`}
+          onClick={() => onFilterChange(activeFilter === 'movers' ? 'all' : 'movers')}
+          style={{ cursor: 'pointer', borderRadius: 4, background: activeFilter === 'movers' ? 'var(--card-hi)' : 'transparent' }}
+        >
+          <span className="gw-filter-label" style={{ color: activeFilter === 'movers' ? 'var(--up)' : undefined }}>↗ Movers</span>
+          <span className="gw-filter-count">{recentMoves.length}</span>
+        </div>
       </div>
 
       <div>
@@ -292,6 +428,8 @@ export default function App() {
   const [haveTradeSearch, setHaveTradeSearch] = useState(createEmptyTradeSearch);
   const [wantTradeSearch, setWantTradeSearch] = useState(createEmptyTradeSearch);
   const [activeTier, setActiveTier] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('grid');
 
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
@@ -422,10 +560,14 @@ export default function App() {
   const shownCount = filteredItems.length;
   const boardItems = filteredItems;
 
+  const moverIds = useMemo(() => new Set(recentMoves.map(m => m.id)), [recentMoves]);
+
   const tierBoardItems = useMemo(() => {
-    if (activeTier === 'all') return boardItems;
-    return boardItems.filter(item => deriveTier(item).key === activeTier);
-  }, [boardItems, activeTier]);
+    let result = activeTier === 'all' ? boardItems : boardItems.filter(item => deriveTier(item).key === activeTier);
+    if (activeFilter === 'favorites') result = result.filter(item => favoriteIds.includes(item.id));
+    if (activeFilter === 'movers') result = result.filter(item => moverIds.has(item.id));
+    return result;
+  }, [boardItems, activeTier, activeFilter, favoriteIds, moverIds]);
 
   const yourTradeTotal = getTradeSideTotal(haveTradeSlots, itemLookup);
   const theirTradeTotal = getTradeSideTotal(wantTradeSlots, itemLookup);
@@ -697,7 +839,9 @@ export default function App() {
           <GWSidebar
             items={items}
             activeTier={activeTier}
-            onTierChange={setActiveTier}
+            onTierChange={t => { setActiveTier(t); setActiveFilter('all'); }}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
             sortBy={sortBy}
             onSortChange={setSortBy}
             refreshedAt={marketData.refreshedAt}
@@ -718,7 +862,7 @@ export default function App() {
                   key={t.key}
                   className={`gw-mobile-chip${activeTier === t.key ? ' active' : ''}`}
                   style={activeTier === t.key ? { borderColor: t.color, color: t.color } : {}}
-                  onClick={() => setActiveTier(t.key)}
+                  onClick={() => { setActiveTier(t.key); setActiveFilter('all'); }}
                 >
                   {t.label}
                 </button>
@@ -743,28 +887,37 @@ export default function App() {
                   {refreshing ? 'Refreshing...' : 'Refresh'}
                 </button>
                 <div className="gw-view-toggle">
-                  <button className="gw-view-btn active">Grid</button>
-                  <button className="gw-view-btn">List</button>
+                  <button className={`gw-view-btn${viewMode === 'grid' ? ' active' : ''}`} onClick={() => setViewMode('grid')}>Grid</button>
+                  <button className={`gw-view-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')}>List</button>
                 </div>
               </div>
             </div>
-            <div className="gw-grid">
-              {tierBoardItems.map((item, index) => (
-                <GWCard
-                  key={item.id}
-                  item={item}
-                  index={index}
-                  isFavorite={favoriteIds.includes(item.id)}
-                  onToggleFavorite={() => toggleFavorite(item.id)}
-                  onOpenChart={() => setSelectedChartItemId(item.id)}
-                />
-              ))}
-              {!tierBoardItems.length ? (
-                <p style={{ gridColumn: '1/-1', color: 'var(--ink-faint)', fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>
-                  No items match this filter.
-                </p>
-              ) : null}
-            </div>
+            {viewMode === 'grid' ? (
+              <div className="gw-grid">
+                {tierBoardItems.map((item, index) => (
+                  <GWCard
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    isFavorite={favoriteIds.includes(item.id)}
+                    onToggleFavorite={() => toggleFavorite(item.id)}
+                    onOpenChart={() => setSelectedChartItemId(item.id)}
+                  />
+                ))}
+                {!tierBoardItems.length ? (
+                  <p style={{ gridColumn: '1/-1', color: 'var(--ink-faint)', fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>
+                    No items match this filter.
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <GWListView
+                items={tierBoardItems}
+                favoriteIds={favoriteIds}
+                onToggleFavorite={toggleFavorite}
+                onOpenChart={(id) => setSelectedChartItemId(id)}
+              />
+            )}
           </main>
         </div>
       ) : null}
