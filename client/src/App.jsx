@@ -494,9 +494,10 @@ export default function App() {
       });
     } catch (err) {
       setError(err.message || "Refresh failed.");
-    } finally {
       setRefreshing(false);
+      return;
     }
+    setRefreshing(false);
   }
 
   const categories = useMemo(() => {
