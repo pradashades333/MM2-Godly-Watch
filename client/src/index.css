@@ -1801,3 +1801,121 @@ select {
 .chart-modal-close {
   background: var(--card-hi); border-color: var(--line-hi); color: var(--ink-dim);
 }
+
+/* ── Mobile tier filter strip (hidden on desktop) ────────────────────────── */
+.gw-mobile-filters { display: none; }
+.gw-mobile-chip {
+  font-family: 'Saira Condensed', 'Arial Narrow', sans-serif;
+  font-size: 14px; font-weight: 600; padding: 6px 14px;
+  border-radius: 999px; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-dim); cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+}
+.gw-mobile-chip.active { background: var(--card-hi); }
+.gw-mobile-sort {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 6px 10px; border-radius: 4px; border: 1px solid var(--line-hi);
+  background: var(--card); color: var(--ink); margin-left: auto; flex-shrink: 0;
+}
+
+/* ── Mobile (≤ 768px) ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Base */
+  html, body { overflow-x: hidden; }
+
+  /* TopBar */
+  .gw-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px 8px;
+    gap: 10px;
+  }
+  .gw-topbar > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .gw-wordmark { font-size: 22px; }
+  .gw-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .gw-nav::-webkit-scrollbar { display: none; }
+  .gw-nav-pill { font-size: 12px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }
+  .gw-search { width: 100%; }
+  .gw-search-input { flex: 1; min-width: 0; }
+
+  /* Ticker */
+  .gw-ticker { height: 32px; }
+  .gw-ticker-live { width: 72px; font-size: 9px; }
+  .gw-ticker-track { padding-left: 76px; gap: 20px; }
+  .gw-ticker-entry { font-size: 10px; }
+
+  /* Board layout — hide sidebar, full width main */
+  .gw-board-body { flex-direction: column; }
+  .gw-sidebar { display: none; }
+  .gw-main { padding: 12px 14px 40px; }
+
+  /* Show mobile filter strip */
+  .gw-mobile-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .gw-mobile-filters::-webkit-scrollbar { display: none; }
+
+  /* Main header */
+  .gw-main-header { margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .gw-main-title { font-size: 26px; }
+  .gw-view-toggle { display: none; }
+
+  /* Grid — 2 columns on mobile */
+  .gw-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Card */
+  .gw-card-name { font-size: 18px; min-height: 1.8em; }
+  .gw-price-value { font-size: 17px; }
+  .gw-card-body { padding: 8px 10px 10px; gap: 7px; }
+
+  /* Tab content */
+  .gw-tab-content { padding: 14px 14px 40px; }
+  .gw-placeholder-title { font-size: 32px; }
+
+  /* Trade checker */
+  .trade-board { gap: 12px; }
+  .trade-slot-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .trade-side-body { grid-template-columns: 1fr; }
+  .trade-summary-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Chart modal */
+  .chart-modal-backdrop { padding: 12px; }
+  .chart-modal { padding: 14px; }
+  .chart-modal-stats { grid-template-columns: 1fr; }
+}
+
+/* ── Small phones (≤ 420px) ──────────────────────────────────────────────── */
+@media (max-width: 420px) {
+  .gw-grid { grid-template-columns: 1fr; }
+  .gw-card-name { font-size: 22px; }
+  .gw-price-value { font-size: 20px; }
+  .trade-slot-grid { grid-template-columns: 1fr; }
+  .trade-summary-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Tablet (769px – 1024px) ─────────────────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .gw-sidebar { width: 200px; flex: 0 0 200px; padding: 16px 14px; }
+  .gw-main { padding: 16px 18px 40px; }
+  .gw-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .gw-nav-pill { font-size: 12px; padding: 6px 10px; }
+  .gw-topbar { padding: 12px 18px; }
+}

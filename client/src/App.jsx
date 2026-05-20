@@ -705,6 +705,32 @@ export default function App() {
             recentMoves={recentMoves}
           />
           <main className="gw-main">
+            {/* Mobile tier filter strip */}
+            <div className="gw-mobile-filters">
+              {[
+                { key: 'all', label: 'All', color: 'var(--ink-faint)' },
+                { key: 'legend', label: 'Legend', color: 'var(--tier-legend)' },
+                { key: 'godly', label: 'Godly', color: 'var(--tier-godly)' },
+                { key: 'ancient', label: 'Ancient', color: 'var(--tier-ancient)' },
+                { key: 'sets', label: 'Sets', color: 'var(--tier-vintage)' },
+              ].map(t => (
+                <button
+                  key={t.key}
+                  className={`gw-mobile-chip${activeTier === t.key ? ' active' : ''}`}
+                  style={activeTier === t.key ? { borderColor: t.color, color: t.color } : {}}
+                  onClick={() => setActiveTier(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+              <select className="gw-mobile-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value="name">A–Z</option>
+                <option value="value-desc">Highest SV</option>
+                <option value="value-asc">Lowest SV</option>
+                <option value="ebay-desc">Highest eBay</option>
+              </select>
+            </div>
+
             <div className="gw-main-header">
               <div>
                 <h1 className="gw-main-title">Board</h1>
