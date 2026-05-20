@@ -809,7 +809,8 @@ export default function App() {
       {selectedChartItem ? (
         <ChartModal
           item={selectedChartItem}
-          currency={"EUR"}
+          isFavorite={favoriteIds.includes(selectedChartItem.id)}
+          onToggleFavorite={() => toggleFavorite(selectedChartItem.id)}
           onClose={() => setSelectedChartItemId(null)}
         />
       ) : null}
@@ -819,34 +820,45 @@ export default function App() {
 
 // ── Preserved existing components ────────────────────────────────────────────
 
-function ChartModal({ item, onClose }) {
+function ChartModal({ item, isFavorite, onToggleFavorite, onClose }) {
   const tier = deriveTier(item);
   const ebayPrice = item.current?.ebay?.totalPrice;
   const supValue = item.current?.supreme?.value;
-  const history = Array.isArray(item.history) ? item.history : [];
   const trend = getItemTrend(item);
   const trendColor = trend >= 0 ? 'var(--up)' : 'var(--down)';
+  const trendPct = (Math.abs(trend) * 100).toFixed(1);
 
   return (
     <div className="chart-modal-backdrop" onClick={onClose}>
       <div className="chart-modal" onClick={e => e.stopPropagation()}>
-        <button className="chart-modal-close" onClick={onClose}>✕</button>
 
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: tier.color, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>{tier.label}</div>
-          <h2 style={{ fontFamily: 'Saira Condensed,Arial Narrow,sans-serif', fontSize: 30, fontWeight: 600, color: 'var(--ink)', margin: '0 0 14px', letterSpacing: '-0.005em' }}>{item.name}</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-            {[
-              { label: 'eBay Price', value: ebayPrice != null ? `€${ebayPrice.toFixed(2)}` : '--' },
-              { label: 'Supreme Value', value: formatSV(supValue) },
-              { label: 'History Points', value: String(history.length) },
-            ].map(s => (
-              <div key={s.label} style={{ background: 'var(--card-hi)', border: '1px solid var(--line)', borderRadius: 4, padding: '10px 12px' }}>
-                <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: 'var(--ink-faint)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>{s.label}</div>
-                <div style={{ fontFamily: 'Saira Condensed,Arial Narrow,sans-serif', fontSize: 24, fontWeight: 600, color: 'var(--ink)' }}>{s.value}</div>
-              </div>
-            ))}
+        {/* Header row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: tier.color, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 4 }}>{tier.label}</div>
+            <h2 style={{ fontFamily: 'Saira Condensed,Arial Narrow,sans-serif', fontSize: 28, fontWeight: 600, color: 'var(--ink)', margin: 0, letterSpacing: '-0.005em' }}>{item.name}</h2>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <button
+              onClick={onToggleFavorite}
+              style={{ fontSize: 28, background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: isFavorite ? '#f5c518' : 'rgba(255,255,255,0.3)', transition: 'color 120ms', lineHeight: 1, textShadow: isFavorite ? '0 0 12px rgba(245,197,24,0.5)' : 'none' }}
+            >★</button>
+            <button className="chart-modal-close" onClick={onClose} style={{ position: 'static', width: 32, height: 32 }}>✕</button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 16 }}>
+          {[
+            { label: 'eBay Price', value: ebayPrice != null ? `€${ebayPrice.toFixed(2)}` : '--' },
+            { label: 'Supreme Value', value: formatSV(supValue) },
+            { label: '7D Trend', value: `${trend >= 0 ? '+' : ''}${trendPct}%`, color: trendColor },
+          ].map(s => (
+            <div key={s.label} style={{ background: 'var(--card-hi)', border: '1px solid var(--line)', borderRadius: 4, padding: '10px 12px' }}>
+              <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: 'var(--ink-faint)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontFamily: 'Saira Condensed,Arial Narrow,sans-serif', fontSize: 24, fontWeight: 600, color: s.color || 'var(--ink)' }}>{s.value}</div>
+            </div>
+          ))}
         </div>
 
         <DualHistoryChart item={item} trendColor={trendColor} />
@@ -856,13 +868,24 @@ function ChartModal({ item, onClose }) {
 }
 
 function DualHistoryChart({ item, trendColor = 'var(--up)' }) {
-  const history = Array.isArray(item?.history) ? item.history : [];
+  const rawHistory = Array.isArray(item?.history) ? item.history : [];
+  const ebayNow = item?.current?.ebay?.totalPrice ?? null;
+  const supNow = item?.current?.supreme?.value ?? null;
+
+  // Pad with current snapshot so there's always something to draw
+  const now = { timestamp: new Date().toISOString(), ebayPrice: ebayNow, supremeValue: supNow };
+  const history = rawHistory.length === 0
+    ? [now, now]
+    : rawHistory.length === 1
+      ? [rawHistory[0], now]
+      : rawHistory;
+
   const W = 100, H = 60;
 
   function norm(series) {
     const vals = series.filter(v => v != null);
-    if (!vals.length) return series.map((_, i) => [i / Math.max(series.length - 1, 1) * W, H / 2]);
-    const max = Math.max(...vals), min = Math.min(...vals);
+    const max = vals.length ? Math.max(...vals) : 1;
+    const min = vals.length ? Math.min(...vals) : 0;
     const range = max - min || 1;
     return series.map((v, i) => [
       (i / Math.max(series.length - 1, 1)) * W,
@@ -874,16 +897,11 @@ function DualHistoryChart({ item, trendColor = 'var(--up)' }) {
     return pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
   }
 
-  if (history.length < 2) {
-    return (
-      <div style={{ minHeight: 160, display: 'grid', placeItems: 'center', color: 'var(--ink-faint)', fontFamily: 'JetBrains Mono,monospace', fontSize: 12 }}>
-        Not enough history yet — check back after the next refresh.
-      </div>
-    );
-  }
-
   const ebayData = history.map(p => p.ebayPrice);
   const supData = history.map(p => p.supremeValue);
+  const hasEbay = ebayData.some(v => v != null);
+  const hasSup = supData.some(v => v != null);
+
   const ep = norm(ebayData);
   const sp = norm(supData);
   const gradId = `cm-fill-${item.id}`;
@@ -891,32 +909,42 @@ function DualHistoryChart({ item, trendColor = 'var(--up)' }) {
   return (
     <div>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none"
-        style={{ width: '100%', height: 200, display: 'block', borderRadius: 4 }}>
+        style={{ width: '100%', height: 200, display: 'block', background: 'var(--bg-deep)', borderRadius: 4 }}>
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={trendColor} stopOpacity="0.28" />
+            <stop offset="0%" stopColor={trendColor} stopOpacity="0.3" />
             <stop offset="100%" stopColor={trendColor} stopOpacity="0" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map(y => (
           <line key={y} x1="0" x2={W} y1={H * y} y2={H * y}
-            stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+            stroke="rgba(255,255,255,0.07)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
         ))}
-        <path d={pts2path(ep) + ` L ${W} ${H} L 0 ${H} Z`} fill={`url(#${gradId})`} />
-        <path d={pts2path(sp)} fill="none" stroke="var(--ink-faint)" strokeWidth="1"
-          strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />
-        <path d={pts2path(ep)} fill="none" stroke={trendColor} strokeWidth="1.5"
-          strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        {hasEbay && <path d={pts2path(ep) + ` L ${W} ${H} L 0 ${H} Z`} fill={`url(#${gradId})`} />}
+        {hasSup && <path d={pts2path(sp)} fill="none" stroke="var(--ink-faint)" strokeWidth="1"
+          strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />}
+        {hasEbay && <path d={pts2path(ep)} fill="none" stroke={trendColor} strokeWidth="1.5"
+          strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />}
       </svg>
+
       <div style={{ display: 'flex', gap: 16, marginTop: 10, fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 12, height: 2, background: trendColor, display: 'inline-block', borderRadius: 1 }} />
-          eBay Price
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 12, height: 1.5, backgroundImage: `repeating-linear-gradient(90deg,var(--ink-faint) 0 3px,transparent 3px 6px)`, display: 'inline-block' }} />
-          Supreme Value
-        </span>
+        {hasEbay && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 12, height: 2, background: trendColor, display: 'inline-block', borderRadius: 1 }} />
+            eBay Price
+          </span>
+        )}
+        {hasSup && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 12, height: 1.5, backgroundImage: `repeating-linear-gradient(90deg,var(--ink-faint) 0 3px,transparent 3px 6px)`, display: 'inline-block' }} />
+            Supreme Value
+          </span>
+        )}
+        {rawHistory.length < 2 && (
+          <span style={{ marginLeft: 'auto', color: 'var(--ink-ghost)', fontSize: 8 }}>
+            Showing current snapshot — more data after next refresh
+          </span>
+        )}
       </div>
     </div>
   );

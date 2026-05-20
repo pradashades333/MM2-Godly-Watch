@@ -311,9 +311,9 @@ select {
 .gw-card { position: relative; background: var(--card); border-radius: 6px; border: 1px solid var(--line); overflow: hidden; transition: border-color 150ms, transform 150ms; }
 .gw-card:hover { border-color: var(--line-hi); transform: translateY(-1px); }
 .gw-card-serial { position: absolute; top: 10px; left: 10px; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-ghost); letter-spacing: 0.1em; }
-.gw-card-fav { position: absolute; top: 6px; right: 8px; z-index: 2; font-size: 20px; cursor: pointer; background: none; border: none; padding: 4px; line-height: 1; color: var(--ink-faint); transition: color 120ms, transform 120ms; }
-.gw-card-fav:hover { color: var(--ink-dim); transform: scale(1.15); }
-.gw-card-fav.active { color: #f5c518; }
+.gw-card-fav { position: absolute; top: 6px; right: 8px; z-index: 2; font-size: 28px; cursor: pointer; background: none; border: none; padding: 4px; line-height: 1; color: rgba(255,255,255,0.25); transition: color 120ms, transform 120ms; }
+.gw-card-fav:hover { color: rgba(255,255,255,0.55); transform: scale(1.1); }
+.gw-card-fav.active { color: #f5c518; text-shadow: 0 0 12px rgba(245,197,24,0.5); }
 .gw-card-art { position: relative; width: 100%; aspect-ratio: 1.45; border-bottom: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; padding-top: 3px; }
 .gw-card-art-img { width: 70%; height: 100%; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4)); }
 .gw-card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
