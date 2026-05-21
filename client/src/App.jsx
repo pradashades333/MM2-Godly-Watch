@@ -2,8 +2,7 @@ import { startTransition, useDeferredValue, useEffect, useMemo, useState } from 
 import {
   getMarketData,
   getMarketStats,
-  getRecentMoves,
-  refreshMarketData
+  getRecentMoves
 } from "./api/marketApi";
 import { calculateMarketStats } from "./utils/calculateMarketStats";
 import { formatCurrency } from "./utils/formatCurrency";
@@ -419,7 +418,6 @@ export default function App() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [selectedChartItemId, setSelectedChartItemId] = useState(null);
   const [favoriteIds, setFavoriteIds] = useState(readStoredFavoriteIds);
@@ -475,30 +473,6 @@ export default function App() {
     }
   }
 
-  async function handleRefresh() {
-    setRefreshing(true);
-    setError("");
-
-    try {
-      const refreshed = await refreshMarketData();
-      const stats = await getMarketStats();
-      const moves = await getRecentMoves();
-
-      startTransition(() => {
-        setMarketData({
-          items: refreshed.items,
-          refreshedAt: refreshed.refreshedAt
-        });
-        setServerStats(stats);
-        setRecentMoves(moves);
-      });
-    } catch (err) {
-      setError(err.message || "Refresh failed.");
-      setRefreshing(false);
-      return;
-    }
-    setRefreshing(false);
-  }
 
   const categories = useMemo(() => {
     return ["all", ...new Set(items.map((item) => item.category).filter(Boolean))];
@@ -884,9 +858,6 @@ export default function App() {
                 </p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button className="refresh-button" onClick={handleRefresh} disabled={refreshing} style={{ padding: '8px 14px', fontSize: 13 }}>
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
-                </button>
                 <div className="gw-view-toggle">
                   <button className={`gw-view-btn${viewMode === 'grid' ? ' active' : ''}`} onClick={() => setViewMode('grid')}>Grid</button>
                   <button className={`gw-view-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')}>List</button>

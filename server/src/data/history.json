@@ -22,10 +22,10 @@
         "shippingPrice": 17.66,
         "totalPrice": 95.85,
         "matchedQuery": "Murder Mystery 2 Traveler's Gun",
-        "url": "https://www.benl.ebay.be/itm/137186300122?_skw=Murder+Mystery+2+Traveler%27s+Gun&hash=item1ff0f0d0da:g:2HkAAeSwJHtpzOE5&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGYPzZHCLgKj28OcguIaCMhCHrzs5y8iXl5ltSSWIBA4u3TwzRDqYnP%2Fi%2FrSvo96FQ6s0p0QQirzYgrKpfQZFLHu7Mhl%2BXXr7YOr8frfjXRZh1zTYUzSA16Hho0smaxA28SVBYCHOSd0CHIVJ3%2BLVVLfbo43UQOyofczZ6tPGOCF42iDpyxqkQM71PCjqi%2Bbdk4N%2Fdoq7BKQN4X63ZsSSYBcL0D0ChK6e%2FNk3PMHZUKHdo3avvrBSxd%2BlaZBVNkRWjMTPGe1%2B1v6O%2F8pKgWGoxvc3M2%2Bx9Wgsss2SB1wKv%2B747LoaVdgl00shme1%2FVtqeJs%3D"
+        "url": "https://www.benl.ebay.be/itm/137186300122?_skw=Murder+Mystery+2+Traveler%27s+Gun&hash=item1ff0f0d0da:g:2HkAAeSwJHtpzOE5&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGYPzZHCLgKj28OcguIaCMhCHrzs5y8iXl5ltSSWIBA4u3TwzRDqYnP%2Fi%2FrSvo96FQ6s0p0QQirzYgrKpfQZFLHu7Mhl%2BXXr7YOr8frfjXRZh1zTYUzSA16Hho0smaxA28QOb1%2Fx3IG7O%2F2G8qw%2FJy49Csasu%2Fg%2FWU7Avv3Ri3zcsUfLFDuPnuzKLxJxalhwmcEjse%2Fcny%2FzpwDIxYvsf5xgmGPZHjSfquPv2W0wwl3Bu%2B0Ge4admdaN0aN6ahHhVbXwFYClAM2n6oHwvbZJEsjQDPNRaWXvQq%2FqBO9szc3%2BQjX7nAidZRofEPUs0mlEHCA%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.994Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.300Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.994Z",
@@ -61,7 +61,7 @@
         "url": "https://www.benl.ebay.be/itm/227163018140?_skw=Murder+Mystery+2+Evergun&hash=item34e3f8939c:g:X2kAAeSwqEVpXUUb"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.995Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.301Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.995Z",
@@ -89,20 +89,26 @@
         "pageUrl": "https://supremevalues.com/mm2/godlies"
       },
       "ebay": {
-        "price": 50.28,
+        "price": 51.66,
         "currency": "EUR",
-        "shippingPrice": 0,
-        "totalPrice": 50.28,
+        "shippingPrice": 0.7,
+        "totalPrice": 52.36,
         "matchedQuery": "Murder Mystery 2 Constellation",
-        "url": "https://www.benl.ebay.be/itm/227276820020?_skw=Murder+Mystery+2+Constellation&hash=item34eac10e34:g:kEsAAeSwY0Ro~8Hc"
+        "url": "https://www.benl.ebay.be/itm/196907783335?_skw=Murder+Mystery+2+Constellation&hash=item2dd89e54a7:g:TeIAAOSw4IRnhDz1"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.995Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.301Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.995Z",
         "supremeValue": 2600,
         "ebayPrice": 50.28,
+        "ebayCurrency": "EUR"
+      },
+      {
+        "timestamp": "2026-05-20T19:28:35.301Z",
+        "supremeValue": 2600,
+        "ebayPrice": 51.66,
         "ebayCurrency": "EUR"
       }
     ]
@@ -133,7 +139,7 @@
         "url": "https://www.benl.ebay.be/itm/227162998373?_skw=Murder+Mystery+2+Evergreen&hash=item34e3f84665:g:UDcAAeSwNzNpXT8j"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.995Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.301Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.995Z",
@@ -166,10 +172,10 @@
         "shippingPrice": 0,
         "totalPrice": 40.65,
         "matchedQuery": "Murder Mystery 2 Turkey",
-        "url": "https://www.benl.ebay.be/itm/404646180899?_skw=Murder+Mystery+2+Turkey&hash=item5e36cab823:g:gB0AAOSw1-1lY~oc"
+        "url": "https://www.benl.ebay.be/itm/404646180899?_skw=Murder+Mystery+2+Turkey&hash=item5e36cab823:g:gB0AAOSw1-1lY~oc&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGZavTs5XAm5Cp4fhNRNtRIJheiyiYQNP9BvbOjJoDwc%2Bf6K5VbGDhOXdiEWM7TQE%2FvCNe6LpMOoxQJL6Vsfe11Ai21cRDmhHQ9Q8MniWGX%2FeonN6t5C7PtQG5qtvX5LemDbsLXdz6TAHQWRIGVJ10ZaSRtmJjY8MRQRFatEIL0WQ08Y5pRp2lywfB1e7L%2B5%2FHr0GV5Fy9kkNJIg%2BL9Nh8xQwL%2FT5wPaIveQFYzocjC4i7wmq4MBlW48LvWrh2n5aZL0kBQKovSoFBtOG5fV7gQnMycOeMjbKjy6Wze%2FpjP5cw%3D%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.995Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.301Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.995Z",
@@ -205,7 +211,7 @@
         "url": "https://www.benl.ebay.be/itm/227156417604?_skw=Murder+Mystery+2+Alienbeam&hash=item34e393dc44:g:B5wAAeSwzFhpeTEw"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.301Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -238,10 +244,10 @@
         "shippingPrice": 0,
         "totalPrice": 44.81,
         "matchedQuery": "Murder Mystery 2 Vampire's Gun",
-        "url": "https://www.benl.ebay.be/itm/318098164812?_skw=Murder+Mystery+2+Vampire%27s+Gun&hash=item4a1020cc4c:g:1bQAAeSwSSBpzz7B&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGZ%2Fz2BacqVMFhR%2F346iK%2BQOGwwSA6TV6rLdkj0GYoiMfx1SMrzrAf37afRbxjoGUiJoH4qzFRBvVGFp7tJ0Kz1GEtukR1sJMkX%2BATMvkSa8TVCZOWlCkY6hqXWUiq0ryMBAiBv7NEmd2sw1fVmPGjaynd%2FLPBL8iAW6icOOBT80eoqfXGE4kojXotxxKTGBrROi239NjaQdjnMAd%2BdUyp3arSxEg%2FTB8SH5TtJVJfO8x5JdrrP8A5Yb8unpq1bUMZioUJEHtc%2FxNEHbeV8wdnNB1yun13E5Ho45B%2FQ%2Fr%2FpJW3bXW6mEmsVh0D7bhI4pYt8%3D"
+        "url": "https://www.benl.ebay.be/itm/318098164812?_skw=Murder+Mystery+2+Vampire%27s+Gun&hash=item4a1020cc4c:g:1bQAAeSwSSBpzz7B&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGZ%2Fz2BacqVMFhR%2F346iK%2BQOGwwSA6TV6rLdkj0GYoiMfx1SMrzrAf37afRbxjoGUiJoH4qzFRBvVGFp7tJ0Kz1GEtukR1sJMkX%2BATMvkSa8TVCZOWlCkY6hqXWUiq0ryMD0j5QWaSVeF6yyMM0sGEDA8PS8VXeyEcOMgW3fW%2F8u315Ia1b24fJjKZYIhViYyN9iNkV9QUMwWfNgxk4eZLldezGPMluuC3Tz5qWdmuGtwpN9EamcyfQh7yR2tqUz2bBCMu0dpuIYHu2EXCm3BfmAQn0GYAiT45eqUp9%2BqXEmz4aZS3EHmJxTUMO5C5Ln5s0%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -277,7 +283,7 @@
         "url": "https://www.benl.ebay.be/itm/227164717968?_skw=Murder+Mystery+2+Darkshot&hash=item34e4128390:g:wjQAAeSwhjdpXsfF"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -313,7 +319,7 @@
         "url": "https://www.benl.ebay.be/itm/227164720448?_skw=Murder+Mystery+2+Darksword&hash=item34e4128d40:g:F3kAAeSwCBtpXsgR"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -349,7 +355,7 @@
         "url": "https://www.benl.ebay.be/itm/227156418808?_skw=Murder+Mystery+2+Raygun&hash=item34e393e0f8:g:-oUAAeSw0l9peTE8"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -385,7 +391,7 @@
         "url": "https://www.benl.ebay.be/itm/227164726400?_skw=Murder+Mystery+2+Blossom&hash=item34e412a480:g:1BMAAeSwuutpXsnq"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -421,7 +427,7 @@
         "url": "https://www.benl.ebay.be/itm/227164725991?_skw=Murder+Mystery+2+Sakura&hash=item34e412a2e7:g:JDkAAeSwJchpXsjb"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -457,7 +463,7 @@
         "url": "https://www.benl.ebay.be/itm/227156427958?_skw=Murder+Mystery+2+Sunrise+Gun&hash=item34e39404b6:g:4NAAAeSwfrtpd9Kj"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.996Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.302Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.996Z",
@@ -493,7 +499,7 @@
         "url": "https://www.benl.ebay.be/itm/366386305064?_skw=Murder+Mystery+2+Snowcannon&hash=item554e535828:g:aVgAAeSw7LZp97-w"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -529,7 +535,7 @@
         "url": "https://www.benl.ebay.be/itm/227156389188?_skw=Murder+Mystery+2+Bauble&hash=item34e3936d44:g:yfkAAeSwc1ppVyWu"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -565,7 +571,7 @@
         "url": "https://www.benl.ebay.be/itm/227156425116?_skw=Murder+Mystery+2+Sunset&hash=item34e393f99c:g:jKQAAeSw3tlpd9L9"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -601,7 +607,7 @@
         "url": "https://www.benl.ebay.be/itm/227238961518?_skw=Murder+Mystery+2+Heart+Wand&hash=item34e87f616e:g:7IMAAeSwk9VppZz4"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -637,7 +643,7 @@
         "url": "https://www.benl.ebay.be/itm/405727841575?_skw=Murder+Mystery+2+Soul&hash=item5e77438d27:g:hgIAAOSw-W5n8QIJ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -673,7 +679,7 @@
         "url": "https://www.benl.ebay.be/itm/227157693392?_skw=Murder+Mystery+2+Spirit&hash=item34e3a753d0:g:QAcAAeSwouNpWFco"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -709,7 +715,7 @@
         "url": "https://www.benl.ebay.be/itm/227156463544?_skw=Murder+Mystery+2+Flora&hash=item34e3948fb8:g:hNEAAeSwNntpVz1K"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -745,7 +751,7 @@
         "url": "https://www.benl.ebay.be/itm/366291671327?_skw=Murder+Mystery+2+Rainbow+Gun&hash=item5548af591f:g:VBcAAeSweLNpvZfr"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -778,10 +784,10 @@
         "shippingPrice": 16.98,
         "totalPrice": 37.76,
         "matchedQuery": "Murder Mystery 2 Bloom",
-        "url": "https://www.benl.ebay.be/itm/336581416262?_skw=Murder+Mystery+2+Bloom&hash=item4e5dd0d546:g:IE4AAeSw-PRqBCEN&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGbj1Ko8eK3GqrXEJOhotZLS%2BcxBSAZDX09PAcvgqq5Si8ReiC6t%2FK60%2BDTW6sv2j2lhW3ep%2FeM1rUrIQwHmJOcygYUyuG83%2BUc%2BsaxfXnQfwU%2FskNpNJzGv11GseLDWIL4z5QE%2B42i06VWeBUUcSM0h9CkD8E3xxH%2Fk4xCVyviHrEm1t3TwCTu1FayxN43xbkDwS09%2BxWbKW04B19CAcLYzH23QgXb0RFbgkr3QNiGKmJaD7JBvtW7QVU%2F4EVN2oyCATdhVCOT4UCYiqhrxAm%2Fhp4q5KjwaULJmHpdyOB4Dtg%3D%3D"
+        "url": "https://www.benl.ebay.be/itm/336581416262?_skw=Murder+Mystery+2+Bloom&hash=item4e5dd0d546:g:IE4AAeSw-PRqBCEN&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGbj1Ko8eK3GqrXEJOhotZLS%2BcxBSAZDX09PAcvgqq5Si8ReiC6t%2FK60%2BDTW6sv2j2lhW3ep%2FeM1rUrIQwHmJOcygYUyuG83%2BUc%2BsaxfXnQfwU%2FskNpNJzGv11GseLDWIL5y67i6j%2BT2NSTcnMT1kOJHY4A2eDLFrCHm%2FfhYbGRrWIxFLorBpR2d1KxS1SRWFX0I7B2fL%2FiyNZzj0PUfu5fc%2FJjhjUjWPtabiA7ZYPUtgC%2FSaWloe82h7wa3GF2t1YhnwkRQ15yu2je3X5jE3Rt20fS4t6uoyzNUXaRe1ciVsQ%3D%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -817,7 +823,7 @@
         "url": "https://www.benl.ebay.be/itm/366291678057?_skw=Murder+Mystery+2+Rainbow&hash=item5548af7369:g:KUoAAeSw0fVpvZho"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.303Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -853,7 +859,7 @@
         "url": "https://www.benl.ebay.be/itm/366386305640?_skw=Murder+Mystery+2+Snow+Dagger&hash=item554e535a68:g:zOYAAeSwPXpp98AU"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -889,7 +895,7 @@
         "url": "https://www.benl.ebay.be/itm/227164740222?_skw=Murder+Mystery+2+Flowerwood+Gun&hash=item34e412da7e:g:RzIAAeSwyuFpXs5j"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -918,7 +924,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.997Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.997Z",
@@ -954,7 +960,7 @@
         "url": "https://www.benl.ebay.be/itm/227245625333?_skw=Murder+Mystery+2+Xenoknife&hash=item34e8e50ff5:g:n4gAAeSwMD1pq7D2"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -990,7 +996,7 @@
         "url": "https://www.benl.ebay.be/itm/227245624223?_skw=Murder+Mystery+2+Xenoshot&hash=item34e8e50b9f:g:qyQAAeSwPgVpq7Cf"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1019,7 +1025,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1055,7 +1061,7 @@
         "url": "https://www.benl.ebay.be/itm/227333792832?_skw=Murder+Mystery+2+Watergun&hash=item34ee266440:g:gqkAAeSwR8pojzp2"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1091,7 +1097,7 @@
         "url": "https://www.benl.ebay.be/itm/227164554825?_skw=Murder+Mystery+2+Waves&hash=item34e4100649:g:FXcAAeSwHyJpXp5A"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.304Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1127,7 +1133,7 @@
         "url": "https://www.benl.ebay.be/itm/227216477542?_skw=Murder+Mystery+2+Treat&hash=item34e7284d66:g:G1oAAeSwLQFplDrc"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1163,7 +1169,7 @@
         "url": "https://www.benl.ebay.be/itm/227216479726?_skw=Murder+Mystery+2+Sweet&hash=item34e72855ee:g:YO8AAeSwCx9plDrJ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1192,7 +1198,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1228,7 +1234,7 @@
         "url": "https://www.benl.ebay.be/itm/318098184432?_skw=Murder+Mystery+2+Snowstorm&hash=item4a102118f0:g:E1EAAeSwTR5pz0Eu"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1264,7 +1270,7 @@
         "url": "https://www.benl.ebay.be/itm/227155593243?_skw=Murder+Mystery+2+Bat&hash=item34e387481b:g:DRsAAeSwSzBpVnx0"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1300,7 +1306,7 @@
         "url": "https://www.benl.ebay.be/itm/227157271560?_skw=Murder+Mystery+2+Borealis&hash=item34e3a0e408:g:oe0AAeSwIyxpV--E"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1336,7 +1342,7 @@
         "url": "https://www.benl.ebay.be/itm/227157272837?_skw=Murder+Mystery+2+Australis&hash=item34e3a0e905:g:eVQAAeSwD1tpV-~G"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1372,7 +1378,7 @@
         "url": "https://www.benl.ebay.be/itm/317757929884?_skw=Murder+Mystery+2+Candy&hash=item49fbd9399c:g:~FoAAeSw6MhpvBE5"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.998Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.998Z",
@@ -1408,7 +1414,7 @@
         "url": "https://www.benl.ebay.be/itm/227160352016?_skw=Murder+Mystery+2+Heartblade&hash=item34e3cfe510:g:Y9cAAeSwNn1pWt3C"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.305Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1444,7 +1450,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448021?_skw=Murder+Mystery+2+Pearlshine&hash=item4a0aa94f95:g:PSUAAeSwnWRptkEp"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1471,15 +1477,28 @@
         "origin": "Summer 2024 Item Pack",
         "pageUrl": "https://supremevalues.com/mm2/godlies"
       },
-      "ebay": null
+      "ebay": {
+        "price": 1.96,
+        "currency": "EUR",
+        "shippingPrice": 0,
+        "totalPrice": 1.96,
+        "matchedQuery": "Murder Mystery 2 Pearl",
+        "url": "https://www.benl.ebay.be/itm/227164730056?_skw=Murder+Mystery+2+Pearl&hash=item34e412b2c8:g:oTQAAeSwzk9pXsuL"
+      }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
         "supremeValue": 50,
         "ebayPrice": null,
         "ebayCurrency": null
+      },
+      {
+        "timestamp": "2026-05-20T19:28:35.306Z",
+        "supremeValue": 50,
+        "ebayPrice": 1.96,
+        "ebayCurrency": "EUR"
       }
     ]
   },
@@ -1509,7 +1528,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448220?_skw=Murder+Mystery+2+Luger&hash=item4a0aa9505c:g:-hkAAeSwd0BptkEy"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1545,7 +1564,7 @@
         "url": "https://www.benl.ebay.be/itm/227191607034?_skw=Murder+Mystery+2+Red+Luger&hash=item34e5accefa:g:XKQAAeSwhw1peRw3"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1573,20 +1592,26 @@
         "pageUrl": "https://supremevalues.com/mm2/godlies"
       },
       "ebay": {
-        "price": 1.69,
+        "price": 1.76,
         "currency": "EUR",
         "shippingPrice": 0,
-        "totalPrice": 1.69,
+        "totalPrice": 1.76,
         "matchedQuery": "Murder Mystery 2 Candleflame",
-        "url": "https://www.benl.ebay.be/itm/227155876466?_skw=Murder+Mystery+2+Candleflame&hash=item34e38b9a72:g:boAAAeSwW~dpVrgE"
+        "url": "https://www.benl.ebay.be/itm/318006448092?_skw=Murder+Mystery+2+Candleflame&hash=item4a0aa94fdc:g:X4wAAeSwYFlptkEw"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
         "supremeValue": 42,
         "ebayPrice": 1.69,
+        "ebayCurrency": "EUR"
+      },
+      {
+        "timestamp": "2026-05-20T19:28:35.306Z",
+        "supremeValue": 42,
+        "ebayPrice": 1.76,
         "ebayCurrency": "EUR"
       }
     ]
@@ -1617,7 +1642,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448099?_skw=Murder+Mystery+2+Elderwood+Blade&hash=item4a0aa94fe3:g:FvIAAeSwUjNptkGi"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1653,7 +1678,7 @@
         "url": "https://www.benl.ebay.be/itm/227155883059?_skw=Murder+Mystery+2+Makeshift&hash=item34e38bb433:g:Z8EAAeSwuCdpVrn9"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1689,7 +1714,7 @@
         "url": "https://www.benl.ebay.be/itm/227164728176?_skw=Murder+Mystery+2+Phantom&hash=item34e412ab70:g:OOgAAeSw1QppXsrY"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1725,7 +1750,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448294?_skw=Murder+Mystery+2+Spectre&hash=item4a0aa950a6:g:3LUAAeSwON5ptkFt"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.306Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1761,7 +1786,7 @@
         "url": "https://www.benl.ebay.be/itm/405756165593?_skw=Murder+Mystery+2+Darkbringer&hash=item5e78f3bdd9:g:ttkAAOSwtGdn-ssd"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1797,7 +1822,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448232?_skw=Murder+Mystery+2+Elderwood+Revolver&hash=item4a0aa95068:g:3vUAAeSwqGNptkFt"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1833,7 +1858,7 @@
         "url": "https://www.benl.ebay.be/itm/366198823883?_skw=Murder+Mystery+2+Iceblaster&hash=item5543269bcb:g:vgYAAeSw7Rtpj1fY"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:12.999Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:12.999Z",
@@ -1869,7 +1894,7 @@
         "url": "https://www.benl.ebay.be/itm/196901051282?_skw=Murder+Mystery+2+Sugar&hash=item2dd8379b92:g:yVUAAOSw7i9nhD3f"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -1905,7 +1930,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448057?_skw=Murder+Mystery+2+Lightbringer&hash=item4a0aa94fb9:g:2MMAAeSwjk9ptkEt"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -1941,7 +1966,7 @@
         "url": "https://www.benl.ebay.be/itm/406511219466?_skw=Murder+Mystery+2+Ornament&hash=item5ea5f4f30a:g:zXsAAeSwRYdpSmIO"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -1977,7 +2002,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448242?_skw=Murder+Mystery+2+Green+Luger&hash=item4a0aa95072:g:PU4AAeSwnWRptkEy"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2013,7 +2038,7 @@
         "url": "https://www.benl.ebay.be/itm/405756189836?_skw=Murder+Mystery+2+Laser&hash=item5e78f41c8c:g:-4sAAOSw0Ftn-s7t"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2049,7 +2074,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448076?_skw=Murder+Mystery+2+Swirly+Gun&hash=item4a0aa94fcc:g:E2sAAeSw83RptkEu"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.307Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2085,7 +2110,7 @@
         "url": "https://www.benl.ebay.be/itm/254473139188?_skw=Murder+Mystery+2+Amerilaser&hash=item3b3fc7f3f4:g:aGcAAOSwBdNjjqJw"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2121,7 +2146,7 @@
         "url": "https://www.benl.ebay.be/itm/366198774694?_skw=Murder+Mystery+2+Hallowgun&hash=item554325dba6:g:oHEAAeSw7thpj1LW"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2157,7 +2182,7 @@
         "url": "https://www.benl.ebay.be/itm/405756225250?_skw=Murder+Mystery+2+Shark&hash=item5e78f4a6e2:g:hf8AAOSwQ4tn-tT7"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2193,7 +2218,7 @@
         "url": "https://www.benl.ebay.be/itm/318006447984?_skw=Murder+Mystery+2+Icebeam&hash=item4a0aa94f70:g:6c8AAeSwK9ZptkDz"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2229,7 +2254,7 @@
         "url": "https://www.benl.ebay.be/itm/334566046775?_skw=Murder+Mystery+2+Nightblade&hash=item4de5b0bc37:g:XlAAAOSwdodhUvCP"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2265,7 +2290,7 @@
         "url": "https://www.benl.ebay.be/itm/405756201752?_skw=Murder+Mystery+2+Plasmabeam&hash=item5e78f44b18:g:WfIAAOSw2Odn-tF9"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2301,7 +2326,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448306?_skw=Murder+Mystery+2+Blaster&hash=item4a0aa950b2:g:p9wAAeSwhgxptkFu"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.000Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.000Z",
@@ -2337,7 +2362,7 @@
         "url": "https://www.benl.ebay.be/itm/318108191473?_skw=Murder+Mystery+2+Ginger+Luger&hash=item4a10b9caf1:g:1csAAeSwgjJokbNd"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.308Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2373,7 +2398,7 @@
         "url": "https://www.benl.ebay.be/itm/405756195655?_skw=Murder+Mystery+2+Iceflake&hash=item5e78f43347:g:k-EAAOSwjfVn-tB9"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.311Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2409,7 +2434,7 @@
         "url": "https://www.benl.ebay.be/itm/198327891797?_skw=Murder+Mystery+2+Pixel&hash=item2e2d437755:g:z3cAAeSwPZBp91kX"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2445,7 +2470,7 @@
         "url": "https://www.benl.ebay.be/itm/405756203555?_skw=Murder+Mystery+2+Plasmablade&hash=item5e78f45223:g:UEoAAOSwBoRn-tHc"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2481,7 +2506,7 @@
         "url": "https://www.benl.ebay.be/itm/318006447917?_skw=Murder+Mystery+2+Cookiecane&hash=item4a0aa94f2d:g:X~AAAeSwk1pptkC2"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2517,7 +2542,7 @@
         "url": "https://www.benl.ebay.be/itm/227155893958?_skw=Murder+Mystery+2+Gingermint&hash=item34e38bdec6:g:dUoAAeSwztNpVrv~"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2553,7 +2578,7 @@
         "url": "https://www.benl.ebay.be/itm/318108191551?_skw=Murder+Mystery+2+Lugercane&hash=item4a10b9cb3f:g:mwAAAeSwLpFokbng"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2589,7 +2614,7 @@
         "url": "https://www.benl.ebay.be/itm/405756312406?_skw=Murder+Mystery+2+Minty&hash=item5e78f5fb56:g:Rk8AAOSwxy1n-uL7"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2625,7 +2650,7 @@
         "url": "https://www.benl.ebay.be/itm/405756228052?_skw=Murder+Mystery+2+Old+Glory&hash=item5e78f4b1d4:g:lzYAAOSwxPRn-tV7"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2661,7 +2686,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448061?_skw=Murder+Mystery+2+Slasher&hash=item4a0aa94fbd:g:5dgAAeSwJPJptkEr"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2697,7 +2722,7 @@
         "url": "https://www.benl.ebay.be/itm/254470420100?_skw=Murder+Mystery+2+Battleaxe+II&hash=item3b3f9e7684:g:0cIAAOSwZyJjjqEK"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2733,7 +2758,7 @@
         "url": "https://www.benl.ebay.be/itm/397754880594?_skw=Murder+Mystery+2+Eternalcane&hash=item5c9c09d252:g:gVkAAeSwdU1pwopA"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2769,7 +2794,7 @@
         "url": "https://www.benl.ebay.be/itm/405759565317?_skw=Murder+Mystery+2+Jinglegun&hash=item5e79279e05:g:cFUAAOSwHDJn~A1k"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.001Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.312Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.001Z",
@@ -2802,10 +2827,10 @@
         "shippingPrice": 17.46,
         "totalPrice": 32.63,
         "matchedQuery": "Murder Mystery 2 Virtual",
-        "url": "https://www.benl.ebay.be/itm/406887097807?_skw=Murder+Mystery+2+Virtual&hash=item5ebc5c65cf:g:stYAAeSwE8Zp7kuI&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGZZvQ4f2yLE5gFTO4AcTru%2FwsfwEeleuS2AEn2%2FSmgz%2B0L2yNUh2yhEVoJSV6Yc4W%2FFiygfG8IxwpIuZQJNZ7757QN2h8QKqE6DFbAwC5v3%2BYs90N1KtglsNvD80viVSzZ20kuktE3wV%2F0kFdMerjxqqXsYW0Ca%2BWv25Utg8ZF9HjuumQSDj0QO%2BJypmw03Zb1KBzdnT9d6lypnWbG5XPQRL5QDLPqazQ8xMgrn8KGlqTOIOhpVzLTPm1frrRCResFsT01xrHM5gbFVMrkdhyeQqlfnjjPOHUkp60nsoKA94w%3D%3D"
+        "url": "https://www.benl.ebay.be/itm/406887097807?_skw=Murder+Mystery+2+Virtual&hash=item5ebc5c65cf:g:stYAAeSwE8Zp7kuI&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGZZvQ4f2yLE5gFTO4AcTru%2FwsfwEeleuS2AEn2%2FSmgz%2B0L2yNUh2yhEVoJSV6Yc4W%2FFiygfG8IxwpIuZQJNZ7757QN2h8QKqE6DFbAwC5v3%2BYs90N1KtglsNvD80viVSzZzcLD68IINIR3Gy6QvgVBGtdRn6bHpyvWeYGD87NmF0vYmTk2gT8nFTkriY8I4dZ3M7pgkbvgJdKFvEEPsXo%2FtrirtzNd1wCvc5%2B6%2FENX9kL%2FlUdEWJdPGkt8ZgNbwWjkistCp2kBYOZBd4E5HjnHHRXFbvMECRarnJ7KcSpmaQA%3D%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -2841,7 +2866,7 @@
         "url": "https://www.benl.ebay.be/itm/405756267119?_skw=Murder+Mystery+2+Gemstone&hash=item5e78f54a6f:g:gpYAAOSwlPRn-tur"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -2877,7 +2902,7 @@
         "url": "https://www.benl.ebay.be/itm/405756318288?_skw=Murder+Mystery+2+Gingerblade&hash=item5e78f61250:g:IhsAAOSwOG9n-uQ8"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -2913,7 +2938,7 @@
         "url": "https://www.benl.ebay.be/itm/227163120271?_skw=Murder+Mystery+2+Swirly+Blade&hash=item34e3fa228f:g:CYEAAeSwNaJpXV9S"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -2949,7 +2974,7 @@
         "url": "https://www.benl.ebay.be/itm/397754663495?_skw=Murder+Mystery+2+Nebula&hash=item5c9c068247:g:A1UAAeSwzP9pwn5Y"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -2985,7 +3010,7 @@
         "url": "https://www.benl.ebay.be/itm/334394226393?_skw=Murder+Mystery+2+Vampire%27s+Edge&hash=item4ddb72f6d9:g:-BsAAOSwrqRhUvVh"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3021,7 +3046,7 @@
         "url": "https://www.benl.ebay.be/itm/405756316874?_skw=Murder+Mystery+2+Deathshard&hash=item5e78f60cca:g:XcAAAOSwCIJn-uPO"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3057,7 +3082,7 @@
         "url": "https://www.benl.ebay.be/itm/195383708364?_skw=Murder+Mystery+2+Battleaxe&hash=item2d7dc6cacc:g:ftoAAOSwR31jNitq"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3093,7 +3118,7 @@
         "url": "https://www.benl.ebay.be/itm/405759699193?_skw=Murder+Mystery+2+Bioblade&hash=item5e7929a8f9:g:ZvUAAOSwrN5n~Bcb"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.313Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3129,7 +3154,7 @@
         "url": "https://www.benl.ebay.be/itm/196951243379?_skw=Murder+Mystery+2+Chill&hash=item2ddb357a73:g:lhkAAOSwKnlniEZ3"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3165,7 +3190,7 @@
         "url": "https://www.benl.ebay.be/itm/318006448258?_skw=Murder+Mystery+2+Clockwork&hash=item4a0aa95082:g:casAAeSwBf9ptkFv"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3201,7 +3226,7 @@
         "url": "https://www.benl.ebay.be/itm/167606701152?_skw=Murder+Mystery+2+Eternal+III&hash=item2706234c60:g:IdEAAeSwUTZoWJ4P"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3237,7 +3262,7 @@
         "url": "https://www.benl.ebay.be/itm/405866289434?_skw=Murder+Mystery+2+Eternal+IV&hash=item5e7f84191a:g:9N8AAOSwJStoJQv9"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3273,7 +3298,7 @@
         "url": "https://www.benl.ebay.be/itm/405759555695?_skw=Murder+Mystery+2+Fang&hash=item5e7927786f:g:uU4AAOSwubln~Azv"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.002Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.002Z",
@@ -3309,7 +3334,7 @@
         "url": "https://www.benl.ebay.be/itm/318112525143?_skw=Murder+Mystery+2+Frostsaber&hash=item4a10fbeb57:g:Hx0AAeSwXbRoka3n"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3345,7 +3370,7 @@
         "url": "https://www.benl.ebay.be/itm/405756280182?_skw=Murder+Mystery+2+Heat&hash=item5e78f57d76:g:xIcAAOSw6~hn-t0d"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.314Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3381,7 +3406,7 @@
         "url": "https://www.benl.ebay.be/itm/318108192190?_skw=Murder+Mystery+2+Spider&hash=item4a10b9cdbe:g:RAoAAeSw8Etokbb5"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3417,7 +3442,7 @@
         "url": "https://www.benl.ebay.be/itm/405756314649?_skw=Murder+Mystery+2+Tides&hash=item5e78f60419:g:jfQAAOSwuhdn-uNj"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3453,7 +3478,7 @@
         "url": "https://www.benl.ebay.be/itm/405866265488?_skw=Murder+Mystery+2+Eternal&hash=item5e7f83bb90:g:rZoAAOSwY-9oJQeW"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3489,7 +3514,7 @@
         "url": "https://www.benl.ebay.be/itm/255110377081?_skw=Murder+Mystery+2+Eternal+II&hash=item3b65c36e79:g:3lkAAOSw4cdgGZJP"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3525,7 +3550,7 @@
         "url": "https://www.benl.ebay.be/itm/195104208541?_skw=Murder+Mystery+2+Hallow%27s+Blade&hash=item2d6d1df69d:g:vEAAAOSwV55imREY"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3561,7 +3586,7 @@
         "url": "https://www.benl.ebay.be/itm/194777831854?_skw=Murder+Mystery+2+Hallow%27s+Edge&hash=item2d59a9d9ae:g:RJ8AAOSwZIxjxE40"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3597,7 +3622,7 @@
         "url": "https://www.benl.ebay.be/itm/137021972563?_skw=Murder+Mystery+2+Handsaw&hash=item1fe7256053:g:XJ8AAOSw0phjsrhr"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3633,7 +3658,7 @@
         "url": "https://www.benl.ebay.be/itm/195559176932?_skw=Murder+Mystery+2+Xmas&hash=item2d883c3ae4:g:PakAAOSw6DZjxEfo"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.003Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.315Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.003Z",
@@ -3669,7 +3694,7 @@
         "url": "https://www.benl.ebay.be/itm/405866305763?_skw=Murder+Mystery+2+Boneblade&hash=item5e7f8458e3:g:FUkAAOSwpSRoJQ1s"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.004Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.004Z",
@@ -3705,7 +3730,7 @@
         "url": "https://www.benl.ebay.be/itm/405866314970?_skw=Murder+Mystery+2+Frostbite&hash=item5e7f847cda:g:xZ0AAOSwKKxoJQ72"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.004Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.004Z",
@@ -3741,7 +3766,7 @@
         "url": "https://www.benl.ebay.be/itm/318098260992?_skw=Murder+Mystery+2+Ghostblade&hash=item4a10224400:g:zW0AAeSwPENpz0YA"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.004Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.004Z",
@@ -3777,7 +3802,7 @@
         "url": "https://www.benl.ebay.be/itm/137021972568?_skw=Murder+Mystery+2+Ice+Dragon&hash=item1fe7256058:g:QK4AAOSwzz5jsrkp"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.004Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.004Z",
@@ -3813,7 +3838,7 @@
         "url": "https://www.benl.ebay.be/itm/318112465720?_skw=Murder+Mystery+2+Ice+Shard&hash=item4a10fb0338:g:6aQAAeSwcAJokbt0"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -3849,7 +3874,7 @@
         "url": "https://www.benl.ebay.be/itm/195608454026?_skw=Murder+Mystery+2+Prismatic&hash=item2d8b2c238a:g:d3IAAOSwsHRj8RUQ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -3885,7 +3910,7 @@
         "url": "https://www.benl.ebay.be/itm/196951263148?_skw=Murder+Mystery+2+Pumpking&hash=item2ddb35c7ac:g:tskAAOSwGkZniEsR"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -3921,7 +3946,7 @@
         "url": "https://www.benl.ebay.be/itm/405866307399?_skw=Murder+Mystery+2+Saw&hash=item5e7f845f47:g:MSMAAOSwpCVoJQ3f"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.316Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -3957,7 +3982,7 @@
         "url": "https://www.benl.ebay.be/itm/196950696249?_skw=Murder+Mystery+2+Eggblade&hash=item2ddb2d2139:g:LrAAAOSwo4Fnh~-v"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -3993,7 +4018,7 @@
         "url": "https://www.benl.ebay.be/itm/195048164063?_skw=Murder+Mystery+2+Flames&hash=item2d69c6cadf:g:0lUAAOSwSohifRoc"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4029,7 +4054,7 @@
         "url": "https://www.benl.ebay.be/itm/196951259652?_skw=Murder+Mystery+2+Snowflake&hash=item2ddb35ba04:g:BeQAAOSwP9lniEnC"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4065,7 +4090,7 @@
         "url": "https://www.benl.ebay.be/itm/136267479304?_skw=Murder+Mystery+2+Winter%27s+Edge&hash=item1fba2cb908:g:5nYAAOSwHPdjstBH"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4101,7 +4126,7 @@
         "url": "https://www.benl.ebay.be/itm/196951258045?_skw=Murder+Mystery+2+Peppermint&hash=item2ddb35b3bd:g:iR8AAOSwJ3NniElW"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4137,7 +4162,7 @@
         "url": "https://www.benl.ebay.be/itm/167648996199?_skw=Murder+Mystery+2+Cookieblade&hash=item2708a8ab67:g:2J4AAeSwD-5oWYAW"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4173,7 +4198,7 @@
         "url": "https://www.benl.ebay.be/itm/255110366510?_skw=Murder+Mystery+2+Blue+Seer&hash=item3b65c3452e:g:SDIAAOSwgKJjjqdi"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4209,7 +4234,7 @@
         "url": "https://www.benl.ebay.be/itm/255110366526?_skw=Murder+Mystery+2+Purple+Seer&hash=item3b65c3453e:g:8WAAAOSwRhVgGY0L"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.005Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.005Z",
@@ -4245,7 +4270,7 @@
         "url": "https://www.benl.ebay.be/itm/255110377106?_skw=Murder+Mystery+2+Red+Seer&hash=item3b65c36e92:g:8qEAAOSwlJZgGY0C"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.006Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.006Z",
@@ -4278,10 +4303,10 @@
         "shippingPrice": 16.3,
         "totalPrice": 18.37,
         "matchedQuery": "Murder Mystery 2 Seer",
-        "url": "https://www.benl.ebay.be/itm/314662767336?_skw=Murder+Mystery+2+Seer&hash=item49435ccae8:g:JxoAAOSwrUNkk11f&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGaTjq2n4RMzJRaFB2v9Ilk3n2G0d4B1CWOUyByhvkxTwX3qH65jSAxdz%2B%2BMLss%2B23tBRN29S6BG5QgPRsImC2nKqN1Xt%2FMY7ExakcmZLI9wwiNpIur0QQjQIGJPjR2ZwWu5DbQL3o72bC6ai6NmguUHsuB0CTdNZwG2%2BFBO%2BQX44HKlyhEQe3wprYoe5sZ6npVZvxdpnEOr2d08wUolnKtbaKbY7HZPpeDNbcPR4IVimxIdA38mBal%2FT6I%2B6L9IECholGwRLoY6AJ9SkVsaQQdBb7WfCk6ks2PIqD4F8buoEQ%3D%3D"
+        "url": "https://www.benl.ebay.be/itm/314662767336?_skw=Murder+Mystery+2+Seer&hash=item49435ccae8:g:JxoAAOSwrUNkk11f&amdata=enc%3AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGaTjq2n4RMzJRaFB2v9Ilk3n2G0d4B1CWOUyByhvkxTwX3qH65jSAxdz%2B%2BMLss%2B23tBRN29S6BG5QgPRsImC2nKqN1Xt%2FMY7ExakcmZLI9wwiNpIur0QQjQIGJPjR2ZwWsWj%2Bxs2hggPX4tmGa6L6Eu2vwV%2BzV9Amw1pewCkFb37EerqheUqA%2B0VLrwduyQ1ARPUJLq5zFQVzZDN6uwP2%2FXb2vlRfhG6Smd9Njkl77jzEFK2GL7XsNNraQcAkoMyhvJssUHQWYZQNJnMtuKRhDhqAhLLJnQ8QDwTJPi8CIXoQ%3D%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.006Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.317Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.006Z",
@@ -4317,7 +4342,7 @@
         "url": "https://www.benl.ebay.be/itm/255110377146?_skw=MM2+Orange+Seer&hash=item3b65c36eba:g:q1wAAOSwHDNgGZJi"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.006Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.318Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.006Z",
@@ -4353,7 +4378,7 @@
         "url": "https://www.benl.ebay.be/itm/255110377134?_skw=Murder+Mystery+2+Yellow+Seer&hash=item3b65c36eae:g:ClgAAOSwdw1gGZO3"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.006Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.318Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.006Z",
@@ -4382,7 +4407,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.977Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4418,7 +4443,7 @@
         "url": "https://www.benl.ebay.be/itm/227323153979?_skw=Murder+Mystery+2+Chroma+Alien+Set&hash=item34ed840e3b:g:O8AAAeSwAxtp80HN"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.977Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4447,7 +4472,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.977Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4483,7 +4508,7 @@
         "url": "https://www.benl.ebay.be/itm/227164971344?_skw=Murder+Mystery+2+Chroma+Sun+Set&hash=item34e4166150:g:84sAAeSw0PVpd9Ig"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.977Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4519,7 +4544,7 @@
         "url": "https://www.benl.ebay.be/itm/227163474045?_skw=Murder+Mystery+2+Chroma+Snow+Set&hash=item34e3ff887d:g:tbgAAeSwmgFpeR1m"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.977Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4555,7 +4580,7 @@
         "url": "https://www.benl.ebay.be/itm/389451130175?_skw=Murder+Mystery+2+Chroma+Blizzard+Set&hash=item5aad18a53f:g:prIAAeSwCI5pWcKc"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4591,7 +4616,7 @@
         "url": "https://www.benl.ebay.be/itm/389634783632?_skw=Murder+Mystery+2+Chroma+Sweet+Set&hash=item5ab80af990:g:4c8AAeSwERtplCC4"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.776Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.776Z",
@@ -4627,7 +4652,7 @@
         "url": "https://www.benl.ebay.be/itm/227163878438?_skw=Murder+Mystery+2+Chroma+Bringer+Set&hash=item34e405b426:g:XXUAAeSw~DNpXgpT"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4663,7 +4688,7 @@
         "url": "https://www.benl.ebay.be/itm/318234406852?_skw=Murder+Mystery+2+Chroma+Slasher+Set&hash=item4a183fafc4:g:HlcAAeSwcIBp9TRx"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4696,10 +4721,10 @@
         "shippingPrice": 15.63,
         "totalPrice": 31.27,
         "matchedQuery": "Murder Mystery 2 Chroma Pet Set",
-        "url": "https://www.benl.ebay.be/itm/135642256252?_skw=Murder+Mystery+2+Chroma+Pet+Set&hash=item1f94e8937c:g:GM0AAeSwaMln3iVm&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGb7KY6aglPwlxDWeLMF886C24zr%2BZ0Hjft%2FeED%2FFJMpJpl6N1lVzFT0jIZsUC%2BM9j3qaKONCtuft4n7opDoVmF6PFqBLY6TTyREdXOZMvu%2FYqN4gdkhX96JU%2BBqixbHM9fwOy0F73NWLZRIgCtA%2BTa5pM4V0pfqFfQ24tPJY1Q5C7X3SIef4w83lT0rddHGtus2aBaNwLhqzmHzvXoUNtsbV%2BBb3eVMZVkbYZCUgQ12OUDAoOpwTgmeTg2RGYsQlqNuHMcftfSeny38wtcyGibQu3xyDhY%2B85A4QaZq3AXjLyrB8kbrYjW5OANfxdg4WBg%3D"
+        "url": "https://www.benl.ebay.be/itm/135642256252?_skw=Murder+Mystery+2+Chroma+Pet+Set&hash=item1f94e8937c:g:GM0AAeSwaMln3iVm&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGb7KY6aglPwlxDWeLMF886C24zr%2BZ0Hjft%2FeED%2FFJMpJpl6N1lVzFT0jIZsUC%2BM9j3qaKONCtuft4n7opDoVmF6PFqBLY6TTyREdXOZMvu%2FYqN4gdkhX96JU%2BBqixbHM9eBd3J6IJKbt2GVQTNkhR0Jf%2FVCIzvs7kE4uIyr7KIRQCFmMXLEXxhJ8mW7sNrOhALPkAMktdcnAO%2FbYBQ4X0rYKDS4gLdFUmjkLTms72pzBquZ7wJ5JFLLnUHXkrue2aacTBQsOHYX3NPTkVjuZytbsSLvXWF7%2FAnEq2H%2F%2BHUZVQXlFh4KVAd0gl4%2F1IXusCo%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4732,10 +4757,10 @@
         "shippingPrice": 0,
         "totalPrice": 211.1,
         "matchedQuery": "Murder Mystery 2 Traveler's Set",
-        "url": "https://www.benl.ebay.be/itm/318234470691?_skw=Murder+Mystery+2+Traveler%27s+Set&hash=item4a1840a923:g:U88AAeSwJk1p9Tln&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGZpMobe2IM3fVxJ41C7939bAji8YLjk5Lbz8LlAcdAgxjsY6OyoGvpzTE3L7Sqyq7WEQfBI8naqAB1DINBk2%2B48MwLmKMlaoP06Fm%2FOFXzRKa1ImcqS2zxUCCS0ePTTDd6VSlSOvbDVne82y%2BIdCKK1VwYsbjxVZNCKW9riYpgXKl5JoyBH44lShjY6hB3v4n75PV6%2F2NLKxRvZ%2B95NS8bpPhkEaj2SMQhPsCkv5oxRiaifE39%2BULox4ZS9Ii0qhB9cHVoS%2BSToAlIbZ4a7vOYcqVKmbOmkE4--bXhC0d7ARszav4l12XZW5cdYIijr5EA%3D"
+        "url": "https://www.benl.ebay.be/itm/318234470691?_skw=Murder+Mystery+2+Traveler%27s+Set&hash=item4a1840a923:g:U88AAeSwJk1p9Tln&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGZpMobe2IM3fVxJ41C7939bAji8YLjk5Lbz8LlAcdAgxjsY6OyoGvpzTE3L7Sqyq7WEQfBI8naqAB1DINBk2%2B48MwLmKMlaoP06Fm%2FOFXzRKa1ImcqS2zxUCCS0ePTTDd6wdL12Ciu5gPzh1Kjsj8x%2FgkOK8ABKpGiwiTOrzH0%2FJ6QNFQh17c2tUEmtBLRCq528pOtgGHzPEmkvc96XlD%2B8e6hGeQ0WLv0OXkY%2BbE%2B6Y6rteQW7CzwdkXlFIPPLS1BsYzDpe8PT5I4BOi5Ik0%2BY8DomZusw0xkEpNtZHxf7Ynd9V%2F4hFh%2Fb3%2BEMq7XKY8Q%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4771,7 +4796,7 @@
         "url": "https://www.benl.ebay.be/itm/388933743471?_skw=Murder+Mystery+2+Ever+Set&hash=item5a8e41f36f:g:tfMAAeSweCpovAOh"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4807,7 +4832,7 @@
         "url": "https://www.ebay.es/itm/157427135072?_skw=Murder+Mystery+2+Celestial+Set&hash=item24a7637260:g:8aUAAeSwsk5pAnY9"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4843,7 +4868,7 @@
         "url": "https://www.benl.ebay.be/itm/366325388728?_skw=Murder+Mystery+2+Alien+Set&hash=item554ab1d5b8:g:LjIAAeSwyElp0DMx"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4879,7 +4904,7 @@
         "url": "https://www.ebay.de/itm/358497057195?_skw=Murder+Mystery+2+Dark+Set&hash=item537816f9ab:g:PVEAAeSwm6Zp8LZQ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4915,7 +4940,7 @@
         "url": "https://www.benl.ebay.be/itm/366167540267?_skw=Murder+Mystery+2+Vampire%27s+Set&hash=item554149422b:g:gikAAeSw8Udpf8n3"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.978Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4951,7 +4976,7 @@
         "url": "https://www.ebay.de/itm/117120658744?_skw=Murder+Mystery+2+Sakura+Set&hash=item1b44ef6d38:g:ge4AAeSwicRphKZN"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -4987,7 +5012,7 @@
         "url": "https://www.benl.ebay.be/itm/366291698619?_skw=Murder+Mystery+2+Sun+Set&hash=item5548afc3bb:g:R~IAAeSwryhpvZuD"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -5023,7 +5048,7 @@
         "url": "https://www.benl.ebay.be/itm/366386306234?_skw=Murder+Mystery+2+Snow+Set&hash=item554e535cba:g:i3AAAeSwKOdp98BF"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -5059,7 +5084,7 @@
         "url": "https://www.ebay.de/itm/117074765380?_skw=Murder+Mystery+2+Bauble+Set&hash=item1b42332644:g:F54AAeSwjbZpd34A"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -5095,7 +5120,7 @@
         "url": "https://www.benl.ebay.be/itm/227157690938?_skw=Murder+Mystery+2+Soul+Set&hash=item34e3a74a3a:g:VLkAAeSwMMhpWFYW"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.777Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.777Z",
@@ -5131,7 +5156,7 @@
         "url": "https://www.benl.ebay.be/itm/227155597877?_skw=Murder+Mystery+2+Corrupt+Set&hash=item34e3875a35:g:nm4AAeSwvPlpVn2u"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5159,20 +5184,26 @@
         "pageUrl": "https://supremevalues.com/mm2/sets"
       },
       "ebay": {
-        "price": 10,
+        "price": 12.08,
         "currency": "EUR",
         "shippingPrice": 0,
-        "totalPrice": 10,
+        "totalPrice": 12.08,
         "matchedQuery": "Murder Mystery 2 Bloom Set",
-        "url": "https://www.ebay.it/itm/317095528878?_skw=Murder+Mystery+2+Bloom+Set&hash=item49d45dc9ae:g:39QAAeSwVJ1oetST"
+        "url": "https://www.benl.ebay.be/itm/227156461916?_skw=Murder+Mystery+2+Bloom+Set&hash=item34e394895c:g:Ub4AAeSwptlpVzzm"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
         "supremeValue": 590,
         "ebayPrice": 10,
+        "ebayCurrency": "EUR"
+      },
+      {
+        "timestamp": "2026-05-20T19:28:35.979Z",
+        "supremeValue": 590,
+        "ebayPrice": 12.08,
         "ebayCurrency": "EUR"
       }
     ]
@@ -5203,7 +5234,7 @@
         "url": "https://www.benl.ebay.be/itm/366291681066?_skw=Murder+Mystery+2+Rainbow+Set&hash=item5548af7f2a:g:xrcAAeSwIRVpvZkq"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5239,7 +5270,7 @@
         "url": "https://www.benl.ebay.be/itm/206126683101?_skw=Murder+Mystery+2+Bow+Set&hash=item2ffe1b93dd:g:-yEAAeSwC0JpsMt1"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5275,7 +5306,7 @@
         "url": "https://www.ebay.de/itm/127850158293?_skw=Murder+Mystery+2+Flowerwood+Set&hash=item1dc47698d5:g:PIkAAeSwcM9p-2vy"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5311,7 +5342,7 @@
         "url": "https://www.benl.ebay.be/itm/227156288299?_skw=Murder+Mystery+2+Xeno+Set&hash=item34e391e32b:g:BAUAAeSwxYtpeTFJ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5347,7 +5378,7 @@
         "url": "https://www.benl.ebay.be/itm/318073551690?_skw=Murder+Mystery+2+Ocean+Set&hash=item4a0ea93b4a:g:ws4AAeSwqP5pwwHD"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5383,7 +5414,7 @@
         "url": "https://www.benl.ebay.be/itm/366253491540?_skw=Murder+Mystery+2+Sweet+Set&hash=item554668c554:g:gVcAAeSwTkFprD7w"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5419,7 +5450,7 @@
         "url": "https://www.benl.ebay.be/itm/227157700368?_skw=Murder+Mystery+2+Full+Ice+Set&hash=item34e3a76f10:g:aykAAeSw0OVpWFpi"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.979Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5455,7 +5486,7 @@
         "url": "https://www.ebay.de/itm/406605404374?_skw=Murder+Mystery+2+Blizzard+Set&hash=item5eab9218d6:g:y0AAAeSw61JpUsy~"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5491,7 +5522,7 @@
         "url": "https://www.benl.ebay.be/itm/227156474144?_skw=Murder+Mystery+2+Borealis+Set&hash=item34e394b920:g:fJ8AAeSweq9pV0EG"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5527,7 +5558,7 @@
         "url": "https://www.benl.ebay.be/itm/227155889278?_skw=Murder+Mystery+2+Bat+Set&hash=item34e38bcc7e:g:Q4QAAeSwjsNpVrrM"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5563,7 +5594,7 @@
         "url": "https://www.benl.ebay.be/itm/364433809048?_skw=Murder+Mystery+2+Candy+Set&hash=item54d9f29e98:g:zgUAAOSwbjlk44le"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5599,7 +5630,7 @@
         "url": "https://www.benl.ebay.be/itm/227318019755?_skw=Murder+Mystery+2+Full+Elderwood+Set&hash=item34ed35b6ab:g:dQoAAeSwaERp7maG"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5635,7 +5666,7 @@
         "url": "https://www.benl.ebay.be/itm/177564368958?_skw=Murder+Mystery+2+Ice+Set&hash=item2957a9403e:g:FLEAAeSwZjZpEFgo"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5671,7 +5702,7 @@
         "url": "https://www.benl.ebay.be/itm/405092140485?_skw=Murder+Mystery+2+Pearl+Set&hash=item5e515f85c5:g:cWYAAOSwEo1mj3bL"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5707,7 +5738,7 @@
         "url": "https://www.benl.ebay.be/itm/227157711611?_skw=Murder+Mystery+2+Elderwood+Set&hash=item34e3a79afb:g:rlgAAeSw~RBpWFzn"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5743,7 +5774,7 @@
         "url": "https://www.benl.ebay.be/itm/227155810532?_skw=Murder+Mystery+2+Full+Swirly+Set&hash=item34e38a98e4:g:7DsAAeSwWZRpVqgN"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.778Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.778Z",
@@ -5779,7 +5810,7 @@
         "url": "https://www.benl.ebay.be/itm/366198830308?_skw=Murder+Mystery+2+Spectre+Set&hash=item554326b4e4:g:QjAAAeSwnxppj1jV"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -5815,7 +5846,7 @@
         "url": "https://www.benl.ebay.be/itm/318006531300?_skw=Murder+Mystery+2+Bringer+Set&hash=item4a0aaa94e4:g:x2oAAeSwM3FptkcC"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -5851,7 +5882,7 @@
         "url": "https://www.benl.ebay.be/itm/227163100956?_skw=Murder+Mystery+2+Swirly+Set&hash=item34e3f9d71c:g:6xkAAeSwwk1pXVpZ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -5887,7 +5918,7 @@
         "url": "https://www.benl.ebay.be/itm/227161930265?_skw=Murder+Mystery+2+Hallow+Set&hash=item34e3e7fa19:g:btEAAeSwHd1pXEXV"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -5923,7 +5954,7 @@
         "url": "https://www.benl.ebay.be/itm/318006531543?_skw=Murder+Mystery+2+Slasher+Set&hash=item4a0aaa95d7:g:fVYAAeSwZqVptkeC"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.980Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -5959,7 +5990,7 @@
         "url": "https://www.benl.ebay.be/itm/227161904806?_skw=Murder+Mystery+2+Old+Glory+Set&hash=item34e3e796a6:g:bzcAAeSwZehpXDwG"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -5995,7 +6026,7 @@
         "url": "https://www.benl.ebay.be/itm/318049230031?_skw=Murder+Mystery+2+Iceflake+Set&hash=item4a0d361ccf:g:~7kAAeSwdVJpwEle"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6031,7 +6062,7 @@
         "url": "https://www.benl.ebay.be/itm/318049230023?_skw=Murder+Mystery+2+Plasma+Set&hash=item4a0d361cc7:g:mm0AAeSw8y5pwEmP"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6067,7 +6098,7 @@
         "url": "https://www.benl.ebay.be/itm/227284490950?_skw=Murder+Mystery+2+Logchopper+Set&hash=item34eb361ac6:g:vNUAAeSwn1dpzvPT"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6103,7 +6134,7 @@
         "url": "https://www.benl.ebay.be/itm/318006531467?_skw=Murder+Mystery+2+Ginger+Set+%28Godly%29&hash=item4a0aaa958b:g:pW0AAeSwKhJptke5"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6139,7 +6170,7 @@
         "url": "https://www.benl.ebay.be/itm/227161905378?_skw=Murder+Mystery+2+Virtual+Set&hash=item34e3e798e2:g:VlgAAeSwH8tpXDyA"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6175,7 +6206,7 @@
         "url": "https://www.benl.ebay.be/itm/196956506377?_skw=Murder+Mystery+2+Cookie+Set&hash=item2ddb85c909:g:uMsAAOSwIHhnjFrD"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6211,7 +6242,7 @@
         "url": "https://www.benl.ebay.be/itm/318006531084?_skw=Murder+Mystery+2+Eternalcane+Set&hash=item4a0aaa940c:g:eYYAAeSwDDJptkc~"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6247,7 +6278,7 @@
         "url": "https://www.benl.ebay.be/itm/397754578805?_skw=Murder+Mystery+2+Pumpkin+Set&hash=item5c9c053775:g:148AAeSw40ZpwnU2"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6283,7 +6314,7 @@
         "url": "https://www.benl.ebay.be/itm/318049230006?_skw=Murder+Mystery+2+Latte+Set&hash=item4a0d361cb6:g:qJMAAeSweh9pwEmD"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6312,7 +6343,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.779Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.779Z",
@@ -6341,7 +6372,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6370,7 +6401,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6399,7 +6430,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.981Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6435,7 +6466,7 @@
         "url": "https://www.ebay.de/itm/117020541186?_skw=Murder+Mystery+2+Traveler+Set&hash=item1b3ef7c102:g:0kAAAeSwpApphKjU"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.982Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6471,7 +6502,7 @@
         "url": "https://www.ebay.de/itm/298170715835?_skw=Murder+Mystery+2+Vampire+Set&hash=item456c5c0ebb:g:xgQAAeSwK6JpyE74"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.982Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6500,7 +6531,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.982Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6529,7 +6560,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.982Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6558,7 +6589,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6594,7 +6625,7 @@
         "url": "https://www.benl.ebay.be/itm/318073551673?_skw=Murder+Mystery+2+Aurora+Set&hash=item4a0ea93b39:g:01oAAeSwfDRpwwFd"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6623,7 +6654,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6659,7 +6690,7 @@
         "url": "https://www.benl.ebay.be/itm/166589335051?_skw=Murder+Mystery+2+Aurora+Set+%28Rare%29&hash=item26c97f860b:g:yQgAAOSwmxllxPuu"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6688,7 +6719,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6724,7 +6755,7 @@
         "url": "https://www.benl.ebay.be/itm/204642169224?_skw=Murder+Mystery+2+Mummy+Set&hash=item2fa59fb188:g:KMoAAOSwFyRlvxPw"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6760,7 +6791,7 @@
         "url": "https://www.benl.ebay.be/itm/335247542980?_skw=Murder+Mystery+2+Potion+Set&hash=item4e0e4f8ac4:g:uCIAAOSwuORlw4ex"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.780Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.780Z",
@@ -6789,7 +6820,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -6818,7 +6849,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -6854,7 +6885,7 @@
         "url": "https://www.benl.ebay.be/itm/334806691922?_skw=Murder+Mystery+2+Toxic+Set&hash=item4df408b052:g:zlwAAOSw3CJjCpNe"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -6890,7 +6921,7 @@
         "url": "https://www.benl.ebay.be/itm/334549786678?_skw=Murder+Mystery+2+Cavern+Set&hash=item4de4b8a036:g:e4QAAOSwVFtjEhvO"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -6926,7 +6957,7 @@
         "url": "https://www.ebay.de/itm/298170715835?_skw=Murder+Mystery+2+Vampire+Set&hash=item456c5c0ebb:g:xgQAAeSwK6JpyE74"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.984Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -6955,7 +6986,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -6983,20 +7014,26 @@
         "pageUrl": "https://supremevalues.com/mm2/sets"
       },
       "ebay": {
-        "price": 3.63,
+        "price": 4.3,
         "currency": "EUR",
         "shippingPrice": 0.01,
-        "totalPrice": 3.64,
+        "totalPrice": 4.31,
         "matchedQuery": "MM2 Ghost Set",
-        "url": "https://www.ebay.nl/itm/204440343825?_skw=MM2+Ghost+Set&hash=item2f99981511:g:yO4AAOSwlMRk5YS6"
+        "url": "https://www.benl.ebay.be/itm/204437394358?_skw=MM2+Ghost+Set&hash=item2f996b13b6:g:BEcAAOSw4UBk5YTx"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
         "supremeValue": 7,
         "ebayPrice": 3.63,
+        "ebayCurrency": "EUR"
+      },
+      {
+        "timestamp": "2026-05-20T19:28:35.985Z",
+        "supremeValue": 7,
+        "ebayPrice": 4.3,
         "ebayCurrency": "EUR"
       }
     ]
@@ -7020,7 +7057,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -7056,7 +7093,7 @@
         "url": "https://www.ebay.de/itm/168372187924?_skw=MM2+Lights+Set&hash=item2733c3b314:g:Ju4AAeSwLqJqBEVj"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.781Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.781Z",
@@ -7085,7 +7122,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7114,7 +7151,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7143,7 +7180,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7172,7 +7209,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7201,7 +7238,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7237,7 +7274,7 @@
         "url": "https://www.benl.ebay.be/itm/206174236800?_skw=Murder+Mystery+2+Marble+Set&hash=item3000f13080:g:wl0AAeSwz-NpyElo"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7273,7 +7310,7 @@
         "url": "https://www.benl.ebay.be/itm/334549782744?_skw=Murder+Mystery+2+Snakebite+Set&hash=item4de4b890d8:g:xDcAAOSwLLJjEhpH"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7309,7 +7346,7 @@
         "url": "https://www.benl.ebay.be/itm/135303497790?_skw=Murder+Mystery+2+Haunted+Set&hash=item1f80b7883e:g:vTwAAOSwMnlnDpnD"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7338,7 +7375,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7374,7 +7411,7 @@
         "url": "https://www.benl.ebay.be/itm/364365279508?_skw=Murder+Mystery+2+Full+Luger+Set&hash=item54d5dcf114:g:FOAAAOSwK99kurMV"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.985Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7410,7 +7447,7 @@
         "url": "https://www.benl.ebay.be/itm/227191602257?_skw=Murder+Mystery+2+Luger+Set&hash=item34e5acbc51:g:r24AAeSwlzNpeRpb"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.782Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.782Z",
@@ -7446,7 +7483,7 @@
         "url": "https://www.benl.ebay.be/itm/318049230007?_skw=Murder+Mystery+2+Sparkle+Set&hash=item4a0d361cb7:g:oPYAAeSwVxhpwEl-"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7482,7 +7519,7 @@
         "url": "https://www.benl.ebay.be/itm/397756658941?_skw=Murder+Mystery+2+Collectible+Set&hash=item5c9c24f4fd:g:WsYAAeSw0OtpwxHu"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7518,7 +7555,7 @@
         "url": "https://www.benl.ebay.be/itm/236712393517?_skw=Murder+Mystery+2+Vintage+Set&hash=item371d287b2d:g:yQ8AAeSwaiJpxBN7"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7554,7 +7591,7 @@
         "url": "https://www.benl.ebay.be/itm/397754894388?_skw=Murder+Mystery+2+Eternal+Set&hash=item5c9c0a0834:g:-CgAAeSwYwFpxFMb"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7590,7 +7627,7 @@
         "url": "https://www.benl.ebay.be/itm/397770373707?_skw=Murder+Mystery+2+Full+Colored+Seer+Set&hash=item5c9cf63a4b:g:cMQAAeSw16Zpxxox"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7626,7 +7663,7 @@
         "url": "https://www.benl.ebay.be/itm/227163148537?_skw=Murder+Mystery+2+Skate+Set&hash=item34e3fa90f9:g:QScAAeSwzkVpXWci"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7655,7 +7692,7 @@
       },
       "ebay": null
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7691,7 +7728,7 @@
         "url": "https://www.benl.ebay.be/itm/204416806701?_skw=Murder+Mystery+2+Wrapping+Paper+Set&hash=item2f9830ef2d:g:gbAAAOSwhSpky0DV"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.783Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.783Z",
@@ -7727,7 +7764,7 @@
         "url": "https://www.benl.ebay.be/itm/397770348423?_skw=Murder+Mystery+2+Colored+Seer+Set&hash=item5c9cf5d787:g:IDoAAeSw-YFpxxaR"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.784Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.784Z",
@@ -7763,7 +7800,7 @@
         "url": "https://www.benl.ebay.be/itm/195048177910?_skw=Murder+Mystery+2+Godly+Pet+Set&hash=item2d69c700f6:g:uu0AAOSw7FJjFjQQ"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.784Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.784Z",
@@ -7799,7 +7836,7 @@
         "url": "https://www.ebay.de/itm/376460954806?_skw=Murder+Mystery+2+Small+Set+%28107+Items%29&hash=item57a6d24cb6:g:rEsAAeSw-z5okywP"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.784Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.784Z",
@@ -7835,7 +7872,7 @@
         "url": "https://www.ebay.de/itm/357977744827?_skw=Murder+Mystery+2+Small+Set+%28103+Items%29&hash=item535922e5bb:g:11YAAeSw7jRpL~TR"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.784Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.784Z",
@@ -7871,7 +7908,7 @@
         "url": "https://www.benl.ebay.be/itm/318317805002?_skw=Murder+Mystery+2+Full+Chroma+Set&hash=item4a1d383dca:g:TTgAAeSw3w1qCeL6"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.784Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.986Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.784Z",
@@ -7904,10 +7941,10 @@
         "shippingPrice": 15.7,
         "totalPrice": 33.41,
         "matchedQuery": "Murder Mystery 2 Chroma Weapon Set",
-        "url": "https://www.benl.ebay.be/itm/137169779804?_skw=Murder+Mystery+2+Chroma+Weapon+Set&hash=item1feff4bc5c:g:pdgAAeSw9qtpGdxD&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGZdQsL37B%2FfLq7LrESmuJ8WtHpvYHTX89iH67ks5J7VjuqvRvQ%2FMH%2F8%2BpglpL9dfvrHaB1tbPbmFMkyANB3QAuuoo18SgcTFGdGkjC7vvhsgVLplmCyYSSVte9gs56GTbXdTdwwPwZPTeLGlWE9wBDL3C0L0X3QyuTni58KvCAiAe%2BA9Jnr4zTzDNGgMzBDQlFgYJy4Lk%2Fv4cXGdZHaxgd90RLI1J%2BJa8uCB4V7u9HLnfTNOyoIwvO4jScZ2TN5clESENZiWFsRz6MGgevviXqnWaSc2Dwh8SNRYXL0%2B4Q3jinNUVidSedBXSFJuRXkuRA%3D"
+        "url": "https://www.benl.ebay.be/itm/137169779804?_skw=Murder+Mystery+2+Chroma+Weapon+Set&hash=item1feff4bc5c:g:pdgAAeSw9qtpGdxD&amdata=enc%3AAQALAAABAACCtXRWQnOEpyOqnQQ8KGZdQsL37B%2FfLq7LrESmuJ8WtHpvYHTX89iH67ks5J7VjuqvRvQ%2FMH%2F8%2BpglpL9dfvrHaB1tbPbmFMkyANB3QAuuoo18SgcTFGdGkjC7vvhsgVLplmCyYSSVte9gs56GTbWWMX3LmsaxIEm4Gaz50I5Azo3x6o9uo2TteAl8Bxc5qreC86hYR1uNueCUywToKN3Qt8lhLpZH6gG%2BXkad9kXp98n8%2FbYypsghYrYhJCdQvMtHTuVZgGktRN0HNwYcg7OAGV%2B9bfFOCDycFJqN5XSFZ2hZIQTt76i5oVT6duKAucnKagcQ%2Byjd53sKqMAxN5Y%3D"
       }
     },
-    "lastCheckedAt": "2026-05-20T17:25:13.784Z",
+    "lastCheckedAt": "2026-05-20T19:28:35.987Z",
     "history": [
       {
         "timestamp": "2026-05-20T17:25:13.784Z",

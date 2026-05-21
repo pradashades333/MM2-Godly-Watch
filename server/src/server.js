@@ -4,7 +4,7 @@ const app = require("./app");
 const { buildMarketData } = require("./services/marketService");
 
 const PORT = process.env.PORT || 3000;
-const REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000; // every 2 hours
+const REFRESH_INTERVAL_MS = 60 * 60 * 1000; // every 1 hour
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
