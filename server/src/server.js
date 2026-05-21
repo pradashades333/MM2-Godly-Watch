@@ -11,16 +11,19 @@ app.listen(PORT, () => {
   scheduleAutoRefresh();
 });
 
-function scheduleAutoRefresh() {
-  setInterval(async () => {
-    console.log(`[auto-refresh] starting at ${new Date().toISOString()}`);
-    try {
-      await buildMarketData();
-      console.log(`[auto-refresh] done at ${new Date().toISOString()}`);
-    } catch (err) {
-      console.error("[auto-refresh] failed:", err.message);
-    }
-  }, REFRESH_INTERVAL_MS);
+async function runRefresh() {
+  console.log(`[auto-refresh] starting at ${new Date().toISOString()}`);
+  try {
+    await buildMarketData();
+    console.log(`[auto-refresh] done at ${new Date().toISOString()}`);
+  } catch (err) {
+    console.error("[auto-refresh] failed:", err.message);
+  }
+}
 
+function scheduleAutoRefresh() {
+  // Run immediately on startup, then every hour
+  runRefresh();
+  setInterval(runRefresh, REFRESH_INTERVAL_MS);
   console.log(`[auto-refresh] scheduled every ${REFRESH_INTERVAL_MS / 60000} min`);
 }
