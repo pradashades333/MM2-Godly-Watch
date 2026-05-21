@@ -152,7 +152,12 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart }) {
         style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}
       >
         {item.imageUrl ? (
-          <img className="gw-card-art-img" src={item.imageUrl} alt={item.name} />
+          <img
+            className="gw-card-art-img"
+            src={item.imageUrl}
+            alt={item.name}
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+          />
         ) : (
           <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--ink-ghost)' }}>
             {item.name}
@@ -254,7 +259,7 @@ function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart }) {
       <td className="gw-row-thumb">
         <div className="gw-thumb-wrap">
           {item.imageUrl
-            ? <img src={item.imageUrl} alt={item.name} />
+            ? <img src={item.imageUrl} alt={item.name} onError={e => { e.currentTarget.style.display = 'none'; }} />
             : <span style={{ fontSize: 8, color: 'var(--ink-faint)', textAlign: 'center', lineHeight: 1.2 }}>{item.name.slice(0, 3)}</span>
           }
         </div>
