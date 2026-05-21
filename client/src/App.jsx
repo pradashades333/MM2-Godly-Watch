@@ -771,6 +771,25 @@ export default function App() {
             ))}
           </nav>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <a
+          href="https://discord.gg/6Ad4YvhkDg"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Join our Discord"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+            background: '#5865F2', color: '#fff', textDecoration: 'none',
+            transition: 'opacity 120ms'
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          <svg width="24" height="18" viewBox="0 0 20 15" fill="currentColor">
+            <path d="M16.93 1.33A16.47 16.47 0 0 0 12.86.02a.06.06 0 0 0-.06.03 11.46 11.46 0 0 0-.51 1.04 15.21 15.21 0 0 0-4.57 0C7.54.7 7.3.2 7.19.05a.06.06 0 0 0-.06-.03 16.43 16.43 0 0 0-4.07 1.31.05.05 0 0 0-.03.02C.45 5.37-.27 9.3.08 13.17c0 .02.01.03.03.04a16.57 16.57 0 0 0 4.99 2.52.06.06 0 0 0 .07-.02c.38-.53.73-1.08 1.02-1.66a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.56-.74.06.06 0 0 1-.01-.1l.31-.24a.06.06 0 0 1 .06-.01c3.27 1.5 6.82 1.5 10.05 0a.06.06 0 0 1 .06.01l.31.25a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.02 1.66a.06.06 0 0 0 .07.02 16.52 16.52 0 0 0 5-2.52.06.06 0 0 0 .03-.04c.42-4.31-.7-8.21-2.96-11.6a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.82.91 1.8 2.01 0 1.11-.8 2.01-1.8 2.01zm6.65 0c-.99 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.81.91 1.8 2.01 0 1.11-.79 2.01-1.8 2.01z"/>
+          </svg>
+        </a>
         <div className="gw-search">
           <span className="gw-search-icon">⌕</span>
           <input
@@ -781,6 +800,7 @@ export default function App() {
             placeholder={`search ${items.length} items`}
           />
           <span className="gw-keycap">⌘K</span>
+        </div>
         </div>
       </header>
 
