@@ -170,11 +170,11 @@ async function fetchListingsForQueries(queries, accessToken) {
   return allListings;
 }
 
-function pickBestListing(listings, itemName) {
+function pickBestListing(listings, itemName, category = null) {
   const scored = listings
     .map((listing) => ({
       ...listing,
-      relevanceScore: scoreListing(itemName, listing)
+      relevanceScore: scoreListing(itemName, listing, category)
     }))
     .filter(
       (listing) =>
@@ -208,7 +208,7 @@ function pickBestListing(listings, itemName) {
   return cheapest;
 }
 
-async function fetchEbayForItem(itemName, customQueries = []) {
+async function fetchEbayForItem(itemName, customQueries = [], category = null) {
   const token = await getEbayAccessToken();
 
   const primaryQueries =
@@ -218,7 +218,7 @@ async function fetchEbayForItem(itemName, customQueries = []) {
 
   const allListings = await fetchListingsForQueries(primaryQueries, token);
   let queriesUsed = [...primaryQueries];
-  let best = pickBestListing(allListings, itemName);
+  let best = pickBestListing(allListings, itemName, category);
 
   if (!customQueries.length && shouldExpandSearch(best)) {
     const fallbackQueries = buildFallbackQueries(itemName).filter(
@@ -229,7 +229,7 @@ async function fetchEbayForItem(itemName, customQueries = []) {
       const fallbackListings = await fetchListingsForQueries(fallbackQueries, token);
       allListings.push(...fallbackListings);
       queriesUsed = [...queriesUsed, ...fallbackQueries];
-      best = pickBestListing(allListings, itemName);
+      best = pickBestListing(allListings, itemName, category);
     }
   }
 

@@ -63,12 +63,13 @@ function isLikelyMatch(itemName, listingTitle) {
   return true;
 }
 
-function scoreListing(itemName, listing) {
+function scoreListing(itemName, listing, category = null) {
   const title = listing?.title || "";
   const item = normalizeName(itemName);
   const normalizedTitle = normalizeName(title);
   const normalizedQuery = normalizeName(listing?.matchedQuery || "");
   const itemIsSet = item.includes(" set");
+  const itemIsAncient = category === "ancients";
 
   if (!isLikelyMatch(itemName, title)) {
     return -999;
@@ -82,7 +83,7 @@ function scoreListing(itemName, listing) {
   if (normalizedTitle.includes("mm2")) score += 15;
   if (normalizedTitle.includes("godly")) score += 5;
   if (normalizedTitle.includes("ancient")) {
-    score += item.includes("ancient") ? 5 : -20;
+    score += (itemIsAncient || item.includes("ancient")) ? 10 : -20;
   }
 
   if (normalizedTitle.includes("cheap")) score -= 10;

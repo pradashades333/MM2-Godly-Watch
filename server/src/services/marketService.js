@@ -1,5 +1,6 @@
 const supremeService = require("./supremeService");
 const setService = require("./setService");
+const ancientService = require("./ancientService");
 const ebayService = require("./ebayService");
 const imageService = require("./imageService");
 const trackedItems = require("../config/trackedItems");
@@ -11,20 +12,27 @@ const {
 } = require("./historyService");
 
 async function buildMarketData() {
-  const [godlyItems, setItems] = await Promise.all([
+  const [godlyItems, setItems, ancientItems] = await Promise.all([
     supremeService.scrapeGodlies(),
-    setService.scrapeSets()
+    setService.scrapeSets(),
+    ancientService.scrapeAncients()
   ]);
-  const sourceItems = [...godlyItems, ...setItems];
+  const sourceItems = [...godlyItems, ...setItems, ...ancientItems];
   const completedItems = [];
 
   for (const sourceItem of sourceItems) {
     const trackedItem = findTrackedItemByName(sourceItem.name);
-    const ebayResult = await ebayService.fetchEbayForItem(
-      sourceItem.name,
-      trackedItem?.ebayQueries
-    );
-    const bestListing = ebayResult?.best ?? null;
+    let bestListing = null;
+    try {
+      const ebayResult = await ebayService.fetchEbayForItem(
+        sourceItem.name,
+        trackedItem?.ebayQueries,
+        sourceItem.category
+      );
+      bestListing = ebayResult?.best ?? null;
+    } catch (err) {
+      console.error(`[market] eBay fetch failed for "${sourceItem.name}":`, err.message);
+    }
     const imageUrl = await imageService.getImageForItem(sourceItem);
 
     completedItems.push({

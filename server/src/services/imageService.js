@@ -10,6 +10,8 @@ let godlyMappingsPromise = null;
 let cachedSetPageMappings = null;
 let setPageMappingsPromise = null;
 let cachedSetImageMappings = {};
+let cachedAncientMappings = null;
+let ancientMappingsPromise = null;
 
 async function getImageForItem(item) {
   const manualImage =
@@ -21,6 +23,10 @@ async function getImageForItem(item) {
 
   if (item?.category === "sets") {
     return getSetImageForItem(item);
+  }
+
+  if (item?.category === "ancients") {
+    return getAncientImageForItem(item);
   }
 
   const godlyMappings = await loadGodlyMappings();
@@ -146,6 +152,95 @@ async function fetchWikiPageImage(title) {
   }
 
   return null;
+}
+
+async function getAncientImageForItem(item) {
+  const ancientMappings = await loadAncientMappings();
+  const key = normalizeItemKey(item?.name || item?.id);
+  let imageUrl = ancientMappings[key] ?? ancientMappings[item?.id] ?? null;
+
+  if (!imageUrl) {
+    imageUrl = await fetchWikiImageByTitle(item?.name || "");
+  }
+
+  return imageUrl;
+}
+
+async function loadAncientMappings() {
+  if (cachedAncientMappings) {
+    return cachedAncientMappings;
+  }
+
+  if (!ancientMappingsPromise) {
+    ancientMappingsPromise = fetchAndBuildAncientMappings()
+      .then((mappings) => {
+        cachedAncientMappings = mappings;
+        return mappings;
+      })
+      .catch((error) => {
+        console.error("Failed to load ancient image mappings", error);
+        return {};
+      });
+  }
+
+  return ancientMappingsPromise;
+}
+
+async function fetchAndBuildAncientMappings() {
+  const pages = [];
+  let continueToken = null;
+
+  do {
+    const url = new URL(WIKI_API_ROOT);
+    url.searchParams.set("action", "query");
+    url.searchParams.set("list", "categorymembers");
+    url.searchParams.set("cmtitle", "Category:Ancient");
+    url.searchParams.set("cmlimit", "500");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("origin", "*");
+
+    if (continueToken) {
+      url.searchParams.set("cmcontinue", continueToken);
+    }
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Ancient category request failed with ${response.status}`);
+    }
+
+    const payload = await response.json();
+    pages.push(...(payload?.query?.categorymembers || []));
+    continueToken = payload?.continue?.cmcontinue ?? null;
+  } while (continueToken);
+
+  const mappings = {};
+
+  for (const batch of chunkArray(pages, 50)) {
+    const titles = batch.map((p) => p.title).join("|");
+    const url = new URL(WIKI_API_ROOT);
+    url.searchParams.set("action", "query");
+    url.searchParams.set("prop", "pageimages");
+    url.searchParams.set("pithumbsize", "400");
+    url.searchParams.set("titles", titles);
+    url.searchParams.set("format", "json");
+    url.searchParams.set("origin", "*");
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) continue;
+
+      const payload = await response.json();
+      for (const page of Object.values(payload?.query?.pages || {})) {
+        if ("missing" in page || !page?.thumbnail?.source) continue;
+        mappings[normalizeItemKey(page.title)] = page.thumbnail.source;
+      }
+    } catch {
+      // swallow batch errors
+    }
+  }
+
+  return mappings;
 }
 
 async function loadSetPageMappings() {

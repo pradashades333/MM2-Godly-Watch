@@ -27,9 +27,10 @@ function deriveTier(item) {
     if (name.includes('chroma')) return { key: 'legend', label: 'LEGEND', color: 'var(--tier-legend)' };
     return { key: 'sets', label: 'SETS', color: 'var(--tier-vintage)' };
   }
+  if (item.category === 'ancients') return { key: 'ancient', label: 'ANCIENT', color: 'var(--tier-ancient)' };
   if (value >= 5000) return { key: 'legend', label: 'LEGEND', color: 'var(--tier-legend)' };
   if (value >= 100) return { key: 'godly', label: 'GODLY', color: 'var(--tier-godly)' };
-  return { key: 'ancient', label: 'ANCIENT', color: 'var(--tier-ancient)' };
+  return { key: 'godly', label: 'GODLY', color: 'var(--tier-godly)' };
 }
 
 function formatSV(n) {
