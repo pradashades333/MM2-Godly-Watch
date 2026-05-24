@@ -11,28 +11,48 @@ const {
   getRecentMoves: buildRecentMoves
 } = require("./historyService");
 
-async function buildMarketData() {
+async function buildMarketData({ refreshEbay = true } = {}) {
   const [godlyItems, setItems, ancientItems] = await Promise.all([
     supremeService.scrapeGodlies(),
     setService.scrapeSets(),
     ancientService.scrapeAncients()
   ]);
   const sourceItems = [...ancientItems, ...godlyItems, ...setItems];
+
+  const previousItems = await readHistory();
+  const previousMap = new Map(previousItems.map((item) => [item.id, item]));
   const completedItems = [];
 
   for (const sourceItem of sourceItems) {
     const trackedItem = findTrackedItemByName(sourceItem.name);
-    let bestListing = null;
-    try {
-      const ebayResult = await ebayService.fetchEbayForItem(
-        sourceItem.name,
-        trackedItem?.ebayQueries,
-        sourceItem.category
-      );
-      bestListing = ebayResult?.best ?? null;
-    } catch (err) {
-      console.error(`[market] eBay fetch failed for "${sourceItem.name}":`, err.message);
+    const previousItem = previousMap.get(sourceItem.id);
+
+    let ebayData = previousItem?.current?.ebay ?? null;
+
+    if (refreshEbay) {
+      let bestListing = null;
+      try {
+        const ebayResult = await ebayService.fetchEbayForItem(
+          sourceItem.name,
+          trackedItem?.ebayQueries,
+          sourceItem.category
+        );
+        bestListing = ebayResult?.best ?? null;
+      } catch (err) {
+        console.error(`[market] eBay fetch failed for "${sourceItem.name}":`, err.message);
+      }
+      if (bestListing) {
+        ebayData = {
+          price: bestListing.price,
+          currency: bestListing.currency,
+          shippingPrice: bestListing.shippingPrice,
+          totalPrice: bestListing.totalPrice,
+          matchedQuery: bestListing.matchedQuery,
+          url: bestListing.url
+        };
+      }
     }
+
     const imageUrl = await imageService.getImageForItem(sourceItem);
 
     completedItems.push({
@@ -42,26 +62,15 @@ async function buildMarketData() {
       imageUrl,
       current: {
         supreme: sourceItem.current?.supreme ?? null,
-        ebay: bestListing
-          ? {
-              price: bestListing.price,
-              currency: bestListing.currency,
-              shippingPrice: bestListing.shippingPrice,
-              totalPrice: bestListing.totalPrice,
-              matchedQuery: bestListing.matchedQuery,
-              url: bestListing.url
-            }
-          : null
+        ebay: ebayData
       },
-      lastCheckedAt: sourceItem.lastCheckedAt || new Date().toISOString(),
+      lastCheckedAt: new Date().toISOString(),
       history: []
     });
   }
 
-  const previousItems = await readHistory();
   const mergedItems = mergeSnapshots(previousItems, completedItems);
   await writeHistory(mergedItems);
-
   return mergedItems;
 }
 
@@ -70,8 +79,7 @@ function findTrackedItemByName(itemName) {
 }
 
 async function refreshMarketData() {
-  const items = await buildMarketData();
-
+  const items = await buildMarketData({ refreshEbay: true });
   return {
     items,
     refreshedAt: new Date().toISOString()
@@ -141,17 +149,9 @@ async function hydrateItemImages(items) {
       if (item?.imageUrl) {
         return item;
       }
-
       const imageUrl = await imageService.getImageForItem(item);
-
-      if (!imageUrl) {
-        return item;
-      }
-
-      return {
-        ...item,
-        imageUrl
-      };
+      if (!imageUrl) return item;
+      return { ...item, imageUrl };
     })
   );
 }
