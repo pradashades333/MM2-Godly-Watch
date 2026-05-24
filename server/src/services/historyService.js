@@ -52,9 +52,15 @@ function appendHistoryPoint(existingHistory, item) {
 }
 
 function mergeItem(previousItem, freshItem) {
+  const freshEbay = freshItem?.current?.ebay ?? null;
+  const previousEbay = previousItem?.current?.ebay ?? null;
   return {
     ...previousItem,
     ...freshItem,
+    current: {
+      ...freshItem.current,
+      ebay: freshEbay ?? previousEbay
+    },
     history: appendHistoryPoint(previousItem?.history, freshItem)
   };
 }
