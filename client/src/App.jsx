@@ -16,7 +16,16 @@ const TABS = [
 ];
 
 const FAVORITES_STORAGE_KEY = "mm2-goldywatch-favorites";
+const INVENTORY_STORAGE_KEY  = "mm2-goldywatch-inventory";
 const TRADE_SLOT_COUNT = 4;
+
+function readStoredInventory() {
+  try { return JSON.parse(localStorage.getItem(INVENTORY_STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function writeStoredInventory(inv) {
+  localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(inv));
+}
 
 // ── Module-level helpers ─────────────────────────────────────────────────────
 
@@ -434,6 +443,8 @@ export default function App() {
   const [activeTier, setActiveTier] = useState('all');
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
+  const [inventoryItems, setInventoryItems] = useState(readStoredInventory);
+  const [inventorySearch, setInventorySearch] = useState("");
 
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
@@ -457,6 +468,28 @@ export default function App() {
   useEffect(() => {
     writeStoredFavoriteIds(favoriteIds);
   }, [favoriteIds]);
+
+  useEffect(() => {
+    writeStoredInventory(inventoryItems);
+  }, [inventoryItems]);
+
+  function addInventoryItem(itemId) {
+    setInventoryItems(prev => {
+      const hit = prev.find(i => i.id === itemId);
+      if (hit) return prev.map(i => i.id === itemId ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { id: itemId, qty: 1 }];
+    });
+    setInventorySearch("");
+  }
+
+  function updateInventoryQty(itemId, delta) {
+    setInventoryItems(prev =>
+      prev.map(i => i.id === itemId ? { ...i, qty: Math.max(0, i.qty + delta) } : i)
+          .filter(i => i.qty > 0)
+    );
+  }
+
+  function clearInventory() { setInventoryItems([]); }
 
   async function loadDashboard() {
     setLoading(true);
@@ -756,6 +789,116 @@ export default function App() {
     );
   }
 
+  function renderInventoryTracker() {
+    const inventoryWithItems = inventoryItems
+      .map(({ id, qty }) => ({ item: itemLookup.get(id), qty }))
+      .filter(({ item }) => item != null);
+
+    const totalSupreme = inventoryWithItems.reduce(
+      (sum, { item, qty }) => sum + (item.current?.supreme?.value ?? 0) * qty, 0
+    );
+    const totalEbay = inventoryWithItems.reduce(
+      (sum, { item, qty }) => sum + (item.current?.ebay?.totalPrice ?? item.current?.ebay?.price ?? 0) * qty, 0
+    );
+    const totalQty = inventoryWithItems.reduce((s, { qty }) => s + qty, 0);
+
+    const suggestions = inventorySearch.trim().length > 0
+      ? items.filter(i => i.name.toLowerCase().includes(inventorySearch.toLowerCase())).slice(0, 6)
+      : [];
+
+    return (
+      <section className="inv-panel">
+        <div className="inv-header">
+          <h1 className="inv-title">Inventory Tracker</h1>
+          <p className="inv-subtitle">Add your MM2 items to see your total portfolio value. Saved in your browser.</p>
+        </div>
+
+        <div className="inv-search-wrap">
+          <div className="inv-search-box">
+            <input
+              className="inv-search-input"
+              placeholder="Search and add items..."
+              value={inventorySearch}
+              onChange={e => setInventorySearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && suggestions.length > 0) addInventoryItem(suggestions[0].id);
+                if (e.key === 'Escape') setInventorySearch('');
+              }}
+            />
+            {suggestions.length > 0 && (
+              <div className="inv-suggestions">
+                {suggestions.map(item => {
+                  const tier = deriveTier(item);
+                  return (
+                    <button key={item.id} className="inv-suggestion-row" onClick={() => addInventoryItem(item.id)}>
+                      {item.imageUrl && <img src={item.imageUrl} className="inv-suggestion-img" alt="" />}
+                      <span className="inv-suggestion-name">{item.name}</span>
+                      <span className="inv-suggestion-tier" style={{ color: tier.color }}>{tier.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {inventoryWithItems.length === 0 ? (
+          <div className="inv-empty">Search above to add items to your inventory.</div>
+        ) : (
+          <>
+            <div className="inv-list">
+              {inventoryWithItems.map(({ item, qty }) => {
+                const tier = deriveTier(item);
+                const sv = item.current?.supreme?.value ?? null;
+                const ebay = item.current?.ebay?.totalPrice ?? item.current?.ebay?.price ?? null;
+                return (
+                  <div key={item.id} className="inv-row">
+                    <div className="inv-row-left">
+                      {item.imageUrl
+                        ? <img src={item.imageUrl} className="inv-row-img" alt={item.name} />
+                        : <div className="inv-row-img inv-row-img-empty" />}
+                      <div className="inv-row-info">
+                        <span className="inv-row-name">{item.name}</span>
+                        <span className="inv-row-tier" style={{ color: tier.color }}>{tier.label}</span>
+                      </div>
+                    </div>
+                    <div className="inv-row-right">
+                      <div className="inv-row-vals">
+                        <span className="inv-row-val-group">
+                          <span className="inv-val-label">SV</span>
+                          <span className="inv-val">{sv != null ? formatValue(sv * qty) : '—'}</span>
+                        </span>
+                        <span className="inv-row-val-group">
+                          <span className="inv-val-label">eBay</span>
+                          <span className="inv-val">{ebay != null ? formatCurrency(ebay * qty, 'EUR') : '—'}</span>
+                        </span>
+                      </div>
+                      <div className="inv-qty">
+                        <button className="inv-qty-btn" onClick={() => updateInventoryQty(item.id, -1)}>−</button>
+                        <span className="inv-qty-num">{qty}</span>
+                        <button className="inv-qty-btn" onClick={() => updateInventoryQty(item.id, 1)}>+</button>
+                      </div>
+                      <button className="inv-remove" onClick={() => updateInventoryQty(item.id, -qty)}>×</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="inv-footer">
+              <div className="inv-footer-stats">
+                <div className="inv-stat"><span className="inv-stat-label">Items</span><span className="inv-stat-val">{totalQty}</span></div>
+                <div className="inv-stat"><span className="inv-stat-label">Supreme</span><span className="inv-stat-val">{formatValue(totalSupreme)}</span></div>
+                <div className="inv-stat"><span className="inv-stat-label">eBay value</span><span className="inv-stat-val">{totalEbay > 0 ? formatCurrency(totalEbay, 'EUR') : '—'}</span></div>
+              </div>
+              <button className="inv-clear-btn" onClick={clearInventory}>Clear All</button>
+            </div>
+          </>
+        )}
+      </section>
+    );
+  }
+
   return (
     <div className="gw-page">
       {/* TopBar */}
@@ -931,14 +1074,7 @@ export default function App() {
 
 {activeTab === "inventory-tracker" ? (
             <div className="gw-tab-content">
-              <div className="gw-placeholder-panel">
-                <span className="gw-placeholder-badge">Coming Soon</span>
-                <h1 className="gw-placeholder-title">Inventory Tracker</h1>
-                <p className="gw-placeholder-text">
-                  Track your owned items, quantities, and total portfolio value over time.
-                  The backend is ready — item shapes, history, and refresh flow are all in place.
-                </p>
-              </div>
+              {renderInventoryTracker()}
             </div>
           ) : null}
 
