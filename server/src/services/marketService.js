@@ -17,7 +17,7 @@ async function buildMarketData() {
     setService.scrapeSets(),
     ancientService.scrapeAncients()
   ]);
-  const sourceItems = [...godlyItems, ...setItems, ...ancientItems];
+  const sourceItems = [...ancientItems, ...godlyItems, ...setItems];
   const completedItems = [];
 
   for (const sourceItem of sourceItems) {
