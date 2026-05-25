@@ -1069,7 +1069,6 @@ export default function App() {
                     <th>eBay €</th>
                     <th>SV</th>
                     <th>7d</th>
-                    <th className="c">Trend</th>
                     <th>Qty</th>
                     <th>Position</th>
                     <th style={{ width: 28 }} />
@@ -1123,9 +1122,6 @@ export default function App() {
                           <span className={`inv2-pct-cell ${pctClass(pctVal)}`}>
                             {trendUp ? '+' : ''}{trendPct}%
                           </span>
-                        </td>
-                        <td style={{ textAlign: 'center', padding: '0 8px' }}>
-                          <TrendChevron up={trendUp} />
                         </td>
                         <td style={{ textAlign: 'center' }}>
                           <div className="inv2-qty">
