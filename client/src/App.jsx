@@ -445,6 +445,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('grid');
   const [inventoryItems, setInventoryItems] = useState(readStoredInventory);
   const [inventorySearch, setInventorySearch] = useState("");
+  const [invTimeframe, setInvTimeframe] = useState('3M');
   const [tradePickerState, setTradePickerState] = useState(null); // { sideKey, slotIndex }
   const [tradePickerSearch, setTradePickerSearch] = useState("");
 
@@ -864,111 +865,330 @@ export default function App() {
   }
 
   function renderInventoryTracker() {
+    const TIMEFRAMES = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
+
     const inventoryWithItems = inventoryItems
       .map(({ id, qty }) => ({ item: itemLookup.get(id), qty }))
       .filter(({ item }) => item != null);
 
-    const totalSupreme = inventoryWithItems.reduce(
-      (sum, { item, qty }) => sum + (item.current?.supreme?.value ?? 0) * qty, 0
-    );
     const totalEbay = inventoryWithItems.reduce(
-      (sum, { item, qty }) => sum + (item.current?.ebay?.totalPrice ?? item.current?.ebay?.price ?? 0) * qty, 0
+      (s, { item, qty }) => s + (item.current?.ebay?.totalPrice ?? 0) * qty, 0
+    );
+    const totalSV = inventoryWithItems.reduce(
+      (s, { item, qty }) => s + (item.current?.supreme?.value ?? 0) * qty, 0
     );
     const totalQty = inventoryWithItems.reduce((s, { qty }) => s + qty, 0);
 
+    const portfolioSeries = buildPortfolioSeries(inventoryWithItems);
+    const filteredSeries = filterByTimeframe(portfolioSeries, invTimeframe);
+    const startVal = filteredSeries.length > 1 ? filteredSeries[0].value : 0;
+    const portfolioDelta = startVal > 0 ? (totalEbay - startVal) / startVal : 0;
+
+    const d7Series = filterByTimeframe(portfolioSeries, '1W');
+    const d7Start = d7Series.length > 1 ? d7Series[0].value : 0;
+    const d7Pct = d7Start > 0 ? (totalEbay - d7Start) / d7Start : null;
+
+    const chartVals = filteredSeries.map(p => p.value);
+
     const suggestions = inventorySearch.trim().length > 0
-      ? items.filter(i => i.name.toLowerCase().includes(inventorySearch.toLowerCase())).slice(0, 6)
+      ? items.filter(i => i.name.toLowerCase().includes(inventorySearch.toLowerCase())).slice(0, 8)
       : [];
 
-    return (
-      <section className="inv-panel">
-        <div className="inv-header">
-          <h1 className="inv-title">Inventory Tracker</h1>
-          <p className="inv-subtitle">Add your MM2 items to see your total portfolio value. Saved in your browser.</p>
-        </div>
+    const movers = [...inventoryWithItems]
+      .map(({ item, qty }) => ({ item, qty, trend: getItemTrend(item) }))
+      .sort((a, b) => Math.abs(b.trend) - Math.abs(a.trend));
+    const topMovers = [
+      ...movers.filter(m => m.trend > 0).slice(0, 3),
+      ...movers.filter(m => m.trend < 0).slice(0, 2),
+    ];
 
-        <div className="inv-search-wrap">
-          <div className="inv-search-box">
-            <input
-              className="inv-search-input"
-              placeholder="Search and add items..."
-              value={inventorySearch}
-              onChange={e => setInventorySearch(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && suggestions.length > 0) addInventoryItem(suggestions[0].id);
-                if (e.key === 'Escape') setInventorySearch('');
-              }}
-            />
-            {suggestions.length > 0 && (
-              <div className="inv-suggestions">
-                {suggestions.map(item => {
-                  const tier = deriveTier(item);
-                  return (
-                    <button key={item.id} className="inv-suggestion-row" onClick={() => addInventoryItem(item.id)}>
-                      {item.imageUrl && <img src={item.imageUrl} className="inv-suggestion-img" alt="" />}
-                      <span className="inv-suggestion-name">{item.name}</span>
-                      <span className="inv-suggestion-tier" style={{ color: tier.color }}>{tier.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
+    const allocItems = [...inventoryWithItems]
+      .map(({ item, qty }) => ({
+        item, qty,
+        value: (item.current?.ebay?.totalPrice ?? 0) * qty,
+        tier: deriveTier(item),
+      }))
+      .filter(a => a.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+    const allocTotal = allocItems.reduce((s, a) => s + a.value, 0);
 
-        {inventoryWithItems.length === 0 ? (
-          <div className="inv-empty">Search above to add items to your inventory.</div>
-        ) : (
-          <>
-            <div className="inv-list">
-              {inventoryWithItems.map(({ item, qty }) => {
+    const searchBar = (
+      <div className="inv2-search-wrap">
+        <div className="inv2-search-box">
+          <span className="inv2-search-icon">⌕</span>
+          <input
+            className="inv2-search-input"
+            placeholder="search and add items..."
+            value={inventorySearch}
+            onChange={e => setInventorySearch(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && suggestions.length > 0) addInventoryItem(suggestions[0].id);
+              if (e.key === 'Escape') setInventorySearch('');
+            }}
+          />
+          {suggestions.length > 0 && (
+            <div className="inv2-suggestions">
+              {suggestions.map(item => {
                 const tier = deriveTier(item);
-                const sv = item.current?.supreme?.value ?? null;
-                const ebay = item.current?.ebay?.totalPrice ?? item.current?.ebay?.price ?? null;
                 return (
-                  <div key={item.id} className="inv-row">
-                    <div className="inv-row-left">
-                      {item.imageUrl
-                        ? <img src={item.imageUrl} className="inv-row-img" alt={item.name} />
-                        : <div className="inv-row-img inv-row-img-empty" />}
-                      <div className="inv-row-info">
-                        <span className="inv-row-name">{item.name}</span>
-                        <span className="inv-row-tier" style={{ color: tier.color }}>{tier.label}</span>
-                      </div>
-                    </div>
-                    <div className="inv-row-right">
-                      <div className="inv-row-vals">
-                        <span className="inv-row-val-group">
-                          <span className="inv-val-label">SV</span>
-                          <span className="inv-val">{sv != null ? formatValue(sv * qty) : '—'}</span>
-                        </span>
-                        <span className="inv-row-val-group">
-                          <span className="inv-val-label">eBay</span>
-                          <span className="inv-val">{ebay != null ? formatCurrency(ebay * qty, 'EUR') : '—'}</span>
-                        </span>
-                      </div>
-                      <div className="inv-qty">
-                        <button className="inv-qty-btn" onClick={() => updateInventoryQty(item.id, -1)}>−</button>
-                        <span className="inv-qty-num">{qty}</span>
-                        <button className="inv-qty-btn" onClick={() => updateInventoryQty(item.id, 1)}>+</button>
-                      </div>
-                      <button className="inv-remove" onClick={() => updateInventoryQty(item.id, -qty)}>×</button>
-                    </div>
-                  </div>
+                  <button key={item.id} className="inv2-suggestion-row" onClick={() => addInventoryItem(item.id)}>
+                    {item.imageUrl && <img src={item.imageUrl} className="inv2-suggestion-img" alt="" />}
+                    <span className="inv2-suggestion-name">{item.name}</span>
+                    <span className="inv2-suggestion-tier" style={{ color: tier.color }}>{tier.label}</span>
+                    {item.current?.ebay?.totalPrice != null && (
+                      <span className="inv2-suggestion-price">€{item.current.ebay.totalPrice.toFixed(2)}</span>
+                    )}
+                  </button>
                 );
               })}
             </div>
+          )}
+        </div>
+      </div>
+    );
 
-            <div className="inv-footer">
-              <div className="inv-footer-stats">
-                <div className="inv-stat"><span className="inv-stat-label">Items</span><span className="inv-stat-val">{totalQty}</span></div>
-                <div className="inv-stat"><span className="inv-stat-label">Supreme</span><span className="inv-stat-val">{formatValue(totalSupreme)}</span></div>
-                <div className="inv-stat"><span className="inv-stat-label">eBay value</span><span className="inv-stat-val">{totalEbay > 0 ? formatCurrency(totalEbay, 'EUR') : '—'}</span></div>
-              </div>
-              <button className="inv-clear-btn" onClick={clearInventory}>Clear All</button>
+    if (inventoryWithItems.length === 0) {
+      return (
+        <section className="inv2-wrap">
+          <div className="inv2-header-row">
+            <div>
+              <h1 className="inv2-page-title">Inventory Tracker</h1>
+              <p className="inv2-page-sub">Track your MM2 portfolio. Saved in your browser.</p>
             </div>
-          </>
-        )}
+          </div>
+          {searchBar}
+          <div className="inv2-empty">Search above to add items to your inventory.</div>
+        </section>
+      );
+    }
+
+    return (
+      <section className="inv2-wrap">
+        <div className="inv2-header-row">
+          <div>
+            <h1 className="inv2-page-title">Inventory Tracker</h1>
+            <p className="inv2-page-sub">Track your MM2 portfolio. Saved in your browser.</p>
+          </div>
+          <button className="inv2-clear-btn" onClick={clearInventory}>Clear All</button>
+        </div>
+
+        <div className="inv2-layout">
+          {/* ── Main column ── */}
+          <div className="inv2-main">
+            {/* Hero card */}
+            <div className="inv2-hero">
+              <div className="inv2-hero-head">
+                <div className="inv2-hero-left">
+                  <div className="inv2-label">portfolio value</div>
+                  <div className="inv2-hero-value-row">
+                    <span className="inv2-portfolio-val">
+                      {totalEbay > 0 ? `€${totalEbay.toFixed(2)}` : '—'}
+                    </span>
+                    {totalEbay > 0 && filteredSeries.length > 1 && (
+                      <span className={`inv2-delta-badge ${portfolioDelta >= 0 ? 'up' : 'down'}`}>
+                        {portfolioDelta >= 0 ? '▲' : '▼'} {(Math.abs(portfolioDelta) * 100).toFixed(1)}%
+                      </span>
+                    )}
+                    <span className="inv2-period-label">{invTimeframe}</span>
+                  </div>
+                  <div className="inv2-stats-row">
+                    <span className="inv2-stat-pair">
+                      <span className="inv2-stat-label">SV</span>
+                      <span className="inv2-stat-val">{formatSV(totalSV)}</span>
+                    </span>
+                    <span className="inv2-sep">·</span>
+                    {d7Pct != null && (
+                      <>
+                        <span className="inv2-stat-pair">
+                          <span className="inv2-stat-label">7d</span>
+                          <span className="inv2-stat-val" style={{ color: d7Pct >= 0 ? 'var(--up)' : 'var(--down)' }}>
+                            {d7Pct >= 0 ? '+' : ''}{(d7Pct * 100).toFixed(1)}%
+                          </span>
+                        </span>
+                        <span className="inv2-sep">·</span>
+                      </>
+                    )}
+                    <span className="inv2-stat-pair">
+                      <span className="inv2-stat-label">items</span>
+                      <span className="inv2-stat-val">{totalQty}</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="inv2-pills">
+                  {TIMEFRAMES.map(tf => (
+                    <button
+                      key={tf}
+                      className={`inv2-pill${invTimeframe === tf ? ' active' : ''}`}
+                      onClick={() => setInvTimeframe(tf)}
+                    >{tf}</button>
+                  ))}
+                </div>
+              </div>
+              <PortfolioAreaChart values={chartVals} />
+            </div>
+
+            {/* Search */}
+            {searchBar}
+
+            {/* Holdings table */}
+            <div className="inv2-table-wrap">
+              <table className="inv2-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 4 }} />
+                    <th className="l" style={{ width: 28 }}>#</th>
+                    <th style={{ width: 44 }} />
+                    <th className="l">Item</th>
+                    <th className="l">Tier</th>
+                    <th>eBay €</th>
+                    <th>SV</th>
+                    <th>7d</th>
+                    <th className="c">Trend</th>
+                    <th>Qty</th>
+                    <th>Position</th>
+                    <th style={{ width: 28 }} />
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventoryWithItems.map(({ item, qty }, i) => {
+                    const tier = deriveTier(item);
+                    const ebay = item.current?.ebay?.totalPrice ?? null;
+                    const sv = item.current?.supreme?.value ?? null;
+                    const trend = getItemTrend(item);
+                    const trendUp = trend >= 0;
+                    const trendPct = (Math.abs(trend) * 100).toFixed(1);
+                    const pctVal = trend * 100;
+                    const posTotal = ebay != null ? ebay * qty : null;
+                    const posSV = sv != null ? sv * qty : null;
+                    const serial = getItemSerial(item);
+
+                    function pctClass(v) {
+                      if (v === 0) return 'p0';
+                      if (v > 8) return 'p3'; if (v > 2) return 'p2'; if (v > 0) return 'p1';
+                      if (v < -8) return 'n3'; if (v < -2) return 'n2'; return 'n1';
+                    }
+
+                    return (
+                      <tr key={item.id} className="inv2-row">
+                        <td className="inv2-rail-cell">
+                          <span className="inv2-rail" style={{ background: tier.color }} />
+                        </td>
+                        <td className="inv2-idx">{i + 1}</td>
+                        <td className="inv2-thumb-td">
+                          <div className="inv2-thumb-wrap">
+                            {item.imageUrl
+                              ? <img src={item.imageUrl} alt="" />
+                              : <span style={{ fontSize: 8, color: 'var(--ink-faint)' }}>{getInitials(item.name)}</span>}
+                          </div>
+                        </td>
+                        <td className="l inv2-name-cell">
+                          <span className="inv2-item-name">{item.name}</span>
+                          <span className="inv2-item-id">#{serial}</span>
+                        </td>
+                        <td className="l">
+                          <span className="inv2-tier-tag" style={{ color: tier.color }}>
+                            <span className="inv2-tier-d" style={{ background: tier.color }} />
+                            {tier.label}
+                          </span>
+                        </td>
+                        <td className="inv2-num inv2-muted">{ebay != null ? ebay.toFixed(2) : '—'}</td>
+                        <td className="inv2-num inv2-muted">{sv != null ? formatSV(sv) : '—'}</td>
+                        <td className="inv2-pct-td">
+                          <span className={`inv2-pct-cell ${pctClass(pctVal)}`}>
+                            {trendUp ? '+' : ''}{trendPct}%
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '0 8px' }}>
+                          <TrendChevron up={trendUp} />
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div className="inv2-qty">
+                            <button className="inv2-qty-btn" onClick={() => updateInventoryQty(item.id, -1)}>−</button>
+                            <span className="inv2-qty-num">{qty}</span>
+                            <button className="inv2-qty-btn" onClick={() => updateInventoryQty(item.id, 1)}>+</button>
+                          </div>
+                        </td>
+                        <td className="inv2-pos-cell">
+                          <span className="inv2-pos-total">{posTotal != null ? `€${posTotal.toFixed(2)}` : '—'}</span>
+                          <span className="inv2-pos-sv">{posSV != null ? formatSV(posSV) + ' SV' : ''}</span>
+                        </td>
+                        <td style={{ padding: '0 8px' }}>
+                          <button className="inv2-remove" onClick={() => updateInventoryQty(item.id, -qty)}>×</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ── Sidebar ── */}
+          <aside className="inv2-sidebar">
+            {/* Top Movers */}
+            <div className="inv2-card">
+              <div className="inv2-card-label">top movers · 7d</div>
+              {topMovers.length === 0 ? (
+                <div className="inv2-sidebar-empty">No movement data yet.</div>
+              ) : (
+                <div className="inv2-movers-list">
+                  {topMovers.map(({ item, trend }) => {
+                    const tier = deriveTier(item);
+                    const ebay = item.current?.ebay?.totalPrice ?? null;
+                    const trendUp = trend >= 0;
+                    return (
+                      <div key={item.id} className="inv2-mover-row">
+                        <div className="inv2-mover-thumb">
+                          {item.imageUrl
+                            ? <img src={item.imageUrl} alt="" />
+                            : <span style={{ fontSize: 8, color: tier.color }}>{getInitials(item.name)}</span>}
+                        </div>
+                        <div className="inv2-mover-info">
+                          <span className="inv2-mover-name">{item.name}</span>
+                          <span className="inv2-mover-price">{ebay != null ? `€${ebay.toFixed(2)}` : '—'}</span>
+                        </div>
+                        <span className={`inv2-mover-pct ${trendUp ? 'up' : 'down'}`}>
+                          {trendUp ? '+' : ''}{(Math.abs(trend) * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Allocation */}
+            <div className="inv2-card">
+              <div className="inv2-card-label">allocation</div>
+              {allocItems.length === 0 ? (
+                <div className="inv2-sidebar-empty">No eBay price data for allocation.</div>
+              ) : (
+                <>
+                  <div className="inv2-alloc-bar">
+                    {allocItems.map(({ item, value, tier }) => (
+                      <div
+                        key={item.id}
+                        className="inv2-alloc-seg"
+                        style={{ width: `${(value / allocTotal) * 100}%`, background: tier.color }}
+                        title={`${item.name}: ${((value / allocTotal) * 100).toFixed(1)}%`}
+                      />
+                    ))}
+                  </div>
+                  <div className="inv2-alloc-legend">
+                    {allocItems.slice(0, 6).map(({ item, value, tier }) => (
+                      <div key={item.id} className="inv2-alloc-row">
+                        <span className="inv2-alloc-swatch" style={{ background: tier.color }} />
+                        <span className="inv2-alloc-name">{item.name}</span>
+                        <span className="inv2-alloc-pct">{((value / allocTotal) * 100).toFixed(1)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </aside>
+        </div>
       </section>
     );
   }
@@ -1178,6 +1398,125 @@ export default function App() {
 
       {renderTradePicker()}
     </div>
+  );
+}
+
+// ── Inventory Tracker helpers ────────────────────────────────────────────────
+
+function buildPortfolioSeries(inventoryWithItems) {
+  const currentPriceMap = new Map();
+  inventoryWithItems.forEach(({ item, qty }) => {
+    currentPriceMap.set(item.id, { qty, current: item.current?.ebay?.totalPrice ?? 0 });
+  });
+
+  const tsMap = new Map();
+  inventoryWithItems.forEach(({ item }) => {
+    (item.history ?? []).forEach(point => {
+      if (!tsMap.has(point.timestamp)) tsMap.set(point.timestamp, new Map());
+      if (point.ebayPrice != null) tsMap.get(point.timestamp).set(item.id, point.ebayPrice);
+    });
+  });
+
+  if (tsMap.size < 2) return [];
+
+  const sortedTs = [...tsMap.keys()].sort();
+  const lastKnown = new Map();
+  inventoryWithItems.forEach(({ item }) => lastKnown.set(item.id, null));
+
+  const series = [];
+  for (const ts of sortedTs) {
+    const prices = tsMap.get(ts);
+    prices.forEach((price, id) => lastKnown.set(id, price));
+    let total = 0;
+    let hasAny = false;
+    inventoryWithItems.forEach(({ item, qty }) => {
+      const p = lastKnown.get(item.id) ?? currentPriceMap.get(item.id)?.current ?? 0;
+      if (p > 0) hasAny = true;
+      total += p * qty;
+    });
+    if (hasAny) series.push({ timestamp: ts, value: total });
+  }
+
+  const lastTs = new Date().toISOString();
+  let currentTotal = 0;
+  inventoryWithItems.forEach(({ item, qty }) => {
+    currentTotal += (item.current?.ebay?.totalPrice ?? 0) * qty;
+  });
+  if (currentTotal > 0) series.push({ timestamp: lastTs, value: currentTotal });
+
+  return series;
+}
+
+function filterByTimeframe(series, tf) {
+  if (!series.length) return series;
+  const cutoffs = {
+    '1D': 24 * 60 * 60 * 1000,
+    '1W': 7 * 24 * 60 * 60 * 1000,
+    '1M': 30 * 24 * 60 * 60 * 1000,
+    '3M': 90 * 24 * 60 * 60 * 1000,
+    '1Y': 365 * 24 * 60 * 60 * 1000,
+    'ALL': Infinity,
+  };
+  const cutoff = cutoffs[tf] ?? Infinity;
+  const now = Date.now();
+  const filtered = series.filter(p => (now - new Date(p.timestamp).getTime()) <= cutoff);
+  return filtered.length >= 2 ? filtered : series;
+}
+
+function PortfolioAreaChart({ values }) {
+  const W = 600, H = 150;
+  if (!values || values.length < 2) {
+    return (
+      <div className="inv2-chart inv2-chart-empty">
+        <span>History builds up after a few price refreshes</span>
+      </div>
+    );
+  }
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const pad = 8;
+  const pts = values.map((v, i) => [
+    (i / (values.length - 1)) * W,
+    H - pad - ((v - min) / range) * (H - pad * 2),
+  ]);
+  const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const areaPath = `${linePath} L${W},${H} L0,${H} Z`;
+  const last = pts[pts.length - 1];
+  return (
+    <div className="inv2-chart">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <defs>
+          <linearGradient id="inv2-area-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#5eff8d" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#5eff8d" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75].map(y => (
+          <line key={y} x1="0" y1={H * y} x2={W} y2={H * y}
+            stroke="rgba(255,255,255,0.05)" strokeWidth="0.6"
+            strokeDasharray="4 5" vectorEffect="non-scaling-stroke" />
+        ))}
+        <path d={areaPath} fill="url(#inv2-area-grad)" />
+        <path d={linePath} fill="none" stroke="#5eff8d" strokeWidth="1.5"
+          strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="4"
+          fill="var(--bg)" stroke="#5eff8d" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
+        <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="7"
+          fill="#5eff8d" opacity="0.15" vectorEffect="non-scaling-stroke" />
+      </svg>
+    </div>
+  );
+}
+
+function TrendChevron({ up }) {
+  const color = up ? 'var(--up)' : 'var(--down)';
+  const pts = up ? '2,11 6,5 10,11 15,3' : '2,5 6,11 10,5 15,13';
+  return (
+    <svg width="17" height="14" viewBox="0 0 17 14" fill="none" style={{ display: 'block', margin: '0 auto' }}>
+      <polyline points={pts} stroke={color} strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
