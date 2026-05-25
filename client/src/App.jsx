@@ -130,7 +130,7 @@ function GWGauge({ value, max = 5, color, label }) {
   );
 }
 
-function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart }) {
+function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
   const tier = deriveTier(item);
   const serial = getItemSerial(item);
   const trend = getItemTrend(item);
@@ -223,6 +223,13 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart }) {
           <GWGauge value={rarity} color="var(--tier-vintage)" label="RAR" />
         </div>
       </div>
+      {onAddToInventory && (
+        <button
+          className="gw-card-add-inv"
+          onClick={e => { e.stopPropagation(); onAddToInventory(); }}
+          title="Add to Inventory"
+        >+ inventory</button>
+      )}
     </article>
   );
 }
@@ -243,7 +250,7 @@ function GWSparkline({ data, up, w = 120, h = 28 }) {
   );
 }
 
-function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart }) {
+function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
   const tier = deriveTier(item);
   const trend = getItemTrend(item);
   const trendUp = trend >= 0;
@@ -301,6 +308,13 @@ function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart }) {
         </div>
       </td>
       <td className="gw-action">
+        {onAddToInventory && (
+          <button
+            className="gw-row-add-inv"
+            onClick={e => { e.stopPropagation(); onAddToInventory(); }}
+            title="Add to Inventory"
+          >+inv</button>
+        )}
         <button
           className={`gw-row-star${isFavorite ? ' active' : ''}`}
           onClick={e => { e.stopPropagation(); onToggleFavorite(); }}
@@ -310,7 +324,7 @@ function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart }) {
   );
 }
 
-function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart }) {
+function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddToInventory }) {
   return (
     <div className="gw-table-wrap">
       <table className="gw-table">
@@ -338,6 +352,7 @@ function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart }) {
               isFavorite={favoriteIds.includes(item.id)}
               onToggleFavorite={() => onToggleFavorite(item.id)}
               onOpenChart={() => onOpenChart(item.id)}
+              onAddToInventory={onAddToInventory ? () => onAddToInventory(item.id) : undefined}
             />
           ))}
           {!items.length ? (
@@ -1293,14 +1308,14 @@ export default function App() {
         <div className="gw-announce">
           <span className="gw-announce-dot" />
           <span className="gw-announce-text">
-            🎉 First <strong>20 people</strong> to join our Discord get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma weapon</strong>!
+            join the discord — first <strong>30 members</strong> get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma weapon</strong> 🔥
           </span>
           <a
             className="gw-announce-btn"
             href="https://discord.gg/6Ad4YvhkDg"
             target="_blank"
             rel="noopener noreferrer"
-          >Join Discord →</a>
+          >join →</a>
           <button
             className="gw-announce-close"
             onClick={() => {
@@ -1381,6 +1396,7 @@ export default function App() {
                     isFavorite={favoriteIds.includes(item.id)}
                     onToggleFavorite={() => toggleFavorite(item.id)}
                     onOpenChart={() => setSelectedChartItemId(item.id)}
+                    onAddToInventory={() => addInventoryItem(item.id)}
                   />
                 ))}
                 {!tierBoardItems.length ? (
@@ -1395,6 +1411,7 @@ export default function App() {
                 favoriteIds={favoriteIds}
                 onToggleFavorite={toggleFavorite}
                 onOpenChart={(id) => setSelectedChartItemId(id)}
+                onAddToInventory={addInventoryItem}
               />
             )}
           </main>
