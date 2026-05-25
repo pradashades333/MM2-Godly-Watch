@@ -445,6 +445,8 @@ export default function App() {
   const [viewMode, setViewMode] = useState('grid');
   const [inventoryItems, setInventoryItems] = useState(readStoredInventory);
   const [inventorySearch, setInventorySearch] = useState("");
+  const [tradePickerState, setTradePickerState] = useState(null); // { sideKey, slotIndex }
+  const [tradePickerSearch, setTradePickerSearch] = useState("");
 
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
@@ -674,6 +676,81 @@ export default function App() {
     setWantTradeSearch(createEmptyTradeSearch());
   }
 
+  function openTradePicker(sideKey, slotIndex) {
+    setTradePickerState({ sideKey, slotIndex });
+    setTradePickerSearch("");
+  }
+
+  function closeTradePicker() {
+    setTradePickerState(null);
+    setTradePickerSearch("");
+  }
+
+  function selectTradeItem(itemId) {
+    if (!tradePickerState) return;
+    updateTradeSlot(tradePickerState.sideKey, tradePickerState.slotIndex, itemId);
+    closeTradePicker();
+  }
+
+  function renderTradePicker() {
+    if (!tradePickerState) return null;
+
+    const q = tradePickerSearch.trim().toLowerCase();
+    const filtered = q
+      ? items.filter(i => i.name.toLowerCase().includes(q))
+      : items;
+
+    const tiers = [
+      { key: 'legend', label: 'Legend', color: 'var(--tier-legend)' },
+      { key: 'godly',  label: 'Godly',  color: 'var(--tier-godly)'  },
+      { key: 'ancient',label: 'Ancient',color: 'var(--tier-ancient)' },
+      { key: 'sets',   label: 'Sets',   color: 'var(--tier-vintage)' },
+    ];
+    const grouped = tiers.map(t => ({
+      ...t,
+      items: filtered.filter(i => deriveTier(i).key === t.key)
+    })).filter(t => t.items.length > 0);
+
+    return (
+      <div className="tp-overlay" onClick={closeTradePicker}>
+        <div className="tp-modal" onClick={e => e.stopPropagation()}>
+          <div className="tp-header">
+            <span className="tp-title">Select Item</span>
+            <input
+              autoFocus
+              className="tp-search"
+              placeholder="Search weapons..."
+              value={tradePickerSearch}
+              onChange={e => setTradePickerSearch(e.target.value)}
+            />
+            <button className="tp-close" onClick={closeTradePicker}>×</button>
+          </div>
+          <div className="tp-body">
+            {grouped.map(group => (
+              <div key={group.key} className="tp-group">
+                {!q && <div className="tp-group-label" style={{ color: group.color }}>{group.label}</div>}
+                <div className="tp-grid">
+                  {group.items.map(item => (
+                    <button key={item.id} className="tp-item" onClick={() => selectTradeItem(item.id)}>
+                      {item.imageUrl
+                        ? <img src={item.imageUrl} className="tp-item-img" alt="" />
+                        : <div className="tp-item-img tp-item-img-empty">{getInitials(item.name)}</div>}
+                      <span className="tp-item-name">{item.name}</span>
+                      <span className="tp-item-tier" style={{ color: group.color }}>
+                        {item.current?.supreme?.value != null ? formatValue(item.current.supreme.value) : group.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {grouped.length === 0 && <div className="tp-empty">No items found</div>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function toggleFavorite(itemId) {
     setFavoriteIds((current) =>
       current.includes(itemId)
@@ -700,14 +777,11 @@ export default function App() {
               sideKey,
               slot,
               slotIndex,
-              searchValue: searchValues[slotIndex] || "",
               item: slot.itemId ? itemLookup.get(slot.itemId) : null,
-              items,
               currency: "EUR",
-              applyTradeInput,
-              updateTradeSlot,
               updateTradeQuantity,
-              clearTradeSlot
+              clearTradeSlot,
+              openPicker: openTradePicker
             })
           )}
           </div>
@@ -1101,6 +1175,8 @@ export default function App() {
           onClose={() => setSelectedChartItemId(null)}
         />
       ) : null}
+
+      {renderTradePicker()}
     </div>
   );
 }
@@ -1238,92 +1314,57 @@ function DualHistoryChart({ item, trendColor = 'var(--up)' }) {
 }
 
 function buildTradeSlot({
-  sideKey,
-  slot,
-  slotIndex,
-  searchValue,
-  item,
-  items,
-  currency = "EUR",
-  applyTradeInput,
-  updateTradeSlot,
-  updateTradeQuantity,
-  clearTradeSlot
+  sideKey, slot, slotIndex, item,
+  currency = "EUR", updateTradeQuantity, clearTradeSlot, openPicker
 }) {
   const supremeValue = item?.current?.supreme?.value ?? null;
-  const ebayValue = item?.current?.ebay?.totalPrice ?? null;
+  const ebayValue = item?.current?.ebay?.totalPrice ?? item?.current?.ebay?.price ?? null;
   const stackSupremeValue = supremeValue != null ? supremeValue * slot.quantity : null;
   const stackEbayValue = ebayValue != null ? Number((ebayValue * slot.quantity).toFixed(2)) : null;
+  const tier = item ? deriveTier(item) : null;
 
   return (
     <article key={`${sideKey}-${slotIndex}`} className="trade-slot-card">
-      <div className={`trade-slot-tile ${item ? "filled" : "empty"}`}>
+      <button
+        className={`trade-slot-tile ${item ? "filled" : "empty"}`}
+        onClick={() => openPicker(sideKey, slotIndex)}
+      >
         {item?.imageUrl ? (
           <img className="trade-slot-image" src={item.imageUrl} alt={item.name} />
         ) : (
-          <div className="trade-slot-visual">{item ? getInitials(item.name) : "+"}</div>
+          <div className="trade-slot-visual">+</div>
         )}
-
         <div className="trade-slot-overlay">
           <span className="trade-slot-number">Slot {slotIndex + 1}</span>
-          <strong>{item?.name || "Choose an item"}</strong>
-          <p>
-            {item
-              ? `${capitalize(item.category)} - ${formatValue(supremeValue)} value each`
-              : "Empty trade slot"}
-          </p>
+          <strong>{item?.name || "Click to add"}</strong>
+          {item && tier && (
+            <p style={{ color: tier.color }}>{tier.label} · {formatValue(supremeValue)}</p>
+          )}
+          {!item && <p>Empty slot</p>}
         </div>
-      </div>
+      </button>
 
-      <div className="trade-slot-controls">
-        <label className="trade-input-group trade-item-search">
-          <span>Item</span>
-          <input
-            list="trade-item-options"
-            value={searchValue}
-            onChange={(event) => applyTradeInput(sideKey, slotIndex, event.target.value)}
-            placeholder="Add weapon"
-          />
-        </label>
-
-        <div className="trade-control-row">
-          <label className="trade-input-group quantity">
-            <span>Qty</span>
-            <input
-              type="number"
-              min="1"
-              max="99"
-              value={slot.quantity}
-              onChange={(event) => updateTradeQuantity(sideKey, slotIndex, event.target.value)}
-            />
-          </label>
-
-          <label className="trade-input-group quick-pick">
-            <span>Quick pick</span>
-            <select
-              value={slot.itemId || ""}
-              onChange={(event) => updateTradeSlot(sideKey, slotIndex, event.target.value || null)}
-            >
-              <option value="">No item selected</option>
-              {items.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <button className="trade-clear-slot-button" onClick={() => clearTradeSlot(sideKey, slotIndex)}>
-            Remove
-          </button>
+      {item && (
+        <div className="trade-slot-controls">
+          <div className="trade-control-row">
+            <label className="trade-input-group quantity">
+              <span>Qty</span>
+              <input
+                type="number" min="1" max="99" value={slot.quantity}
+                onChange={e => updateTradeQuantity(sideKey, slotIndex, e.target.value)}
+              />
+            </label>
+            <button className="trade-clear-slot-button" onClick={() => clearTradeSlot(sideKey, slotIndex)}>
+              Remove
+            </button>
+          </div>
+          <div className="trade-slot-values">
+            <ValueBox label="Per-item value" value={formatValue(supremeValue)} />
+            <ValueBox label="Stack total" value={formatValue(stackSupremeValue)} />
+            <ValueBox label="eBay stack" value={formatCurrency(stackEbayValue, item?.current?.ebay?.currency || currency)} />
+          </div>
         </div>
-
-        <div className="trade-slot-values">
-          <ValueBox label="Per-item value" value={formatValue(supremeValue)} />
-          <ValueBox label="Stack total" value={formatValue(stackSupremeValue)} />
-          <ValueBox label="eBay stack" value={formatCurrency(stackEbayValue, item?.current?.ebay?.currency || currency)} />
-        </div>
-      </div>
+      )}
     </article>
   );
 }
