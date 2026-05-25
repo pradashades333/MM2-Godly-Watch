@@ -446,6 +446,10 @@ export default function App() {
   const [inventoryItems, setInventoryItems] = useState(readStoredInventory);
   const [inventorySearch, setInventorySearch] = useState("");
   const [invTimeframe, setInvTimeframe] = useState('3M');
+  const [invChartMode, setInvChartMode] = useState('eur');
+  const [announcementDismissed, setAnnouncementDismissed] = useState(
+    () => localStorage.getItem('gw-announce-v1') === '1'
+  );
   const [tradePickerState, setTradePickerState] = useState(null); // { sideKey, slotIndex }
   const [tradePickerSearch, setTradePickerSearch] = useState("");
 
@@ -879,14 +883,18 @@ export default function App() {
     );
     const totalQty = inventoryWithItems.reduce((s, { qty }) => s + qty, 0);
 
-    const portfolioSeries = buildPortfolioSeries(inventoryWithItems);
+    const primaryTotal = invChartMode === 'sv' ? totalSV : totalEbay;
+    const secondaryTotal = invChartMode === 'sv' ? totalEbay : totalSV;
+    const chartColor = invChartMode === 'sv' ? '#b794f4' : '#5eff8d';
+
+    const portfolioSeries = buildPortfolioSeries(inventoryWithItems, invChartMode);
     const filteredSeries = filterByTimeframe(portfolioSeries, invTimeframe);
     const startVal = filteredSeries.length > 1 ? filteredSeries[0].value : 0;
-    const portfolioDelta = startVal > 0 ? (totalEbay - startVal) / startVal : 0;
+    const portfolioDelta = startVal > 0 ? (primaryTotal - startVal) / startVal : 0;
 
     const d7Series = filterByTimeframe(portfolioSeries, '1W');
     const d7Start = d7Series.length > 1 ? d7Series[0].value : 0;
-    const d7Pct = d7Start > 0 ? (totalEbay - d7Start) / d7Start : null;
+    const d7Pct = d7Start > 0 ? (primaryTotal - d7Start) / d7Start : null;
 
     const chartVals = filteredSeries.map(p => p.value);
 
@@ -982,22 +990,27 @@ export default function App() {
                 <div className="inv2-hero-left">
                   <div className="inv2-label">portfolio value</div>
                   <div className="inv2-hero-value-row">
-                    <span className="inv2-portfolio-val">
-                      {totalEbay > 0 ? `€${totalEbay.toFixed(2)}` : '—'}
+                    <span className="inv2-portfolio-val" style={{ color: invChartMode === 'sv' ? '#b794f4' : 'var(--ink)' }}>
+                      {invChartMode === 'sv'
+                        ? (totalSV > 0 ? formatSV(totalSV) : '—')
+                        : (totalEbay > 0 ? `€${totalEbay.toFixed(2)}` : '—')}
                     </span>
-                    {totalEbay > 0 && filteredSeries.length > 1 && (
+                    {primaryTotal > 0 && filteredSeries.length > 1 && (
                       <span className={`inv2-delta-badge ${portfolioDelta >= 0 ? 'up' : 'down'}`}>
                         {portfolioDelta >= 0 ? '▲' : '▼'} {(Math.abs(portfolioDelta) * 100).toFixed(1)}%
                       </span>
                     )}
                     <span className="inv2-period-label">{invTimeframe}</span>
                   </div>
+                  <div className="inv2-hero-secondary">
+                    {invChartMode === 'eur' && totalSV > 0 && (
+                      <span className="inv2-secondary-val">{formatSV(totalSV)} <span style={{ color: 'var(--ink-faint)' }}>SV</span></span>
+                    )}
+                    {invChartMode === 'sv' && totalEbay > 0 && (
+                      <span className="inv2-secondary-val">€{totalEbay.toFixed(2)} <span style={{ color: 'var(--ink-faint)' }}>eBay</span></span>
+                    )}
+                  </div>
                   <div className="inv2-stats-row">
-                    <span className="inv2-stat-pair">
-                      <span className="inv2-stat-label">SV</span>
-                      <span className="inv2-stat-val">{formatSV(totalSV)}</span>
-                    </span>
-                    <span className="inv2-sep">·</span>
                     {d7Pct != null && (
                       <>
                         <span className="inv2-stat-pair">
@@ -1015,17 +1028,29 @@ export default function App() {
                     </span>
                   </div>
                 </div>
-                <div className="inv2-pills">
-                  {TIMEFRAMES.map(tf => (
+                <div className="inv2-hero-right">
+                  <div className="inv2-pills">
+                    {TIMEFRAMES.map(tf => (
+                      <button
+                        key={tf}
+                        className={`inv2-pill${invTimeframe === tf ? ' active' : ''}`}
+                        onClick={() => setInvTimeframe(tf)}
+                      >{tf}</button>
+                    ))}
+                  </div>
+                  <div className="inv2-chart-toggle">
                     <button
-                      key={tf}
-                      className={`inv2-pill${invTimeframe === tf ? ' active' : ''}`}
-                      onClick={() => setInvTimeframe(tf)}
-                    >{tf}</button>
-                  ))}
+                      className={`inv2-ct-btn${invChartMode === 'eur' ? ' active' : ''}`}
+                      onClick={() => setInvChartMode('eur')}
+                    >eBay €</button>
+                    <button
+                      className={`inv2-ct-btn${invChartMode === 'sv' ? ' active active-sv' : ''}`}
+                      onClick={() => setInvChartMode('sv')}
+                    >SV</button>
+                  </div>
                 </div>
               </div>
-              <PortfolioAreaChart values={chartVals} />
+              <PortfolioAreaChart values={chartVals} color={chartColor} gradId={`inv2-grad-${invChartMode}`} />
             </div>
 
             {/* Search */}
@@ -1267,6 +1292,29 @@ export default function App() {
         </div>
       </div>
 
+      {/* Promo announcement */}
+      {!announcementDismissed && (
+        <div className="gw-announce">
+          <span className="gw-announce-dot" />
+          <span className="gw-announce-text">
+            🎉 First <strong>20 people</strong> to join our Discord get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma weapon</strong>!
+          </span>
+          <a
+            className="gw-announce-btn"
+            href="https://discord.gg/6Ad4YvhkDg"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Join Discord →</a>
+          <button
+            className="gw-announce-close"
+            onClick={() => {
+              localStorage.setItem('gw-announce-v1', '1');
+              setAnnouncementDismissed(true);
+            }}
+          >×</button>
+        </div>
+      )}
+
       {/* Banners */}
       {error ? <div className="gw-banner error">{error}</div> : null}
       {loading ? <div className="gw-banner">Loading market data...</div> : null}
@@ -1403,17 +1451,22 @@ export default function App() {
 
 // ── Inventory Tracker helpers ────────────────────────────────────────────────
 
-function buildPortfolioSeries(inventoryWithItems) {
+function buildPortfolioSeries(inventoryWithItems, mode = 'eur') {
+  const histKey = mode === 'sv' ? 'supremeValue' : 'ebayPrice';
+  const getCurrent = (item) => mode === 'sv'
+    ? (item.current?.supreme?.value ?? 0)
+    : (item.current?.ebay?.totalPrice ?? 0);
+
   const currentPriceMap = new Map();
   inventoryWithItems.forEach(({ item, qty }) => {
-    currentPriceMap.set(item.id, { qty, current: item.current?.ebay?.totalPrice ?? 0 });
+    currentPriceMap.set(item.id, { qty, current: getCurrent(item) });
   });
 
   const tsMap = new Map();
   inventoryWithItems.forEach(({ item }) => {
     (item.history ?? []).forEach(point => {
       if (!tsMap.has(point.timestamp)) tsMap.set(point.timestamp, new Map());
-      if (point.ebayPrice != null) tsMap.get(point.timestamp).set(item.id, point.ebayPrice);
+      if (point[histKey] != null) tsMap.get(point.timestamp).set(item.id, point[histKey]);
     });
   });
 
@@ -1440,7 +1493,7 @@ function buildPortfolioSeries(inventoryWithItems) {
   const lastTs = new Date().toISOString();
   let currentTotal = 0;
   inventoryWithItems.forEach(({ item, qty }) => {
-    currentTotal += (item.current?.ebay?.totalPrice ?? 0) * qty;
+    currentTotal += getCurrent(item) * qty;
   });
   if (currentTotal > 0) series.push({ timestamp: lastTs, value: currentTotal });
 
@@ -1463,8 +1516,8 @@ function filterByTimeframe(series, tf) {
   return filtered.length >= 2 ? filtered : series;
 }
 
-function PortfolioAreaChart({ values }) {
-  const W = 600, H = 150;
+function PortfolioAreaChart({ values, color = '#5eff8d', gradId = 'inv2-area-grad' }) {
+  const W = 600, H = 180;
   if (!values || values.length < 2) {
     return (
       <div className="inv2-chart inv2-chart-empty">
@@ -1475,7 +1528,7 @@ function PortfolioAreaChart({ values }) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
-  const pad = 8;
+  const pad = 10;
   const pts = values.map((v, i) => [
     (i / (values.length - 1)) * W,
     H - pad - ((v - min) / range) * (H - pad * 2),
@@ -1487,9 +1540,9 @@ function PortfolioAreaChart({ values }) {
     <div className="inv2-chart">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
         <defs>
-          <linearGradient id="inv2-area-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#5eff8d" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="#5eff8d" stopOpacity="0" />
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map(y => (
@@ -1497,13 +1550,13 @@ function PortfolioAreaChart({ values }) {
             stroke="rgba(255,255,255,0.05)" strokeWidth="0.6"
             strokeDasharray="4 5" vectorEffect="non-scaling-stroke" />
         ))}
-        <path d={areaPath} fill="url(#inv2-area-grad)" />
-        <path d={linePath} fill="none" stroke="#5eff8d" strokeWidth="1.5"
+        <path d={areaPath} fill={`url(#${gradId})`} />
+        <path d={linePath} fill="none" stroke={color} strokeWidth="1.5"
           strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="4"
-          fill="var(--bg)" stroke="#5eff8d" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
-        <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="7"
-          fill="#5eff8d" opacity="0.15" vectorEffect="non-scaling-stroke" />
+          fill="var(--bg)" stroke={color} strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
+        <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="8"
+          fill={color} opacity="0.15" vectorEffect="non-scaling-stroke" />
       </svg>
     </div>
   );
