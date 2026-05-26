@@ -59,7 +59,7 @@ const LOCAL_ITEM_IMAGES = {
 
 const SHOP_LISTINGS = [
   { id: 'sun-set',            name: 'Sun Set',                       img: '/items/sun-set.png',            url: 'https://www.ebay.com/itm/366291698619' },
-  { id: 'heart-wand',         name: 'Heart Wand',                    img: '/items/heart-wand.png',         url: 'https://www.ebay.com/itm/366291698619' },
+  { id: 'heart-wand',         name: 'Heart Wand',                    img: '/items/heart-wand.png',         url: 'https://www.ebay.com/itm/366426866726' },
   { id: 'rainbow-set',        name: 'Rainbow Set',                   img: '/items/rainbow-set.png',        url: 'https://www.ebay.com/itm/366291681066' },
   { id: 'rainbow',            name: 'Rainbow',                       img: '/items/rainbow.png',            url: 'https://www.ebay.com/itm/366291678057' },
   { id: 'rainbow-gun',        name: 'Rainbow Gun',                   img: '/items/rainbow-gun.png',        url: 'https://www.ebay.com/itm/366291671327' },
