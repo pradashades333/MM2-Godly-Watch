@@ -16,10 +16,88 @@ function proxyImg(url) {
   return `${API_BASE}/img?url=${encodeURIComponent(url)}`;
 }
 
+const LOCAL_ITEM_IMAGES = {
+  'alien-set':          '/items/alien-set.png',
+  'bat':                '/items/bat.png',
+  'candy-set':          '/items/candy-set.png',
+  'chroma-bringer-set': '/items/chroma-bringer-set.png',
+  'darkshot':           '/items/darkshot.png',
+  'dark-set':           '/items/dark-set.png',
+  'darksword':          '/items/darksword.png',
+  'darkbringer':        '/items/darkbringer.png',
+  'full-swirly-set':    '/items/full-swirly-set.png',
+  'hallowgun':          '/items/hallowgun.png',
+  'hallow-set':         '/items/hallow-set.png',
+  'heart-wand':         '/items/heart-wand.png',
+  'iceblaster':         '/items/iceblaster.png',
+  'lightbringer':       '/items/lightbringer.png',
+  'luger':              '/items/luger.png',
+  'phantom':            '/items/phantom.png',
+  'plasmabeam':         '/items/plasmabeam.png',
+  'plasmablade':        '/items/plasmablade.png',
+  'plasma-set':         '/items/plasma-set.png',
+  'rainbow':            '/items/rainbow.png',
+  'rainbow-gun':        '/items/rainbow-gun.png',
+  'rainbow-set':        '/items/rainbow-set.png',
+  'raygun':             '/items/raygun.png',
+  'sakura-set':         '/items/sakura-set.png',
+  'snow-dagger':        '/items/snow-dagger.png',
+  'snow-set':           '/items/snow-set.png',
+  'snowcannon':         '/items/snowcannon.png',
+  'spectre-set':        '/items/spectre-set.png',
+  'spectre':            '/items/spectre.png',
+  'sunset':             '/items/sunset.png',
+  'sun-set':            '/items/sun-set.png',
+  'sunrise':            '/items/sunrise.png',
+  'sweet-set':          '/items/sweet-set.png',
+  'sweet':              '/items/sweet.png',
+  'treat':              '/items/treat.png',
+  'vampires-gun':       '/items/vampires-gun.png',
+  'vampires-set':       '/items/vampires-set.png',
+  'celestial-set':      '/items/celestial-set.png',
+};
+
+const SHOP_LISTINGS = [
+  { id: 'sun-set',            name: 'Sun Set',                       img: '/items/sun-set.png',            url: 'https://www.ebay.com/itm/366291698619' },
+  { id: 'heart-wand',         name: 'Heart Wand',                    img: '/items/heart-wand.png',         url: 'https://www.ebay.com/itm/366291698619' },
+  { id: 'rainbow-set',        name: 'Rainbow Set',                   img: '/items/rainbow-set.png',        url: 'https://www.ebay.com/itm/366291681066' },
+  { id: 'rainbow',            name: 'Rainbow',                       img: '/items/rainbow.png',            url: 'https://www.ebay.com/itm/366291678057' },
+  { id: 'rainbow-gun',        name: 'Rainbow Gun',                   img: '/items/rainbow-gun.png',        url: 'https://www.ebay.com/itm/366291671327' },
+  { id: 'raygun',             name: 'Ray Gun',                       img: '/items/raygun.png',             url: 'https://www.ebay.com/itm/366348855771' },
+  { id: 'spectre-set',        name: 'Spectre Set',                   img: '/items/spectre-set.png',        url: 'https://www.ebay.com/itm/366198830308' },
+  { id: 'spectre',            name: 'Spectre',                       img: '/items/spectre.png',            url: 'https://www.ebay.com/itm/366198829225' },
+  { id: 'phantom',            name: 'Phantom',                       img: '/items/phantom.png',            url: 'https://www.ebay.com/itm/366198828082' },
+  { id: 'iceblaster',         name: 'Iceblaster',                    img: '/items/iceblaster.png',         url: 'https://www.ebay.com/itm/366198823883' },
+  { id: 'icebreaker',         name: 'Icebreaker',                    img: '/items/icebreaker.png',         url: 'https://www.ebay.com/itm/366198821009' },
+  { id: 'chroma-bringer-set', name: 'Chroma Bringer Set',            img: '/items/chroma-bringer-set.png', url: 'https://www.ebay.com/itm/366198786014' },
+  { id: 'chroma-lightbringer',name: 'Chroma Lightbringer',           img: '/items/chroma-lightbringer.png',url: 'https://www.ebay.com/itm/366198783636' },
+  { id: 'chroma-darkbringer', name: 'Chroma Darkbringer',            img: '/items/chroma-darkbringer.png', url: 'https://www.ebay.com/itm/366198782316' },
+  { id: 'hallowgun',          name: 'Hallowgun',                     img: '/items/hallowgun.png',          url: 'https://www.ebay.com/itm/366198774694' },
+  { id: 'hallow-set',         name: 'Hallow Set',                    img: '/items/hallow-set.png',         url: 'https://www.ebay.com/itm/366198769851' },
+  { id: 'bat',                name: 'Bat',                           img: '/items/bat.png',                url: 'https://www.ebay.com/itm/366263868152' },
+  { id: 'sweet-set',          name: 'Sweet Set',                     img: '/items/sweet-set.png',          url: 'https://www.ebay.com/itm/366253491540' },
+  { id: 'treat',              name: 'Treat',                         img: '/items/treat.png',              url: 'https://www.ebay.com/itm/366253490794' },
+  { id: 'sweet',              name: 'Sweet',                         img: '/items/sweet.png',              url: 'https://www.ebay.com/itm/366253489789' },
+  { id: 'icepiercer',         name: 'Icepiercer',                    img: '/items/icepiercer.png',         url: 'https://www.ebay.com/itm/366330760327' },
+  { id: 'harve-icep-bundle',  name: 'Harvester + Icepiercer Bundle', img: '/items/harve-icep-bundle.png',  url: 'https://www.ebay.com/itm/366175300058' },
+  { id: 'snow-set',           name: 'Snow Set',                      img: '/items/snow-set.png',           url: 'https://www.ebay.com/itm/366386306234' },
+  { id: 'alien-set',          name: 'Alien Set',                     img: '/items/alien-set.png',          url: 'https://www.ebay.com/itm/366325388728' },
+  { id: 'snow-dagger',        name: 'Snow Dagger',                   img: '/items/snow-dagger.png',        url: 'https://www.ebay.com/itm/366386305640' },
+  { id: 'snowcannon',         name: 'Snowcannon',                    img: '/items/snowcannon.png',         url: 'https://www.ebay.com/itm/366386305064' },
+];
+
+function getItemImg(item) {
+  if (!item) return null;
+  const local = LOCAL_ITEM_IMAGES[item.id];
+  if (local) return local;
+  return proxyImg(item.imageUrl);
+}
+
 const TABS = [
   { id: "board", label: "Board" },
   { id: "trade-checker", label: "Trade Checker" },
   { id: "inventory-tracker", label: "Inventory Tracker" },
+  { id: "marketplace", label: "Marketplace" },
   { id: "seller-dashboard", label: "Seller Dashboard" }
 ];
 
@@ -475,6 +553,17 @@ export default function App() {
   );
   const [tradePickerState, setTradePickerState] = useState(null); // { sideKey, slotIndex }
   const [tradePickerSearch, setTradePickerSearch] = useState("");
+  const [mpSearch, setMpSearch] = useState('');
+  const [mpTier, setMpTier] = useState('all');
+  const [mpSort, setMpSort] = useState('price-asc');
+  const [cartItems, setCartItems] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('gw-cart')) || []; } catch { return []; }
+  });
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutDiscord, setCheckoutDiscord] = useState('');
+  const [orderStatus, setOrderStatus] = useState('idle');
+  const [orderRef, setOrderRef] = useState('');
 
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
@@ -502,6 +591,80 @@ export default function App() {
   useEffect(() => {
     writeStoredInventory(inventoryItems);
   }, [inventoryItems]);
+
+  useEffect(() => {
+    localStorage.setItem('gw-cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('order') === 'success') {
+      const sessionId = params.get('session_id') || '';
+      const shortRef = sessionId ? sessionId.replace('cs_test_', '').replace('cs_live_', '').slice(0, 12).toUpperCase() : '';
+      setCartItems([]);
+      setOrderRef(shortRef);
+      setCheckoutOpen(true);
+      setOrderStatus('success');
+      setActiveTab('marketplace');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  const cartCount = cartItems.reduce((s, i) => s + i.qty, 0);
+
+  function addToCart(itemId) {
+    setCartItems(prev => {
+      const hit = prev.find(i => i.id === itemId);
+      if (hit) return prev.map(i => i.id === itemId ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { id: itemId, qty: 1 }];
+    });
+  }
+
+  function setCartQty(itemId, qty) {
+    if (qty < 1) {
+      setCartItems(prev => prev.filter(i => i.id !== itemId));
+    } else {
+      setCartItems(prev => prev.map(i => i.id === itemId ? { ...i, qty } : i));
+    }
+  }
+
+  function buildEnrichedCart() {
+    return cartItems.map(ci => {
+      const item = items.find(it => it.id === ci.id);
+      const price = item?.current?.ebay?.totalPrice ?? 0;
+      return { id: ci.id, name: item?.name ?? ci.id, price, qty: ci.qty };
+    });
+  }
+
+  function cartTotal() {
+    return buildEnrichedCart().reduce((s, i) => s + i.price * i.qty, 0);
+  }
+
+
+  async function payWithStripe() {
+    const enriched = buildEnrichedCart();
+    const total = cartTotal();
+    setOrderStatus('loading');
+    try {
+      const origin = window.location.origin;
+      const res = await fetch(`${API_BASE}/order/stripe-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: enriched,
+          discord: checkoutDiscord,
+          total,
+          successUrl: `${origin}/?order=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${origin}/?order=cancel`,
+        }),
+      });
+      if (!res.ok) throw new Error('failed');
+      const { url } = await res.json();
+      window.location.href = url;
+    } catch {
+      setOrderStatus('error');
+    }
+  }
 
   function addInventoryItem(itemId) {
     setInventoryItems(prev => {
@@ -1237,6 +1400,62 @@ export default function App() {
     );
   }
 
+  function renderMarketplace() {
+    const q = mpSearch.trim().toLowerCase();
+    const visibleListings = q
+      ? SHOP_LISTINGS.filter(l => l.name.toLowerCase().includes(q))
+      : SHOP_LISTINGS;
+
+    return (
+      <section className="mp-wrap">
+        <div className="mp-header">
+          <div>
+            <h1 className="mp-title">Shop</h1>
+            <p className="mp-sub">{visibleListings.length} items available · opens eBay listing</p>
+          </div>
+          <input
+            className="mp-search"
+            type="search"
+            placeholder="search items..."
+            value={mpSearch}
+            onChange={e => setMpSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="mp-grid">
+          {visibleListings.map(listing => {
+            const marketItem = items.find(it => it.id === listing.id);
+            const tier = marketItem ? deriveTier(marketItem) : { label: 'GODLY', color: 'var(--tier-godly)' };
+            const price = marketItem?.current?.ebay?.totalPrice;
+            const sv = marketItem?.current?.supreme?.value;
+            return (
+              <div key={listing.id} className="mp-card">
+                <div className="mp-card-img-wrap" style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}>
+                  <img src={listing.img} alt={listing.name} className="mp-card-img" />
+                  <span className="mp-card-tier" style={{ color: tier.color }}>{tier.label}</span>
+                </div>
+                <div className="mp-card-body">
+                  <span className="mp-card-name">{listing.name}</span>
+                  <div className="mp-card-stats">
+                    {sv != null && <span className="mp-card-sv">SV {sv.toLocaleString()}</span>}
+                    <span className="mp-card-price">{price != null ? `€${price.toFixed(2)}` : '—'}</span>
+                  </div>
+                  <a
+                    className="mp-card-add"
+                    href={listing.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >Buy on eBay →</a>
+                </div>
+              </div>
+            );
+          })}
+          {!visibleListings.length && <p className="mp-empty" style={{ gridColumn: '1/-1' }}>No items match your search.</p>}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div className="gw-page">
       {/* TopBar */}
@@ -1441,6 +1660,12 @@ export default function App() {
             </div>
           ) : null}
 
+          {activeTab === "marketplace" ? (
+            <div className="gw-tab-content">
+              {renderMarketplace()}
+            </div>
+          ) : null}
+
           {activeTab === "seller-dashboard" ? (
             <div className="gw-tab-content">
               <div className="gw-placeholder-panel">
@@ -1466,6 +1691,7 @@ export default function App() {
       ) : null}
 
       {renderTradePicker()}
+
     </div>
   );
 }
@@ -1593,6 +1819,7 @@ function TrendChevron({ up }) {
     </svg>
   );
 }
+
 
 // ── Preserved existing components ────────────────────────────────────────────
 
