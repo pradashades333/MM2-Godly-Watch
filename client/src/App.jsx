@@ -1535,7 +1535,7 @@ export default function App() {
         <div className="gw-announce">
           <span className="gw-announce-dot" />
           <span className="gw-announce-text">
-            join the discord — first <strong>30 members</strong> get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma weapon</strong> 🔥
+            join the discord — only <strong style={{ color: 'var(--tier-vintage)' }}>7 Chromas left</strong> for early members 🔥
           </span>
           <a
             className="gw-announce-btn"
