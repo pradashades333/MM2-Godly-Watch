@@ -8,6 +8,14 @@ import { calculateMarketStats } from "./utils/calculateMarketStats";
 import { formatCurrency } from "./utils/formatCurrency";
 import { formatValue } from "./utils/formatValue";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+
+function proxyImg(url) {
+  if (!url) return null;
+  if (!url.includes("wikia.nocookie.net")) return url;
+  return `${API_BASE}/img?url=${encodeURIComponent(url)}`;
+}
+
 const TABS = [
   { id: "board", label: "Board" },
   { id: "trade-checker", label: "Trade Checker" },
@@ -164,7 +172,7 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInvent
         {item.imageUrl ? (
           <img
             className="gw-card-art-img"
-            src={item.imageUrl}
+            src={proxyImg(item.imageUrl)}
             alt={item.name}
             onError={e => { e.currentTarget.style.display = 'none'; }}
           />
@@ -276,7 +284,7 @@ function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart, onA
       <td className="gw-row-thumb">
         <div className="gw-thumb-wrap">
           {item.imageUrl
-            ? <img src={item.imageUrl} alt={item.name} onError={e => { e.currentTarget.style.display = 'none'; }} />
+            ? <img src={proxyImg(item.imageUrl)} alt={item.name} onError={e => { e.currentTarget.style.display = 'none'; }} />
             : <span style={{ fontSize: 8, color: 'var(--ink-faint)', textAlign: 'center', lineHeight: 1.2 }}>{item.name.slice(0, 3)}</span>
           }
         </div>
@@ -753,7 +761,7 @@ export default function App() {
                   {group.items.map(item => (
                     <button key={item.id} className="tp-item" onClick={() => selectTradeItem(item.id)}>
                       {item.imageUrl
-                        ? <img src={item.imageUrl} className="tp-item-img" alt="" />
+                        ? <img src={proxyImg(item.imageUrl)} className="tp-item-img" alt="" />
                         : <div className="tp-item-img tp-item-img-empty">{getInitials(item.name)}</div>}
                       <span className="tp-item-name">{item.name}</span>
                       <span className="tp-item-tier" style={{ color: group.color }}>
@@ -956,7 +964,7 @@ export default function App() {
                 const tier = deriveTier(item);
                 return (
                   <button key={item.id} className="inv2-suggestion-row" onClick={() => addInventoryItem(item.id)}>
-                    {item.imageUrl && <img src={item.imageUrl} className="inv2-suggestion-img" alt="" />}
+                    {item.imageUrl && <img src={proxyImg(item.imageUrl)} className="inv2-suggestion-img" alt="" />}
                     <span className="inv2-suggestion-name">{item.name}</span>
                     <span className="inv2-suggestion-tier" style={{ color: tier.color }}>{tier.label}</span>
                     {item.current?.ebay?.totalPrice != null && (
@@ -1117,7 +1125,7 @@ export default function App() {
                         <td className="inv2-thumb-td">
                           <div className="inv2-thumb-wrap">
                             {item.imageUrl
-                              ? <img src={item.imageUrl} alt="" />
+                              ? <img src={proxyImg(item.imageUrl)} alt="" />
                               : <span style={{ fontSize: 8, color: 'var(--ink-faint)' }}>{getInitials(item.name)}</span>}
                           </div>
                         </td>
@@ -1177,7 +1185,7 @@ export default function App() {
                       <div key={item.id} className="inv2-mover-row">
                         <div className="inv2-mover-thumb">
                           {item.imageUrl
-                            ? <img src={item.imageUrl} alt="" />
+                            ? <img src={proxyImg(item.imageUrl)} alt="" />
                             : <span style={{ fontSize: 8, color: tier.color }}>{getInitials(item.name)}</span>}
                         </div>
                         <div className="inv2-mover-info">
@@ -1735,7 +1743,7 @@ function buildTradeSlot({
         onClick={() => openPicker(sideKey, slotIndex)}
       >
         {item?.imageUrl ? (
-          <img className="trade-slot-image" src={item.imageUrl} alt={item.name} />
+          <img className="trade-slot-image" src={proxyImg(item.imageUrl)} alt={item.name} />
         ) : (
           <div className="trade-slot-visual">+</div>
         )}
