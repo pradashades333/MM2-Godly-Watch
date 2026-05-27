@@ -59,7 +59,7 @@ const LOCAL_ITEM_IMAGES = {
 
 const SHOP_LISTINGS = [
   { id: 'sun-set',            name: 'Sun Set',                       img: '/items/sun-set.png',            url: 'https://www.ebay.com/itm/366291698619' },
-  { id: 'heart-wand',         name: 'Heart Wand',                    img: '/items/heart-wand.png',         url: 'https://www.ebay.com/itm/366426866726' },
+  { id: 'heart-wand',         name: 'Heart Wand',                    img: '/items/heart-wand.png',         url: 'https://www.ebay.com/itm/366426866726', price: 6.69 },
   { id: 'rainbow-set',        name: 'Rainbow Set',                   img: '/items/rainbow-set.png',        url: 'https://www.ebay.com/itm/366291681066' },
   { id: 'rainbow',            name: 'Rainbow',                       img: '/items/rainbow.png',            url: 'https://www.ebay.com/itm/366291678057' },
   { id: 'rainbow-gun',        name: 'Rainbow Gun',                   img: '/items/rainbow-gun.png',        url: 'https://www.ebay.com/itm/366291671327' },
@@ -75,9 +75,9 @@ const SHOP_LISTINGS = [
   { id: 'hallowgun',          name: 'Hallowgun',                     img: '/items/hallowgun.png',          url: 'https://www.ebay.com/itm/366198774694' },
   { id: 'hallow-set',         name: 'Hallow Set',                    img: '/items/hallow-set.png',         url: 'https://www.ebay.com/itm/366198769851' },
   { id: 'bat',                name: 'Bat',                           img: '/items/bat.png',                url: 'https://www.ebay.com/itm/366263868152' },
-  { id: 'sweet-set',          name: 'Sweet Set',                     img: '/items/sweet-set.png',          url: 'https://www.ebay.com/itm/366253491540' },
-  { id: 'treat',              name: 'Treat',                         img: '/items/treat.png',              url: 'https://www.ebay.com/itm/366253490794' },
-  { id: 'sweet',              name: 'Sweet',                         img: '/items/sweet.png',              url: 'https://www.ebay.com/itm/366253489789' },
+  { id: 'sweet-set',          name: 'Sweet Set',                     img: '/items/sweet-set.png',          url: 'https://www.ebay.com/itm/366253491540', price: 8.80 },
+  { id: 'treat',              name: 'Treat',                         img: '/items/treat.png',              url: 'https://www.ebay.com/itm/366253490794', price: 5.05 },
+  { id: 'sweet',              name: 'Sweet',                         img: '/items/sweet.png',              url: 'https://www.ebay.com/itm/366253489789', price: 5.05 },
   { id: 'icepiercer',         name: 'Icepiercer',                    img: '/items/icepiercer.png',         url: 'https://www.ebay.com/itm/366330760327' },
   { id: 'harve-icep-bundle',  name: 'Harvester + Icepiercer Bundle', img: '/items/harve-icep-bundle.png',  url: 'https://www.ebay.com/itm/366175300058' },
   { id: 'snow-set',           name: 'Snow Set',                      img: '/items/snow-set.png',           url: 'https://www.ebay.com/itm/366386306234' },
@@ -1431,7 +1431,7 @@ export default function App() {
           {visibleListings.map(listing => {
             const marketItem = items.find(it => it.id === listing.id);
             const tier = marketItem ? deriveTier(marketItem) : { label: 'GODLY', color: 'var(--tier-godly)' };
-            const price = marketItem?.current?.ebay?.totalPrice;
+            const price = listing.price ?? marketItem?.current?.ebay?.totalPrice;
             const sv = marketItem?.current?.supreme?.value;
             return (
               <div key={listing.id} className="mp-card">
