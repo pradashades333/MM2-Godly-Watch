@@ -115,13 +115,15 @@ function writeStoredInventory(inv) {
 
 // ── Module-level helpers ─────────────────────────────────────────────────────
 
+function isChroma(item) {
+  const name = (item.name ?? '').toLowerCase();
+  return name.startsWith('chroma ') || name.startsWith('c. ') || name.startsWith('c.');
+}
+
 function deriveTier(item) {
   const value = item.current?.supreme?.value ?? 0;
-  const name = (item.name ?? '').toLowerCase();
-  if (item.category === 'sets') {
-    if (name.includes('chroma')) return { key: 'legend', label: 'LEGEND', color: 'var(--tier-legend)' };
-    return { key: 'sets', label: 'SETS', color: 'var(--tier-vintage)' };
-  }
+  if (isChroma(item)) return { key: 'chroma', label: 'CHROMA', color: 'var(--tier-chroma)' };
+  if (item.category === 'sets') return { key: 'sets', label: 'SETS', color: 'var(--tier-vintage)' };
   if (item.category === 'ancients') return { key: 'ancient', label: 'ANCIENT', color: 'var(--tier-ancient)' };
   if (value >= 5000) return { key: 'legend', label: 'LEGEND', color: 'var(--tier-legend)' };
   if (value >= 100) return { key: 'godly', label: 'GODLY', color: 'var(--tier-godly)' };
@@ -452,17 +454,18 @@ function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddTo
 
 function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChange, sortBy, onSortChange, refreshedAt, favoriteIds, recentMoves }) {
   const tierCounts = useMemo(() => {
-    const counts = { legend: 0, godly: 0, ancient: 0, sets: 0 };
+    const counts = { chroma: 0, legend: 0, godly: 0, ancient: 0, sets: 0 };
     items.forEach(item => {
       const t = deriveTier(item);
       if (counts[t.key] != null) counts[t.key]++;
     });
     return [
-      { key: 'all', label: 'All', count: items.length, color: null },
-      { key: 'legend', label: 'Legend', count: counts.legend, color: 'var(--tier-legend)' },
-      { key: 'godly', label: 'Godly', count: counts.godly, color: 'var(--tier-godly)' },
-      { key: 'ancient', label: 'Ancient', count: counts.ancient, color: 'var(--tier-ancient)' },
-      { key: 'sets', label: 'Sets', count: counts.sets, color: 'var(--tier-vintage)' },
+      { key: 'all',    label: 'All',    count: items.length,   color: null },
+      { key: 'chroma', label: 'Chroma', count: counts.chroma,  color: 'var(--tier-chroma)' },
+      { key: 'legend', label: 'Legend', count: counts.legend,  color: 'var(--tier-legend)' },
+      { key: 'godly',  label: 'Godly',  count: counts.godly,   color: 'var(--tier-godly)' },
+      { key: 'ancient',label: 'Ancient',count: counts.ancient, color: 'var(--tier-ancient)' },
+      { key: 'sets',   label: 'Sets',   count: counts.sets,    color: 'var(--tier-vintage)' },
     ];
   }, [items]);
 
@@ -1581,11 +1584,12 @@ export default function App() {
             {/* Mobile tier filter strip */}
             <div className="gw-mobile-filters">
               {[
-                { key: 'all', label: 'All', color: 'var(--ink-faint)' },
+                { key: 'all',    label: 'All',    color: 'var(--ink-faint)' },
+                { key: 'chroma', label: 'Chroma', color: 'var(--tier-chroma)' },
                 { key: 'legend', label: 'Legend', color: 'var(--tier-legend)' },
-                { key: 'godly', label: 'Godly', color: 'var(--tier-godly)' },
-                { key: 'ancient', label: 'Ancient', color: 'var(--tier-ancient)' },
-                { key: 'sets', label: 'Sets', color: 'var(--tier-vintage)' },
+                { key: 'godly',  label: 'Godly',  color: 'var(--tier-godly)' },
+                { key: 'ancient',label: 'Ancient',color: 'var(--tier-ancient)' },
+                { key: 'sets',   label: 'Sets',   color: 'var(--tier-vintage)' },
               ].map(t => (
                 <button
                   key={t.key}
