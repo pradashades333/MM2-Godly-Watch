@@ -699,7 +699,7 @@ export default function App() {
       setServerStats(stats);
       setRecentMoves(moves);
     } catch (err) {
-      setError(err.message || "Unable to load market data.");
+      setError("Market data temporarily unavailable. Please try again shortly.");
     } finally {
       setLoading(false);
     }
@@ -1555,7 +1555,7 @@ export default function App() {
 
       {/* Banners */}
       {error ? <div className="gw-banner error">{error}</div> : null}
-      {loading ? <div className="gw-banner">Loading market data...</div> : null}
+      {loading ? <div className="gw-banner">Fetching latest MM2 prices...</div> : null}
 
       {/* Board tab */}
       {!loading && activeTab === 'board' ? (
