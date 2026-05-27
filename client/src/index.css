@@ -1710,6 +1710,13 @@ select {
 
 /* ── Marketplace / Shop ──────────────────────────────────────────────────── */
 .mp-wrap { padding: 0 0 60px; }
+.mp-promo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; margin-bottom: 24px; border-radius: 8px;
+  background: rgba(183,148,244,0.1); border: 1px solid rgba(183,148,244,0.25);
+  font-size: 13px; color: var(--ink);
+}
+.mp-promo-fire { font-size: 18px; flex-shrink: 0; }
 .mp-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: 20px; padding: 32px 0 28px; flex-wrap: wrap;

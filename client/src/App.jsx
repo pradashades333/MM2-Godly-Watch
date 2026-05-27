@@ -1422,6 +1422,11 @@ export default function App() {
           />
         </div>
 
+        <div className="mp-promo">
+          <span className="mp-promo-fire">🔥</span>
+          <span>First <strong>10 buyers</strong> get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma</strong> with any eBay purchase — DM on Discord after buying to claim.</span>
+        </div>
+
         <div className="mp-grid">
           {visibleListings.map(listing => {
             const marketItem = items.find(it => it.id === listing.id);
