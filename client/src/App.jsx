@@ -455,7 +455,7 @@ function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddTo
 
 function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChange, sortBy, onSortChange, refreshedAt, favoriteIds, recentMoves }) {
   const tierCounts = useMemo(() => {
-    const counts = { chroma: 0, legend: 0, godly: 0, ancient: 0, sets: 0 };
+    const counts = { chroma: 0, godly: 0, ancient: 0, sets: 0 };
     items.forEach(item => {
       const t = deriveTier(item);
       if (counts[t.key] != null) counts[t.key]++;
@@ -463,7 +463,6 @@ function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChan
     return [
       { key: 'all',    label: 'All',    count: items.length,   color: null },
       { key: 'chroma', label: 'Chroma', count: counts.chroma,  color: 'var(--tier-chroma)' },
-      { key: 'legend', label: 'Legend', count: counts.legend,  color: 'var(--tier-legend)' },
       { key: 'godly',  label: 'Godly',  count: counts.godly,   color: 'var(--tier-godly)' },
       { key: 'ancient',label: 'Ancient',count: counts.ancient, color: 'var(--tier-ancient)' },
       { key: 'sets',   label: 'Sets',   count: counts.sets,    color: 'var(--tier-vintage)' },
@@ -1587,7 +1586,6 @@ export default function App() {
               {[
                 { key: 'all',    label: 'All',    color: 'var(--ink-faint)' },
                 { key: 'chroma', label: 'Chroma', color: 'var(--tier-chroma)' },
-                { key: 'legend', label: 'Legend', color: 'var(--tier-legend)' },
                 { key: 'godly',  label: 'Godly',  color: 'var(--tier-godly)' },
                 { key: 'ancient',label: 'Ancient',color: 'var(--tier-ancient)' },
                 { key: 'sets',   label: 'Sets',   color: 'var(--tier-vintage)' },
