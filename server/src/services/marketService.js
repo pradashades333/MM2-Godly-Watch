@@ -89,8 +89,13 @@ async function refreshMarketData() {
 
 async function getMarketData() {
   const items = await readHistory();
-  const hydratedItems = await hydrateItemImages(items);
 
+  // Always include hardcoded chromas even before the refresh runs
+  const existingIds = new Set(items.map(i => i.id));
+  const missingChromas = chromaItems.filter(c => !existingIds.has(c.id));
+  const allItems = [...items, ...missingChromas];
+
+  const hydratedItems = await hydrateItemImages(allItems);
   return {
     items: hydratedItems,
     refreshedAt: hydratedItems[0]?.lastCheckedAt ?? null
