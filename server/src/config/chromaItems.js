@@ -2,13 +2,14 @@ function slugify(name) {
   return name.toLowerCase().replace(/['']/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-function make(name, value, demand, rarity, lastChange, origin) {
+function make(name, value, demand, rarity, lastChange, origin, ebayPrice = null) {
   return {
     id: slugify(name),
     name,
     category: "chromas",
     current: {
-      supreme: { value, demand, rarity, lastChange, origin, stability: "Stable", range: null, lastUpdated: null, pageUrl: "https://supremevalues.com/mm2/chromas" }
+      supreme: { value, demand, rarity, lastChange, origin, stability: "Stable", range: null, lastUpdated: null, pageUrl: "https://supremevalues.com/mm2/chromas" },
+      ebay: ebayPrice != null ? { price: ebayPrice, currency: "EUR", totalPrice: ebayPrice } : null
     },
     lastCheckedAt: new Date().toISOString(),
     history: []
@@ -38,8 +39,8 @@ module.exports = [
   make("Chroma Sweet",          2850, 5,  4,  -150, "Valentine 2026 Item Pack"),
   make("Chroma Ornament",       2550, 5,  4,   -50, "Xmas 2025 (Gifting)"),
   // Tier 1
-  make("C. Darkbringer",          75, 1,  2,    -5, "Mystery Crate #2"),
-  make("C. Lightbringer",         70, 1,  2,    -5, "Mystery Crate #2"),
+  make("C. Darkbringer",          75, 1,  2,    -5, "Mystery Crate #2",  2.38),
+  make("C. Lightbringer",         70, 1,  2,    -5, "Mystery Crate #2",  2.08),
   make("Chroma Luger",            55, 1,  2,    -2, "Gun Box #1"),
   make("C. Candleflame",          45, 1,  2,    -3, "Hallows 2021 (Unboxed)"),
   make("C. Elderwood Blade",      45, 1,  2,    -2, "Hallows 2022 (Unboxed)"),
