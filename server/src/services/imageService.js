@@ -12,6 +12,8 @@ let setPageMappingsPromise = null;
 let cachedSetImageMappings = {};
 let cachedAncientMappings = null;
 let ancientMappingsPromise = null;
+let cachedChromaMappings = null;
+let chromaMappingsPromise = null;
 
 async function getImageForItem(item) {
   const manualImage =
@@ -19,6 +21,10 @@ async function getImageForItem(item) {
 
   if (manualImage) {
     return manualImage;
+  }
+
+  if (item?.category === "chromas") {
+    return getChromaImageForItem(item);
   }
 
   if (item?.category === "sets") {
@@ -405,6 +411,66 @@ async function fetchSetImageBatch(setPages) {
 
     const cleanedName = cleanSetWikiLabel(page.title);
     mappings[normalizeItemKey(cleanedName)] = imageUrl;
+  }
+
+  return mappings;
+}
+
+async function getChromaImageForItem(item) {
+  const mappings = await loadChromaMappings();
+  return mappings[item?.id] ?? null;
+}
+
+async function loadChromaMappings() {
+  if (cachedChromaMappings) return cachedChromaMappings;
+  if (!chromaMappingsPromise) {
+    chromaMappingsPromise = fetchAndBuildChromaMappings()
+      .then(m => { cachedChromaMappings = m; return m; })
+      .catch(err => { console.error("Failed to load chroma image mappings", err); return {}; });
+  }
+  return chromaMappingsPromise;
+}
+
+async function fetchAndBuildChromaMappings() {
+  const chromaConfig = require("../config/chromaItems");
+  const mappings = {};
+
+  // Build lookup pairs — also try "Chroma X" for abbreviated "C. X" names
+  const lookups = [];
+  for (const item of chromaConfig) {
+    lookups.push({ id: item.id, title: item.name });
+    if (item.name.startsWith("C. ")) {
+      lookups.push({ id: item.id, title: "Chroma " + item.name.slice(3) });
+    }
+  }
+
+  for (const batch of chunkArray(lookups, 50)) {
+    const uniqueTitles = [...new Set(batch.map(l => l.title))];
+    const url = new URL(WIKI_API_ROOT);
+    url.searchParams.set("action", "query");
+    url.searchParams.set("prop", "pageimages");
+    url.searchParams.set("pithumbsize", "400");
+    url.searchParams.set("titles", uniqueTitles.join("|"));
+    url.searchParams.set("format", "json");
+    url.searchParams.set("origin", "*");
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) continue;
+      const payload = await response.json();
+
+      for (const page of Object.values(payload?.query?.pages || {})) {
+        if ("missing" in page || !page?.thumbnail?.source) continue;
+        const pageKey = normalizeItemKey(page.title);
+        for (const lookup of batch) {
+          if (normalizeItemKey(lookup.title) === pageKey && !mappings[lookup.id]) {
+            mappings[lookup.id] = page.thumbnail.source;
+          }
+        }
+      }
+    } catch {
+      // swallow batch errors
+    }
   }
 
   return mappings;
