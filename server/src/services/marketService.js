@@ -4,6 +4,7 @@ const ancientService = require("./ancientService");
 const ebayService = require("./ebayService");
 const imageService = require("./imageService");
 const trackedItems = require("../config/trackedItems");
+const chromaItems = require("../config/chromaItems");
 const {
   readHistory,
   writeHistory,
@@ -12,11 +13,10 @@ const {
 } = require("./historyService");
 
 async function buildMarketData({ refreshEbay = true } = {}) {
-  const [godlyItems, setItems, ancientItems, chromaItems] = await Promise.all([
+  const [godlyItems, setItems, ancientItems] = await Promise.all([
     supremeService.scrapeGodlies(),
     setService.scrapeSets(),
-    ancientService.scrapeAncients(),
-    supremeService.scrapeChromas()
+    ancientService.scrapeAncients()
   ]);
   const sourceItems = [...ancientItems, ...godlyItems, ...setItems, ...chromaItems];
 
@@ -30,7 +30,7 @@ async function buildMarketData({ refreshEbay = true } = {}) {
 
     let ebayData = previousItem?.current?.ebay ?? null;
 
-    if (refreshEbay) {
+    if (refreshEbay && sourceItem.category !== "chromas") {
       let bestListing = null;
       try {
         const ebayResult = await ebayService.fetchEbayForItem(
