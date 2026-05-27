@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   getMarketData,
   getMarketStats,
@@ -1236,7 +1236,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              <PortfolioAreaChart values={chartVals} color={chartColor} gradId={`inv2-grad-${invChartMode}`} />
+              <PortfolioAreaChart values={chartVals} series={filteredSeries} color={chartColor} gradId={`inv2-grad-${invChartMode}`} mode={invChartMode} />
             </div>
 
             {/* Search */}
@@ -1768,7 +1768,10 @@ function filterByTimeframe(series, tf) {
   return filtered.length >= 2 ? filtered : series;
 }
 
-function PortfolioAreaChart({ values, color = '#5eff8d', gradId = 'inv2-area-grad' }) {
+function PortfolioAreaChart({ values, series = [], color = '#5eff8d', gradId = 'inv2-area-grad', mode = 'eur' }) {
+  const [hoverIdx, setHoverIdx] = useState(null);
+  const containerRef = useRef(null);
+
   const W = 600, H = 180;
   if (!values || values.length < 2) {
     return (
@@ -1777,6 +1780,7 @@ function PortfolioAreaChart({ values, color = '#5eff8d', gradId = 'inv2-area-gra
       </div>
     );
   }
+
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
@@ -1788,8 +1792,24 @@ function PortfolioAreaChart({ values, color = '#5eff8d', gradId = 'inv2-area-gra
   const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L${W},${H} L0,${H} Z`;
   const last = pts[pts.length - 1];
+
+  function handleMouseMove(e) {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    setHoverIdx(Math.round(pct * (values.length - 1)));
+  }
+
+  const hovPt = hoverIdx != null ? pts[hoverIdx] : null;
+  const hovVal = hoverIdx != null ? values[hoverIdx] : null;
+  const hovTs = (hoverIdx != null && series[hoverIdx]) ? series[hoverIdx].timestamp : null;
+  const hovLabel = hovVal != null ? (mode === 'sv' ? formatSV(hovVal) : `€${hovVal.toFixed(2)}`) : null;
+
   return (
-    <div className="inv2-chart">
+    <div className="inv2-chart" ref={containerRef} style={{ position: 'relative' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setHoverIdx(null)}
+    >
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
@@ -1805,11 +1825,31 @@ function PortfolioAreaChart({ values, color = '#5eff8d', gradId = 'inv2-area-gra
         <path d={areaPath} fill={`url(#${gradId})`} />
         <path d={linePath} fill="none" stroke={color} strokeWidth="1.5"
           strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="4"
-          fill="var(--bg)" stroke={color} strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
-        <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="8"
-          fill={color} opacity="0.15" vectorEffect="non-scaling-stroke" />
+        {!hovPt && (
+          <>
+            <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="4"
+              fill="var(--bg)" stroke={color} strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
+            <circle cx={last[0].toFixed(1)} cy={last[1].toFixed(1)} r="8"
+              fill={color} opacity="0.15" vectorEffect="non-scaling-stroke" />
+          </>
+        )}
+        {hovPt && (
+          <>
+            <line x1={hovPt[0].toFixed(1)} y1="0" x2={hovPt[0].toFixed(1)} y2={H}
+              stroke="rgba(255,255,255,0.12)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <circle cx={hovPt[0].toFixed(1)} cy={hovPt[1].toFixed(1)} r="4"
+              fill="var(--bg)" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+            <circle cx={hovPt[0].toFixed(1)} cy={hovPt[1].toFixed(1)} r="9"
+              fill={color} opacity="0.15" vectorEffect="non-scaling-stroke" />
+          </>
+        )}
       </svg>
+      {hovPt && hovLabel && (
+        <div className="inv2-chart-tooltip" style={{ left: `${(hovPt[0] / W) * 100}%` }}>
+          <span className="inv2-tt-val">{hovLabel}</span>
+          {hovTs && <span className="inv2-tt-date">{compactDate(hovTs)}</span>}
+        </div>
+      )}
     </div>
   );
 }

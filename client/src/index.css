@@ -2506,7 +2506,22 @@ select {
 .inv2-ct-btn.active-sv { color: #b794f4; }
 
 /* Portfolio chart */
-.inv2-chart { height: 190px; width: 100%; border-top: 1px solid var(--line); }
+.inv2-chart { height: 190px; width: 100%; border-top: 1px solid var(--line); cursor: crosshair; }
+.inv2-chart-tooltip {
+  position: absolute; top: 10px; transform: translateX(-50%);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 5px;
+  padding: 5px 10px; pointer-events: none; white-space: nowrap;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.inv2-tt-val {
+  font-family: 'Saira Condensed', sans-serif; font-size: 16px;
+  font-weight: 600; color: var(--ink);
+}
+.inv2-tt-date {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em;
+}
 .inv2-chart-empty {
   display: flex; align-items: center; justify-content: center;
   font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-faint);
