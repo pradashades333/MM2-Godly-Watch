@@ -12,12 +12,13 @@ const {
 } = require("./historyService");
 
 async function buildMarketData({ refreshEbay = true } = {}) {
-  const [godlyItems, setItems, ancientItems] = await Promise.all([
+  const [godlyItems, setItems, ancientItems, chromaItems] = await Promise.all([
     supremeService.scrapeGodlies(),
     setService.scrapeSets(),
-    ancientService.scrapeAncients()
+    ancientService.scrapeAncients(),
+    supremeService.scrapeChromas()
   ]);
-  const sourceItems = [...ancientItems, ...godlyItems, ...setItems];
+  const sourceItems = [...ancientItems, ...godlyItems, ...setItems, ...chromaItems];
 
   const previousItems = await readHistory();
   const previousMap = new Map(previousItems.map((item) => [item.id, item]));

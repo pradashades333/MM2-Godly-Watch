@@ -116,8 +116,9 @@ function writeStoredInventory(inv) {
 // ── Module-level helpers ─────────────────────────────────────────────────────
 
 function isChroma(item) {
+  if (item.category === 'chromas') return true;
   const name = (item.name ?? '').toLowerCase();
-  return name.startsWith('chroma ') || name.startsWith('c. ') || name.startsWith('c.');
+  return name.startsWith('chroma ') || name.startsWith('c. ');
 }
 
 function deriveTier(item) {
