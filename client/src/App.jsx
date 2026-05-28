@@ -1448,6 +1448,12 @@ export default function App() {
                     {sv != null && <span className="mp-card-sv">SV {sv.toLocaleString()}</span>}
                     <span className="mp-card-price">{price != null ? `€${price.toFixed(2)}` : '—'}</span>
                   </div>
+                  {price != null && (
+                    <div className="mp-card-robux">
+                      <span className="mp-robux-icon">⊙</span>
+                      <span>{Math.round(price * 83).toLocaleString()} Robux</span>
+                    </div>
+                  )}
                   <a
                     className="mp-card-add"
                     href={listing.url}

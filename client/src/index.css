@@ -1767,6 +1767,12 @@ select {
 .mp-card-stats { display: flex; align-items: baseline; justify-content: space-between; }
 .mp-card-sv { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-faint); }
 .mp-card-price { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mp-card-robux {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #93c5fd; margin-bottom: 6px;
+}
+.mp-robux-icon { font-size: 13px; }
 .mp-card-add {
   display: block; margin-top: auto; padding: 9px 0; border-radius: 6px; border: none; cursor: pointer;
   font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-align: center;
