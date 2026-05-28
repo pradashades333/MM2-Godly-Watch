@@ -1296,30 +1296,57 @@ select {
 
 .trade-clear-slot-button:hover { color: var(--down); border-color: var(--down); }
 
-.trade-slot-values { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.trade-slot-values {
+  display: flex; flex-direction: column; gap: 3px; margin-top: 6px;
+}
+
+.trade-slot-values .value-box {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 8px; border-radius: 5px;
+  background: var(--bg-deep); border: 1px solid var(--line);
+}
+
+.trade-slot-values .value-box span {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint);
+}
+
+.trade-slot-values .value-box:nth-child(1) strong,
+.trade-slot-values .value-box:nth-child(2) strong { color: var(--tier-legend); }
+
+.trade-slot-values .value-box:nth-child(3) strong { color: var(--up); }
+
+.trade-slot-values .value-box strong {
+  font-family: 'Saira Condensed', sans-serif;
+  font-size: 16px; font-weight: 600; margin-top: 0;
+}
 
 .trade-side-values-box {
   background: var(--bg-deep); border: 1px solid var(--line);
-  border-radius: 8px; padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 10px;
+  border-radius: 8px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 8px;
 }
 
 .trade-side-values-title {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px; color: var(--ink-faint);
   text-transform: uppercase; letter-spacing: 0.1em;
+  padding-bottom: 6px; border-bottom: 1px solid var(--line);
 }
 
-.trade-side-values-copy { display: flex; justify-content: space-between; align-items: center; }
+.trade-side-values-copy { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 
 .trade-side-values-copy span {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; color: var(--ink-faint);
+  font-size: 9px; color: var(--ink-faint); white-space: nowrap;
 }
+
+.trade-side-values-copy:nth-child(2) strong { color: var(--tier-legend); }
+.trade-side-values-copy:nth-child(3) strong { color: var(--up); }
 
 .trade-side-values-copy strong {
   font-family: 'Saira Condensed', sans-serif;
-  font-size: 18px; font-weight: 600; color: var(--ink);
+  font-size: 17px; font-weight: 600; color: var(--ink);
 }
 
 .trade-clear-table-button {
