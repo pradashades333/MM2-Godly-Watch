@@ -1450,7 +1450,17 @@ export default function App() {
                   </div>
                   {price != null && (
                     <div className="mp-card-robux">
-                      <span className="mp-robux-icon">⊙</span>
+                      <svg width="14" height="14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                        <defs>
+                          <linearGradient id="robux-grad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#e8d48a"/>
+                            <stop offset="100%" stopColor="#b8922a"/>
+                          </linearGradient>
+                        </defs>
+                        <path d="M50 2 L93 26 L93 74 L50 98 L7 74 L7 26 Z" rx="10" fill="url(#robux-grad)" />
+                        <path d="M50 14 L82 31 L82 69 L50 86 L18 69 L18 31 Z" fill="white" />
+                        <rect x="33" y="33" width="34" height="34" rx="5" fill="url(#robux-grad)" />
+                      </svg>
                       <span>{Math.round(price * 83).toLocaleString()} Robux</span>
                     </div>
                   )}
