@@ -1411,10 +1411,42 @@ export default function App() {
 
     return (
       <section className="mp-wrap">
+
+        {/* Hero */}
+        <div className="mp-hero">
+          <div className="mp-hero-left">
+            <div className="mp-hero-tag">MM2 Marketplace</div>
+            <h1 className="mp-hero-title">Buy MM2 Godlies<br/>safely & fast</h1>
+            <p className="mp-hero-sub">Pay on eBay, get your item delivered via Discord. Robux accepted too. Trusted by the community.</p>
+            <div className="mp-hero-steps">
+              <div className="mp-step"><span className="mp-step-num">1</span><span>Browse items below</span></div>
+              <div className="mp-step-arrow">→</div>
+              <div className="mp-step"><span className="mp-step-num">2</span><span>Buy on eBay or DM for Robux</span></div>
+              <div className="mp-step-arrow">→</div>
+              <div className="mp-step"><span className="mp-step-num">3</span><span>Join Discord &amp; claim your item</span></div>
+            </div>
+            <a className="mp-hero-discord" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="14" viewBox="0 0 20 15" fill="currentColor"><path d="M16.93 1.33A16.47 16.47 0 0 0 12.86.02a.06.06 0 0 0-.06.03 11.46 11.46 0 0 0-.51 1.04 15.21 15.21 0 0 0-4.57 0C7.54.7 7.3.2 7.19.05a.06.06 0 0 0-.06-.03 16.43 16.43 0 0 0-4.07 1.31.05.05 0 0 0-.03.02C.45 5.37-.27 9.3.08 13.17c0 .02.01.03.03.04a16.57 16.57 0 0 0 4.99 2.52.06.06 0 0 0 .07-.02c.38-.53.73-1.08 1.02-1.66a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.56-.74.06.06 0 0 1-.01-.1l.31-.24a.06.06 0 0 1 .06-.01c3.27 1.5 6.82 1.5 10.05 0a.06.06 0 0 1 .06.01l.31.25a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.02 1.66a.06.06 0 0 0 .07.02 16.52 16.52 0 0 0 5-2.52.06.06 0 0 0 .03-.04c.42-4.31-.7-8.21-2.96-11.6a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.82.91 1.8 2.01 0 1.11-.8 2.01-1.8 2.01zm6.65 0c-.99 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.81.91 1.8 2.01 0 1.11-.79 2.01-1.8 2.01z"/></svg>
+              Join Discord to buy with Robux
+            </a>
+          </div>
+          <div className="mp-hero-stats">
+            <div className="mp-stat"><span className="mp-stat-val">{SHOP_LISTINGS.length}</span><span className="mp-stat-label">Items for sale</span></div>
+            <div className="mp-stat"><span className="mp-stat-val">⚡</span><span className="mp-stat-label">Fast delivery</span></div>
+            <div className="mp-stat"><span className="mp-stat-val">eBay</span><span className="mp-stat-label">Buyer protection</span></div>
+            <div className="mp-stat"><span className="mp-stat-val">⊙</span><span className="mp-stat-label">Robux accepted</span></div>
+          </div>
+        </div>
+
+        <div className="mp-promo">
+          <span className="mp-promo-fire">🔥</span>
+          <span>First <strong>10 buyers</strong> get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma</strong> with any eBay purchase — DM on Discord after buying to claim.</span>
+        </div>
+
         <div className="mp-header">
           <div>
-            <h1 className="mp-title">Shop</h1>
-            <p className="mp-sub">{visibleListings.length} items available · opens eBay listing</p>
+            <h2 className="mp-title" style={{ fontSize: 18 }}>All Items</h2>
+            <p className="mp-sub">{visibleListings.length} listings</p>
           </div>
           <input
             className="mp-search"
@@ -1423,11 +1455,6 @@ export default function App() {
             value={mpSearch}
             onChange={e => setMpSearch(e.target.value)}
           />
-        </div>
-
-        <div className="mp-promo">
-          <span className="mp-promo-fire">🔥</span>
-          <span>First <strong>10 buyers</strong> get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma</strong> with any eBay purchase — DM on Discord after buying to claim.</span>
         </div>
 
         <div className="mp-grid">
