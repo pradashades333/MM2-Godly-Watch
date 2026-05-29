@@ -895,10 +895,10 @@ export default function App() {
       : items;
 
     const tiers = [
-      { key: 'legend', label: 'Legend', color: 'var(--tier-legend)' },
-      { key: 'godly',  label: 'Godly',  color: 'var(--tier-godly)'  },
-      { key: 'ancient',label: 'Ancient',color: 'var(--tier-ancient)' },
-      { key: 'sets',   label: 'Sets',   color: 'var(--tier-vintage)' },
+      { key: 'chroma', label: 'Chroma',  color: 'var(--tier-chroma)'  },
+      { key: 'godly',  label: 'Godly',   color: 'var(--tier-godly)'   },
+      { key: 'ancient',label: 'Ancient', color: 'var(--tier-ancient)' },
+      { key: 'sets',   label: 'Sets',    color: 'var(--tier-vintage)'  },
     ];
     const grouped = tiers.map(t => ({
       ...t,
