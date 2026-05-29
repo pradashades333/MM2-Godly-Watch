@@ -1404,68 +1404,157 @@ export default function App() {
   }
 
   function renderMarketplace() {
+    const CHROMA_TOTAL = 10;
+    const CHROMA_CLAIMED = 3;
+    const chromaLeft = CHROMA_TOTAL - CHROMA_CLAIMED;
+
     const q = mpSearch.trim().toLowerCase();
-    const visibleListings = q
-      ? SHOP_LISTINGS.filter(l => l.name.toLowerCase().includes(q))
-      : SHOP_LISTINGS;
+    const filtered = q ? SHOP_LISTINGS.filter(l => l.name.toLowerCase().includes(q)) : SHOP_LISTINGS;
+
+    const sortedListings = [...filtered].sort((a, b) => {
+      const aM = items.find(it => it.id === a.id);
+      const bM = items.find(it => it.id === b.id);
+      const aP = a.price ?? aM?.current?.ebay?.totalPrice ?? 0;
+      const bP = b.price ?? bM?.current?.ebay?.totalPrice ?? 0;
+      if (mpSort === 'price-desc') return bP - aP;
+      if (mpSort === 'price-asc') return aP - bP;
+      if (mpSort === 'name') return a.name.localeCompare(b.name);
+      if (mpSort === 'type') {
+        const order = { chroma: 0, ancient: 1, sets: 2, godly: 3 };
+        const aT = aM ? (order[deriveTier(aM).key] ?? 9) : 9;
+        const bT = bM ? (order[deriveTier(bM).key] ?? 9) : 9;
+        return aT !== bT ? aT - bT : bP - aP;
+      }
+      if (mpSort === 'robux') return Math.round(bP * 83) - Math.round(aP * 83);
+      return 0;
+    });
+
+    const SORT_OPTS = [
+      ['price-desc', 'price ↓'],
+      ['price-asc',  'price ↑'],
+      ['name',       'name'],
+      ['type',       'type'],
+      ['robux',      'robux'],
+    ];
 
     return (
       <section className="mp-wrap">
 
+        {/* Announcement strip */}
+        <div className="mkt-announce">
+          <span className="mkt-announce-dot" />
+          <span className="mkt-announce-copy">
+            <span className="mkt-cyan">free Chroma</span> for the first {CHROMA_TOTAL} eBay buyers —&nbsp;
+            <span className="mkt-scarcity-bar">
+              {Array.from({ length: CHROMA_TOTAL }).map((_, i) => (
+                <span key={i} className={`mkt-tick${i < chromaLeft ? ' active' : ''}`} />
+              ))}
+            </span>
+            &nbsp;<span className="mkt-cyan">{chromaLeft} left</span>, claim on Discord after buying
+          </span>
+          <a className="mkt-announce-join" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">join →</a>
+        </div>
+
         {/* Hero */}
-        <div className="mp-hero">
-          <div className="mp-hero-left">
-            <div className="mp-hero-tag">MM2 Marketplace</div>
-            <h1 className="mp-hero-title">Buy MM2 Godlies<br/>safely & fast</h1>
-            <p className="mp-hero-sub">Pay on eBay, get your item delivered via Discord. Robux accepted too. Trusted by the community.</p>
-            <div className="mp-hero-steps">
-              <div className="mp-step"><span className="mp-step-num">1</span><span>Browse items below</span></div>
-              <div className="mp-step-arrow">→</div>
-              <div className="mp-step"><span className="mp-step-num">2</span><span>Buy on eBay or DM for Robux</span></div>
-              <div className="mp-step-arrow">→</div>
-              <div className="mp-step"><span className="mp-step-num">3</span><span>Join Discord &amp; claim your item</span></div>
+        <div className="mkt-hero">
+          <div className="mkt-hero-left">
+            <div className="mkt-eyebrow">
+              <span className="mkt-eye-dots">
+                {['var(--tier-godly)','var(--tier-chroma)','var(--tier-legend)','var(--up)'].map((c,i) => (
+                  <span key={i} style={{ background: c }} />
+                ))}
+              </span>
+              <span className="mkt-eye-label">MM2 MARKETPLACE</span>
             </div>
-            <a className="mp-hero-discord" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">
-              <svg width="18" height="14" viewBox="0 0 20 15" fill="currentColor"><path d="M16.93 1.33A16.47 16.47 0 0 0 12.86.02a.06.06 0 0 0-.06.03 11.46 11.46 0 0 0-.51 1.04 15.21 15.21 0 0 0-4.57 0C7.54.7 7.3.2 7.19.05a.06.06 0 0 0-.06-.03 16.43 16.43 0 0 0-4.07 1.31.05.05 0 0 0-.03.02C.45 5.37-.27 9.3.08 13.17c0 .02.01.03.03.04a16.57 16.57 0 0 0 4.99 2.52.06.06 0 0 0 .07-.02c.38-.53.73-1.08 1.02-1.66a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.56-.74.06.06 0 0 1-.01-.1l.31-.24a.06.06 0 0 1 .06-.01c3.27 1.5 6.82 1.5 10.05 0a.06.06 0 0 1 .06.01l.31.25a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.02 1.66a.06.06 0 0 0 .07.02 16.52 16.52 0 0 0 5-2.52.06.06 0 0 0 .03-.04c.42-4.31-.7-8.21-2.96-11.6a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.82.91 1.8 2.01 0 1.11-.8 2.01-1.8 2.01zm6.65 0c-.99 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.81.91 1.8 2.01 0 1.11-.79 2.01-1.8 2.01z"/></svg>
-              Join Discord to buy with Robux
-            </a>
+            <h1 className="mkt-headline">
+              Buy MM2 godlies,<br/><span className="mkt-accent">safely</span> &amp; fast.
+            </h1>
+            <p className="mkt-subhead">
+              Pay on <strong>eBay</strong>, get your item delivered over Discord. Robux accepted too — every trade tracked against live market value.
+            </p>
+            <div className="mkt-steps">
+              <span className="mkt-step"><span className="mkt-step-idx">01</span> browse listings</span>
+              <span className="mkt-arrow">→</span>
+              <span className="mkt-step"><span className="mkt-step-idx">02</span> pay on eBay or DM for Robux</span>
+              <span className="mkt-arrow">→</span>
+              <span className="mkt-step"><span className="mkt-step-idx">03</span> join Discord &amp; claim</span>
+            </div>
+            <div className="mkt-cta-row">
+              <a className="mkt-btn-primary" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">
+                <svg width="18" height="14" viewBox="0 0 20 15" fill="currentColor"><path d="M16.93 1.33A16.47 16.47 0 0 0 12.86.02a.06.06 0 0 0-.06.03 11.46 11.46 0 0 0-.51 1.04 15.21 15.21 0 0 0-4.57 0C7.54.7 7.3.2 7.19.05a.06.06 0 0 0-.06-.03 16.43 16.43 0 0 0-4.07 1.31.05.05 0 0 0-.03.02C.45 5.37-.27 9.3.08 13.17c0 .02.01.03.03.04a16.57 16.57 0 0 0 4.99 2.52.06.06 0 0 0 .07-.02c.38-.53.73-1.08 1.02-1.66a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.56-.74.06.06 0 0 1-.01-.1l.31-.24a.06.06 0 0 1 .06-.01c3.27 1.5 6.82 1.5 10.05 0a.06.06 0 0 1 .06.01l.31.25a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.02 1.66a.06.06 0 0 0 .07.02 16.52 16.52 0 0 0 5-2.52.06.06 0 0 0 .03-.04c.42-4.31-.7-8.21-2.96-11.6a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.82.91 1.8 2.01 0 1.11-.8 2.01-1.8 2.01zm6.65 0c-.99 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.81.91 1.8 2.01 0 1.11-.79 2.01-1.8 2.01z"/></svg>
+                Join Discord to buy with Robux
+              </a>
+              <button className="mkt-btn-secondary" onClick={() => document.getElementById('mp-listings')?.scrollIntoView({ behavior: 'smooth' })}>
+                ↓ browse {SHOP_LISTINGS.length} listings
+              </button>
+            </div>
+            <div className="mkt-hours">
+              <span className="mkt-live-dot green" />
+              Online daily <strong>10:00 – 01:00</strong> <span className="mkt-tz">(GMT+2)</span>
+            </div>
           </div>
-          <div className="mp-hero-stats">
-            <div className="mp-stat"><span className="mp-stat-val">{SHOP_LISTINGS.length}</span><span className="mp-stat-label">Items for sale</span></div>
-            <div className="mp-stat"><span className="mp-stat-val">⚡</span><span className="mp-stat-label">Fast delivery</span></div>
-            <div className="mp-stat"><span className="mp-stat-val">eBay</span><span className="mp-stat-label">Buyer protection</span></div>
-            <div className="mp-stat"><span className="mp-stat-val">⊙</span><span className="mp-stat-label">Robux accepted</span></div>
+
+          <div className="mkt-status">
+            <div className="mkt-status-head">
+              <span className="mkt-live-dot green" />
+              MARKET STATUS
+            </div>
+            <div className="mkt-row">
+              <span className="mkt-row-val" style={{ color: 'var(--up)', fontVariantNumeric: 'tabular-nums' }}>{SHOP_LISTINGS.length}</span>
+              <span className="mkt-row-label">listings<br/>live now</span>
+            </div>
+            <div className="mkt-row">
+              <span className="mkt-row-val">&lt; 10 min</span>
+              <span className="mkt-row-label">median<br/>delivery</span>
+            </div>
+            <div className="mkt-row">
+              <span className="mkt-row-val mkt-ebay-word">eBay</span>
+              <span className="mkt-row-label">buyer<br/>protection</span>
+            </div>
+            <div className="mkt-row">
+              <span className="mkt-row-val mkt-row-sm">eBay · Robux</span>
+              <span className="mkt-row-label">payment<br/>accepted</span>
+            </div>
           </div>
         </div>
 
-        <div className="mp-promo">
-          <span className="mp-promo-fire">🔥</span>
-          <span>First <strong>10 buyers</strong> get a <strong style={{ color: 'var(--tier-vintage)' }}>free Chroma</strong> with any eBay purchase — DM on Discord after buying to claim.</span>
-        </div>
-
-        <div className="mp-header">
-          <div>
-            <h2 className="mp-title" style={{ fontSize: 18 }}>All Items</h2>
-            <p className="mp-sub">{visibleListings.length} listings</p>
+        {/* Listings header */}
+        <div className="mkt-listhead" id="mp-listings">
+          <div className="mkt-listhead-left">
+            <h2>All items</h2>
+            <span>{sortedListings.length} listings</span>
           </div>
-          <input
-            className="mp-search"
-            type="search"
-            placeholder="search items..."
-            value={mpSearch}
-            onChange={e => setMpSearch(e.target.value)}
-          />
+          <div className="mkt-listhead-right">
+            <input
+              className="mp-search"
+              type="search"
+              placeholder="search..."
+              value={mpSearch}
+              onChange={e => setMpSearch(e.target.value)}
+            />
+            <span className="mkt-sort-label">sort</span>
+            <div className="mkt-sort-pills">
+              {SORT_OPTS.map(([key, label]) => (
+                <button
+                  key={key}
+                  className={`mkt-sort-pill${mpSort === key ? ' active' : ''}`}
+                  onClick={() => setMpSort(key)}
+                >{label}</button>
+              ))}
+            </div>
+          </div>
         </div>
 
+        {/* Grid */}
         <div className="mp-grid">
-          {visibleListings.map(listing => {
+          {sortedListings.map(listing => {
             const marketItem = items.find(it => it.id === listing.id);
             const tier = marketItem ? deriveTier(marketItem) : { label: 'GODLY', color: 'var(--tier-godly)' };
             const price = listing.price ?? marketItem?.current?.ebay?.totalPrice;
             const sv = marketItem?.current?.supreme?.value;
             return (
               <div key={listing.id} className="mp-card">
-                <div className="mp-card-img-wrap" style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}>
+                <div className="mp-card-img-wrap" style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}18, transparent 70%), var(--bg-deep)` }}>
                   <img src={listing.img} alt={listing.name} className="mp-card-img" />
                   <span className="mp-card-tier" style={{ color: tier.color }}>{tier.label}</span>
                 </div>
@@ -1477,31 +1566,23 @@ export default function App() {
                   </div>
                   {price != null && (
                     <div className="mp-card-robux">
-                      <svg width="14" height="14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                        <defs>
-                          <linearGradient id="robux-grad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#e8d48a"/>
-                            <stop offset="100%" stopColor="#b8922a"/>
-                          </linearGradient>
-                        </defs>
-                        <path d="M50 2 L93 26 L93 74 L50 98 L7 74 L7 26 Z" rx="10" fill="url(#robux-grad)" />
-                        <path d="M50 14 L82 31 L82 69 L50 86 L18 69 L18 31 Z" fill="white" />
-                        <rect x="33" y="33" width="34" height="34" rx="5" fill="url(#robux-grad)" />
+                      <svg width="13" height="13" viewBox="0 0 100 100" fill="none" style={{ flexShrink: 0 }}>
+                        <defs><linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#e8d48a"/><stop offset="100%" stopColor="#b8922a"/></linearGradient></defs>
+                        <path d="M50 2 L93 26 L93 74 L50 98 L7 74 L7 26 Z" fill="url(#rg2)" />
+                        <path d="M50 14 L82 31 L82 69 L50 86 L18 69 L18 31 Z" fill="#0d1018" />
+                        <rect x="33" y="33" width="34" height="34" rx="5" fill="url(#rg2)" />
                       </svg>
                       <span>{Math.round(price * 83).toLocaleString()} Robux</span>
                     </div>
                   )}
-                  <a
-                    className="mp-card-add"
-                    href={listing.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >Buy on eBay →</a>
+                  <a className="mp-buy-btn" href={listing.url} target="_blank" rel="noopener noreferrer">
+                    Buy on eBay →
+                  </a>
                 </div>
               </div>
             );
           })}
-          {!visibleListings.length && <p className="mp-empty" style={{ gridColumn: '1/-1' }}>No items match your search.</p>}
+          {!sortedListings.length && <p className="mp-empty" style={{ gridColumn: '1/-1' }}>No items match your search.</p>}
         </div>
       </section>
     );
