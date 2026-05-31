@@ -270,6 +270,7 @@ select {
 .gw-nav-pill { padding: 7px 14px; border-radius: 8px; font-family: 'Saira Condensed', 'Arial Narrow', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; background: var(--bg-deep); border: 1px solid var(--line); color: var(--ink-dim); cursor: pointer; transition: 120ms; }
 .gw-nav-pill.active, .gw-nav-pill:hover { background: var(--card-hi); border-color: var(--line-hi); color: var(--ink); }
 .gw-search { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--line-hi); background: var(--bg-deep); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-dim); }
+.gw-topbar .gw-search { display: none; }
 .gw-search-icon { opacity: 0.7; }
 .gw-search-input { background: none; border: none; outline: none; color: var(--ink-dim); font: inherit; width: 160px; }
 .gw-search-input::placeholder { color: var(--ink-faint); }
@@ -309,6 +310,9 @@ select {
 
 /* Main content */
 .gw-main { flex: 1; padding: 24px 28px 60px; min-width: 0; overflow-y: auto; }
+.gw-board-search-row { margin-bottom: 16px; }
+.gw-search-board { width: 100%; max-width: 520px; padding: 10px 12px; border-radius: 8px; }
+.gw-search-board .gw-search-input { flex: 1; width: auto; min-width: 0; color: var(--ink); }
 .gw-main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
 .gw-main-title { font-family: 'Saira Condensed', 'Arial Narrow', sans-serif; font-size: 32px; font-weight: 600; color: var(--ink); margin: 0 0 4px; }
 .gw-main-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; margin: 0; }
@@ -2146,6 +2150,7 @@ select {
   }
   .gw-nav::-webkit-scrollbar { display: none; }
   .gw-nav-pill { font-size: 12px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }
+  .gw-topbar .gw-search { display: none; }
   .gw-search { width: 100%; }
   .gw-search-input { flex: 1; min-width: 0; }
 
@@ -2174,6 +2179,8 @@ select {
   .gw-mobile-filters::-webkit-scrollbar { display: none; }
 
   /* Main header */
+  .gw-board-search-row { margin-bottom: 12px; }
+  .gw-search-board { max-width: none; }
   .gw-main-header { margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
   .gw-main-title { font-size: 26px; }
   .gw-view-toggle { display: none; }

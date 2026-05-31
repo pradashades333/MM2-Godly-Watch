@@ -1721,6 +1721,19 @@ export default function App() {
             recentMoves={recentMoves}
           />
           <main className="gw-main">
+            <div className="gw-board-search-row">
+              <div className="gw-search gw-search-board">
+                <span className="gw-search-icon">⌕</span>
+                <input
+                  className="gw-search-input"
+                  type="search"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder={`search ${items.length} items`}
+                />
+                <span className="gw-keycap">⌘K</span>
+              </div>
+            </div>
             {/* Mobile tier filter strip */}
             <div className="gw-mobile-filters">
               {[
