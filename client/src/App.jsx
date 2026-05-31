@@ -1534,6 +1534,86 @@ export default function App() {
           </div>
         </div>
 
+        <div className="mkt-trust-grid">
+          <article className="mkt-trust-card">
+            <span className="mkt-trust-kicker">Buyer safety</span>
+            <h3>Pay through eBay for buyer protection</h3>
+            <p>
+              Every marketplace card sends you to the live eBay listing first, so buyers can check price,
+              listing details, and complete payment on a platform they already know.
+            </p>
+          </article>
+          <article className="mkt-trust-card">
+            <span className="mkt-trust-kicker">Live pricing</span>
+            <h3>Compare listing prices against tracked market values</h3>
+            <p>
+              Godly Watch shows the current item value right next to the listing so buyers can judge the
+              offer before they click out.
+            </p>
+          </article>
+          <article className="mkt-trust-card">
+            <span className="mkt-trust-kicker">Support</span>
+            <h3>Discord help before and after checkout</h3>
+            <p>
+              Buyers can join the Discord for questions, delivery updates, and help claiming bonus offers
+              after they purchase.
+            </p>
+          </article>
+        </div>
+
+        <div className="mkt-flow">
+          <div className="mkt-flow-copy">
+            <span className="mkt-flow-tag">How it works</span>
+            <h2>Simple buying flow, no guessing</h2>
+            <p>
+              The goal is to make the whole process obvious: pick the item, pay on eBay, then join Discord
+              so delivery can be handled fast.
+            </p>
+          </div>
+          <div className="mkt-flow-steps">
+            <div className="mkt-flow-step">
+              <span className="mkt-flow-num">01</span>
+              <strong>Choose your item</strong>
+              <p>Browse listings, check the price, and compare it with the tracked market value on-site.</p>
+            </div>
+            <div className="mkt-flow-step">
+              <span className="mkt-flow-num">02</span>
+              <strong>Pay on eBay</strong>
+              <p>Use the listing link to complete payment with eBay buyer protection and normal checkout.</p>
+            </div>
+            <div className="mkt-flow-step">
+              <span className="mkt-flow-num">03</span>
+              <strong>Join Discord to claim</strong>
+              <p>After payment, join the Discord server and message with your purchase so delivery can start.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mkt-assurance">
+          <div className="mkt-assurance-head">
+            <span className="mkt-flow-tag">Before you buy</span>
+            <h2>What buyers can expect</h2>
+          </div>
+          <div className="mkt-assurance-grid">
+            <div className="mkt-assurance-item">
+              <strong>Clear checkout path</strong>
+              <p>Listings open directly on eBay, not on a sketchy off-platform payment form.</p>
+            </div>
+            <div className="mkt-assurance-item">
+              <strong>Fast contact channel</strong>
+              <p>Discord gives buyers a direct place to ask questions and confirm delivery details.</p>
+            </div>
+            <div className="mkt-assurance-item">
+              <strong>Tracked inventory page</strong>
+              <p>The site stays tied to the live market board so buyers can see current values and active stock.</p>
+            </div>
+            <div className="mkt-assurance-item">
+              <strong>Help before purchase</strong>
+              <p>If someone is unsure, they can join Discord first and ask about an item before buying.</p>
+            </div>
+          </div>
+        </div>
+
         {/* Listings header */}
         <div className="mkt-listhead" id="mp-listings">
           <div className="mkt-listhead-left">

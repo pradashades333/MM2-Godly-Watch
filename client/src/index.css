@@ -1710,6 +1710,109 @@ select {
   text-align: right; line-height: 1.4;
 }
 
+.mkt-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 0;
+}
+.mkt-trust-card {
+  background: linear-gradient(180deg, rgba(16,20,29,0.96), rgba(10,13,19,0.98));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+}
+.mkt-trust-kicker,
+.mkt-flow-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--up);
+  margin-bottom: 10px;
+}
+.mkt-trust-card h3,
+.mkt-flow-copy h2,
+.mkt-assurance-head h2 {
+  margin: 0 0 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.mkt-trust-card p,
+.mkt-flow-copy p,
+.mkt-flow-step p,
+.mkt-assurance-item p {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: var(--ink-faint);
+}
+
+.mkt-flow,
+.mkt-assurance {
+  margin-top: 22px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+.mkt-flow {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+}
+.mkt-flow-copy p {
+  max-width: 34ch;
+}
+.mkt-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.mkt-flow-step,
+.mkt-assurance-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 16px;
+}
+.mkt-flow-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  color: var(--up);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+.mkt-flow-step strong,
+.mkt-assurance-item strong {
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.mkt-assurance-head {
+  margin-bottom: 14px;
+}
+.mkt-assurance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 /* Listings header */
 .mkt-listhead {
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -1801,6 +1904,10 @@ select {
   .mkt-hero { grid-template-columns: 1fr; }
   .mkt-status { border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 20px; }
   .mkt-headline { font-size: 36px; }
+  .mkt-trust-grid,
+  .mkt-flow-steps,
+  .mkt-assurance-grid { grid-template-columns: 1fr; }
+  .mkt-flow { grid-template-columns: 1fr; }
   .mp-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
