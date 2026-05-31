@@ -1712,7 +1712,7 @@ select {
 
 .mkt-proof-band {
   display: grid;
-  grid-template-columns: 1.4fr 0.9fr;
+  grid-template-columns: 1.55fr 0.85fr;
   gap: 16px;
   margin-top: 18px;
 }
@@ -1724,53 +1724,60 @@ select {
 }
 .mkt-proof-card {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.8fr);
+  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.75fr);
   overflow: hidden;
 }
 .mkt-proof-shot {
-  padding: 18px;
+  padding: 20px;
   background:
     radial-gradient(circle at top left, rgba(74, 222, 128, 0.18), transparent 38%),
     linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
   border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
 }
 .mkt-proof-image {
   display: block;
   width: 100%;
-  height: 100%;
-  min-height: 168px;
-  object-fit: cover;
-  border-radius: 14px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 18px;
+  background: #f6f2eb;
+  padding: 8px;
   box-shadow: 0 18px 40px rgba(0,0,0,0.22);
 }
 .mkt-proof-copy {
-  padding: 22px 22px 20px;
+  padding: 24px 24px 22px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 .mkt-proof-kicker {
   display: inline-block;
-  margin-bottom: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  margin-bottom: 8px;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--tier-chroma);
 }
 .mkt-proof-copy h3 {
   margin: 0 0 10px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 25px;
-  line-height: 1.02;
+  font-family: 'Saira Condensed', 'Arial Narrow', sans-serif;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.94;
   color: var(--ink);
 }
 .mkt-proof-copy p {
   margin: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  line-height: 1.75;
-  color: var(--ink-faint);
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #b3bdd0;
+  max-width: 28ch;
 }
 
 .mkt-quick-trust {
@@ -1783,10 +1790,10 @@ select {
   grid-template-columns: 38px 1fr;
   gap: 12px;
   align-items: start;
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.06);
 }
 .mkt-quick-num {
   display: inline-flex;
@@ -1795,26 +1802,28 @@ select {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: rgba(0,229,255,0.08);
-  border: 1px solid rgba(0,229,255,0.2);
+  background: rgba(0,229,255,0.09);
+  border: 1px solid rgba(0,229,255,0.24);
   color: var(--tier-chroma);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 12px;
   font-weight: 700;
 }
 .mkt-quick-pill strong {
   display: block;
-  margin-bottom: 4px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 16px;
+  margin-bottom: 3px;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--ink);
 }
 .mkt-quick-pill p {
   margin: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--ink-faint);
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #9eabc1;
 }
 
 /* Listings header */
@@ -1911,6 +1920,8 @@ select {
   .mkt-proof-band,
   .mkt-proof-card { grid-template-columns: 1fr; }
   .mkt-proof-shot { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .mkt-proof-copy h3 { font-size: 32px; }
+  .mkt-quick-pill strong { font-size: 20px; }
   .mp-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
