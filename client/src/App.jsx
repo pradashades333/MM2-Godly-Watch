@@ -1537,25 +1537,12 @@ export default function App() {
         <div className="mkt-proof-band">
           <div className="mkt-proof-card">
             <div className="mkt-proof-shot">
-              <div className="mkt-proof-window">
-                <div className="mkt-proof-brand">
-                  <img src="/favicon.png" alt="GodlyMarket eBay proof" className="mkt-proof-logo" />
-                  <div className="mkt-proof-title-wrap">
-                    <span className="mkt-proof-label">eBay store proof</span>
-                    <strong className="mkt-proof-title">godlymarket</strong>
-                  </div>
-                </div>
-                <div className="mkt-proof-stats">
-                  <span>98.6% positive evaluations (70)</span>
-                  <span>341 items sold</span>
-                  <span>39 subscribers</span>
-                </div>
-              </div>
+              <img src="/ebay-proof.png" alt="GodlyMarket eBay proof" className="mkt-proof-image" />
             </div>
             <div className="mkt-proof-copy">
               <span className="mkt-proof-kicker">Proof</span>
               <h3>Real eBay store, real track record</h3>
-              <p>Buy through eBay first, then join Discord for delivery. Simple and safer for the buyer.</p>
+              <p>Buy through eBay first, then claim on eBay or in Discord for delivery and support.</p>
             </div>
           </div>
 
@@ -1577,8 +1564,8 @@ export default function App() {
             <div className="mkt-quick-pill">
               <span className="mkt-quick-num">03</span>
               <div>
-                <strong>Claim on Discord</strong>
-                <p>Fast contact for delivery and support.</p>
+                <strong>Claim on eBay or Discord</strong>
+                <p>Use whichever is easier for delivery and support.</p>
               </div>
             </div>
           </div>
