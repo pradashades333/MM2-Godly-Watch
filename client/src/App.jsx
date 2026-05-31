@@ -70,8 +70,8 @@ const SHOP_LISTINGS = [
   { id: 'iceblaster',         name: 'Iceblaster',                    img: '/items/iceblaster.png',         url: 'https://www.ebay.com/itm/366198823883' },
   { id: 'icebreaker',         name: 'Icebreaker',                    img: '/items/icebreaker.png',         url: 'https://www.ebay.com/itm/366198821009' },
   { id: 'chroma-bringer-set', name: 'Chroma Bringer Set',            img: '/items/chroma-bringer-set.png', url: 'https://www.ebay.com/itm/366198786014' },
-  { id: 'chroma-lightbringer',name: 'Chroma Lightbringer',           img: '/items/chroma-lightbringer.png',url: 'https://www.ebay.com/itm/366198783636' },
-  { id: 'chroma-darkbringer', name: 'Chroma Darkbringer',            img: '/items/chroma-darkbringer.png', url: 'https://www.ebay.com/itm/366198782316' },
+  { id: 'chroma-lightbringer',name: 'Chroma Lightbringer',           img: '/items/chroma-lightbringer.png',url: 'https://www.ebay.com/itm/366198783636', marketId: 'c-lightbringer' },
+  { id: 'chroma-darkbringer', name: 'Chroma Darkbringer',            img: '/items/chroma-darkbringer.png', url: 'https://www.ebay.com/itm/366198782316', marketId: 'c-darkbringer' },
   { id: 'hallowgun',          name: 'Hallowgun',                     img: '/items/hallowgun.png',          url: 'https://www.ebay.com/itm/366198774694' },
   { id: 'hallow-set',         name: 'Hallow Set',                    img: '/items/hallow-set.png',         url: 'https://www.ebay.com/itm/366198769851' },
   { id: 'bat',                name: 'Bat',                           img: '/items/bat.png',                url: 'https://www.ebay.com/itm/366263868152' },
@@ -91,6 +91,22 @@ function getItemImg(item) {
   const local = LOCAL_ITEM_IMAGES[item.id];
   if (local) return local;
   return proxyImg(item.imageUrl);
+}
+
+function normalizeMarketplaceName(value) {
+  return (value ?? '')
+    .toLowerCase()
+    .replace(/\bc\.\s*/g, 'chroma ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function findMarketplaceItem(items, listing) {
+  return items.find((item) => {
+    if (item.id === listing.id) return true;
+    if (listing.marketId && item.id === listing.marketId) return true;
+    return normalizeMarketplaceName(item.name) === normalizeMarketplaceName(listing.name);
+  });
 }
 
 const TABS = [
@@ -1412,8 +1428,8 @@ export default function App() {
     const filtered = q ? SHOP_LISTINGS.filter(l => l.name.toLowerCase().includes(q)) : SHOP_LISTINGS;
 
     const sortedListings = [...filtered].sort((a, b) => {
-      const aM = items.find(it => it.id === a.id);
-      const bM = items.find(it => it.id === b.id);
+      const aM = findMarketplaceItem(items, a);
+      const bM = findMarketplaceItem(items, b);
       const aP = a.price ?? aM?.current?.ebay?.totalPrice ?? 0;
       const bP = b.price ?? bM?.current?.ebay?.totalPrice ?? 0;
       if (mpSort === 'price-desc') return bP - aP;
@@ -1548,7 +1564,7 @@ export default function App() {
         {/* Grid */}
         <div className="mp-grid">
           {sortedListings.map(listing => {
-            const marketItem = items.find(it => it.id === listing.id);
+            const marketItem = findMarketplaceItem(items, listing);
             const tier = marketItem ? deriveTier(marketItem) : { label: 'GODLY', color: 'var(--tier-godly)' };
             const price = listing.price ?? marketItem?.current?.ebay?.totalPrice;
             const sv = marketItem?.current?.supreme?.value;
