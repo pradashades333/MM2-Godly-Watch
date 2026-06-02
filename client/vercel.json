@@ -13,6 +13,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/market",
+      "destination": "/index.html"
+    },
+    {
       "source": "/marketplace",
       "destination": "/index.html"
     },

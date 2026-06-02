@@ -123,13 +123,15 @@ const TAB_PATHS = {
   board: "/board",
   "trade-checker": "/trade-checker",
   "inventory-tracker": "/inventory",
-  marketplace: "/marketplace",
+  marketplace: "/market",
   "seller-dashboard": "/seller-dashboard",
 };
 
 const PATH_TO_TAB = Object.fromEntries(
   Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab])
 );
+PATH_TO_TAB["/market"] = "marketplace";
+PATH_TO_TAB["/marketplace"] = "marketplace";
 
 function normalizePathname(pathname) {
   if (!pathname || pathname === "/") return "/";
