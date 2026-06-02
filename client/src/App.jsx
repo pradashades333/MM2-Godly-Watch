@@ -1703,34 +1703,82 @@ export default function App() {
       .filter((listing) => listing.price != null)
       .sort((a, b) => a.price - b.price)[0];
 
+    const bestValueGap = [...SHOP_LISTINGS]
+      .map((listing) => {
+        const marketItem = findMarketplaceItem(items, listing);
+        const boardPrice = marketItem?.current?.ebay?.totalPrice ?? null;
+        const listingPrice = listing.price ?? boardPrice;
+        if (boardPrice == null || listingPrice == null || boardPrice <= 0 || listingPrice >= boardPrice) return null;
+        return {
+          name: listing.name,
+          gapPct: Math.round(((boardPrice - listingPrice) / boardPrice) * 100),
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.gapPct - a.gapPct)[0];
+
+    const inventoryPreview = inventoryItems.reduce(
+      (acc, entry) => {
+        const item = itemLookup.get(entry.id);
+        acc.count += entry.qty;
+        acc.value += (item?.current?.ebay?.totalPrice ?? 0) * entry.qty;
+        return acc;
+      },
+      { count: 0, value: 0 }
+    );
+
+    const sampleTrade = {
+      have: haveTradeSlots.reduce((sum, slot) => {
+        const item = slot.itemId ? itemLookup.get(slot.itemId) : null;
+        return sum + (item?.current?.supreme?.value ?? 0);
+      }, 0),
+      want: wantTradeSlots.reduce((sum, slot) => {
+        const item = slot.itemId ? itemLookup.get(slot.itemId) : null;
+        return sum + (item?.current?.supreme?.value ?? 0);
+      }, 0),
+    };
+    const tradeResult = sampleTrade.have === sampleTrade.want ? 'Even' : sampleTrade.have > sampleTrade.want ? 'Win' : 'Loss';
+
     const homeCards = [
       {
         id: 'trade-checker',
-        eyebrow: '01',
         title: 'Check a Trade',
         desc: 'See if your trade is a W or L before you accept it.',
-        meta: 'Live values · fast compare',
+        preview: [
+          { label: 'Your side', value: sampleTrade.have ? `SV ${sampleTrade.have.toLocaleString()}` : 'Add items' },
+          { label: 'Their side', value: sampleTrade.want ? `SV ${sampleTrade.want.toLocaleString()}` : 'Compare live' },
+          { label: 'Result', value: tradeResult },
+        ],
       },
       {
         id: 'marketplace',
-        eyebrow: '02',
         title: 'Find Cheap Items',
         desc: 'See the cheapest MM2 items on eBay right now and jump straight to the listing.',
-        meta: cheapestListing ? `From €${cheapestListing.price.toFixed(2)} · ${SHOP_LISTINGS.length} listings live` : `${SHOP_LISTINGS.length} listings live`,
+        preview: [
+          { label: 'Item', value: cheapestListing?.name ?? 'Loading' },
+          { label: 'Price', value: cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--' },
+          { label: 'Listings', value: `${SHOP_LISTINGS.length} live` },
+        ],
       },
       {
         id: 'inventory-tracker',
-        eyebrow: '03',
         title: 'Value My Inventory',
         desc: 'Calculate how much your MM2 inventory is worth using current market data.',
-        meta: 'Track totals · watch allocation',
+        preview: [
+          { label: 'Total', value: `EUR ${inventoryPreview.value.toFixed(2)}` },
+          { label: 'Items', value: `${inventoryPreview.count} tracked` },
+          { label: 'Source', value: 'Live eBay' },
+        ],
       },
       {
         id: 'board',
-        eyebrow: '04',
         title: 'Browse the Board',
         desc: 'Scan live MM2 values, recent movement, and underpriced items in one place.',
-        meta: `${items.length} tracked items · refreshed ${formatTimestamp(marketData.refreshedAt)}`,
+        preview: [
+          { label: 'Tracked', value: `${homeTrackedItems ?? '--'} items` },
+          { label: 'Filters', value: 'Chroma | Godly | Ancient' },
+          { label: 'Updated', value: marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--' },
+        ],
       },
     ];
 
@@ -1738,20 +1786,19 @@ export default function App() {
       <section className="gw-home">
         <div className="gw-home-hero">
           <div className="gw-home-copy">
-            <span className="gw-home-kicker">MM2 value board · trade tools · marketplace watch</span>
+            <span className="gw-home-kicker">MM2 values, trades, and marketplace watch</span>
             <h1 className="gw-home-title">
-              Find underpriced MM2 items, check trades, and avoid overpaying.
+              MM2 values, trades, and cheap listings in one board.
             </h1>
             <p className="gw-home-sub">
-              GodlyWatch gives you a cleaner way to move through MM2: check a trade, spot cheap listings,
-              value your inventory, or scan the full board without getting lost.
+              Compare Supreme Values with live eBay prices, check trades, and find underpriced MM2 items faster.
             </p>
             <div className="gw-home-cta-row">
-              <button className="gw-home-primary" onClick={() => navigateToTab('trade-checker')}>
-                Check a Trade
+              <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
+                Open Value Board
               </button>
-              <button className="gw-home-secondary" onClick={() => navigateToTab('marketplace')}>
-                Find Cheap Items
+              <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
+                Check a Trade
               </button>
             </div>
             <div className="gw-home-pulse">
@@ -1761,52 +1808,60 @@ export default function App() {
             </div>
           </div>
 
-          <aside className="gw-home-quickstart">
-            <div className="gw-home-quickstart-head">
-              <span className="gw-home-quickstart-label">Start here</span>
-              <strong>Pick what you need</strong>
+          <aside className="gw-home-snapshot">
+            <div className="gw-home-snapshot-head">
+              <span className="gw-home-snapshot-label">Live Market Snapshot</span>
             </div>
-            <button className="gw-home-quick-action" onClick={() => navigateToTab('trade-checker')}>
-              <span className="gw-home-quick-action-title">Trade Checker</span>
-              <span className="gw-home-quick-action-copy">See whether your trade is a win or loss.</span>
-            </button>
-            <button className="gw-home-quick-action" onClick={() => navigateToTab('inventory-tracker')}>
-              <span className="gw-home-quick-action-title">Inventory Value</span>
-              <span className="gw-home-quick-action-copy">Add your items and total them up fast.</span>
-            </button>
-            <button className="gw-home-quick-action" onClick={() => navigateToTab('marketplace')}>
-              <span className="gw-home-quick-action-title">Cheap Listings</span>
-              <span className="gw-home-quick-action-copy">
-                {cheapestListing ? `Current floor starts at €${cheapestListing.price.toFixed(2)}.` : 'Jump into live eBay listings.'}
-              </span>
-            </button>
+            <div className="gw-home-snapshot-row">
+              <span className="gw-home-snapshot-key">Cheapest listing</span>
+              <span className="gw-home-snapshot-value">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</span>
+            </div>
+            <div className="gw-home-snapshot-row">
+              <span className="gw-home-snapshot-key">Best value gap</span>
+              <span className="gw-home-snapshot-value">{bestValueGap ? `${bestValueGap.name} | ${bestValueGap.gapPct}%` : '--'}</span>
+            </div>
+            <div className="gw-home-snapshot-row">
+              <span className="gw-home-snapshot-key">Movers today</span>
+              <span className="gw-home-snapshot-value">{homeRecentMoves ?? '--'}</span>
+            </div>
+            <div className="gw-home-snapshot-row">
+              <span className="gw-home-snapshot-key">eBay coverage</span>
+              <span className="gw-home-snapshot-value">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</span>
+            </div>
           </aside>
         </div>
 
         <div className="gw-home-strip">
           <div className="gw-home-strip-copy">
-            <span className="gw-home-strip-label">What you can do</span>
+            <span className="gw-home-strip-label">Tools</span>
             <h2>One place for values, trades, inventory, and cheap MM2 listings.</h2>
           </div>
           <button className="gw-home-strip-link" onClick={() => navigateToTab('board')}>
-            Open full board →
+            Open full board {'->'}
           </button>
         </div>
 
         <div className="gw-home-grid">
-          {homeCards.map((card) => (
+          {displayHomeCards.map((card) => (
             <button
               key={card.id}
               className="gw-home-card"
               onClick={() => navigateToTab(card.id)}
             >
-              <span className="gw-home-card-eyebrow">{card.eyebrow}</span>
               <div className="gw-home-card-topline" />
               <h2 className="gw-home-card-title">{card.title}</h2>
               <p className="gw-home-card-desc">{card.desc}</p>
+              <div className="gw-home-card-preview">
+                {card.preview.map((row) => (
+                  <div key={row.label} className="gw-home-card-preview-row">
+                    <span className="gw-home-card-preview-label">{row.label}</span>
+                    <span className="gw-home-card-preview-value">{row.value}</span>
+                  </div>
+                ))}
+              </div>
               <div className="gw-home-card-foot">
-                <span className="gw-home-card-meta">{card.meta}</span>
-                <span className="gw-home-card-arrow">→</span>
+                <span className="gw-home-card-meta">Open tool</span>
+                <span className="gw-home-card-arrow">{'->'}</span>
               </div>
             </button>
           ))}
@@ -2674,3 +2729,5 @@ function getInitials(name) {
     .slice(0, 2)
     .toUpperCase();
 }
+
+
