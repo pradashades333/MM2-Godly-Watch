@@ -110,6 +110,7 @@ function findMarketplaceItem(items, listing) {
 }
 
 const TABS = [
+  { id: "home", label: "Home" },
   { id: "board", label: "Board" },
   { id: "trade-checker", label: "Trade Checker" },
   { id: "inventory-tracker", label: "Inventory Tracker" },
@@ -545,7 +546,7 @@ function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChan
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("board");
+  const [activeTab, setActiveTab] = useState("home");
   const [marketData, setMarketData] = useState({ items: [], refreshedAt: null });
   const [serverStats, setServerStats] = useState(null);
   const [recentMoves, setRecentMoves] = useState([]);
@@ -587,6 +588,9 @@ export default function App() {
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
   const derivedStats = calculateMarketStats(items);
+  const ebayCoveragePct = items.length
+    ? Math.round(((derivedStats?.itemsWithEbay ?? 0) / items.length) * 100)
+    : 0;
 
   const itemLookup = useMemo(
     () => new Map(items.map((item) => [item.id, item])),
@@ -1641,6 +1645,110 @@ export default function App() {
     );
   }
 
+  function renderHome() {
+    const cheapestListing = [...SHOP_LISTINGS]
+      .map((listing) => {
+        const marketItem = findMarketplaceItem(items, listing);
+        const price = listing.price ?? marketItem?.current?.ebay?.totalPrice ?? null;
+        return { ...listing, price };
+      })
+      .filter((listing) => listing.price != null)
+      .sort((a, b) => a.price - b.price)[0];
+
+    const homeCards = [
+      {
+        id: 'trade-checker',
+        eyebrow: 'Trade Tool',
+        title: 'Check a Trade',
+        desc: 'See if your trade is a W or L before you accept it.',
+        meta: 'Live values · fast compare',
+      },
+      {
+        id: 'marketplace',
+        eyebrow: 'Marketplace',
+        title: 'Find Cheap Items',
+        desc: 'See the cheapest MM2 items on eBay right now and jump straight to the listing.',
+        meta: cheapestListing ? `From €${cheapestListing.price.toFixed(2)} · ${SHOP_LISTINGS.length} listings live` : `${SHOP_LISTINGS.length} listings live`,
+      },
+      {
+        id: 'inventory-tracker',
+        eyebrow: 'Inventory Tool',
+        title: 'Value My Inventory',
+        desc: 'Calculate how much your MM2 inventory is worth using current market data.',
+        meta: 'Track totals · watch allocation',
+      },
+      {
+        id: 'board',
+        eyebrow: 'Price Board',
+        title: 'Browse the Board',
+        desc: 'Scan live MM2 values, recent movement, and underpriced items in one place.',
+        meta: `${items.length} tracked items · refreshed ${formatTimestamp(marketData.refreshedAt)}`,
+      },
+    ];
+
+    return (
+      <section className="gw-home">
+        <div className="gw-home-hero">
+          <div className="gw-home-copy">
+            <span className="gw-home-kicker">MM2 tools, values, and marketplace tracking</span>
+            <h1 className="gw-home-title">
+              Find underpriced MM2 items, check trades, and avoid overpaying.
+            </h1>
+            <p className="gw-home-sub">
+              GodlyWatch brings together live values, trade checking, inventory totals, and your item marketplace
+              so new visitors immediately know where to go.
+            </p>
+            <div className="gw-home-cta-row">
+              <button className="gw-home-primary" onClick={() => setActiveTab('trade-checker')}>
+                Check a Trade
+              </button>
+              <button className="gw-home-secondary" onClick={() => setActiveTab('marketplace')}>
+                Find Cheap Items
+              </button>
+            </div>
+          </div>
+
+          <aside className="gw-home-stats">
+            <div className="gw-home-stat">
+              <span className="gw-home-stat-value">{items.length}</span>
+              <span className="gw-home-stat-label">tracked items</span>
+            </div>
+            <div className="gw-home-stat">
+              <span className="gw-home-stat-value">{SHOP_LISTINGS.length}</span>
+              <span className="gw-home-stat-label">shop listings</span>
+            </div>
+            <div className="gw-home-stat">
+              <span className="gw-home-stat-value">{recentMoves.length}</span>
+              <span className="gw-home-stat-label">recent movers</span>
+            </div>
+            <div className="gw-home-stat">
+              <span className="gw-home-stat-value">{ebayCoveragePct}%</span>
+              <span className="gw-home-stat-label">eBay coverage</span>
+            </div>
+          </aside>
+        </div>
+
+        <div className="gw-home-grid">
+          {homeCards.map((card) => (
+            <button
+              key={card.id}
+              className="gw-home-card"
+              onClick={() => setActiveTab(card.id)}
+            >
+              <span className="gw-home-card-eyebrow">{card.eyebrow}</span>
+              <h2 className="gw-home-card-title">{card.title}</h2>
+              <p className="gw-home-card-desc">{card.desc}</p>
+              <div className="gw-home-card-foot">
+                <span className="gw-home-card-meta">{card.meta}</span>
+                <span className="gw-home-card-arrow">→</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div className="gw-page">
       {/* TopBar */}
@@ -1741,6 +1849,12 @@ export default function App() {
       {/* Banners */}
       {error ? <div className="gw-banner error">{error}</div> : null}
       {loading ? <div className="gw-banner">Fetching latest MM2 prices...</div> : null}
+
+      {!loading && activeTab === 'home' ? (
+        <div className="gw-tab-content">
+          {renderHome()}
+        </div>
+      ) : null}
 
       {/* Board tab */}
       {!loading && activeTab === 'board' ? (
