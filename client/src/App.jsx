@@ -1744,6 +1744,8 @@ export default function App() {
     const homeCards = [
       {
         id: 'trade-checker',
+        tone: 'trade',
+        eyebrow: 'Trade read',
         title: 'Check a Trade',
         desc: 'See if your trade is a W or L before you accept it.',
         preview: [
@@ -1751,9 +1753,12 @@ export default function App() {
           { label: 'Their side', value: sampleTrade.want ? `SV ${sampleTrade.want.toLocaleString()}` : 'Compare live' },
           { label: 'Result', value: tradeResult },
         ],
+        meta: 'Live Supreme comparison',
       },
       {
         id: 'marketplace',
+        tone: 'market',
+        eyebrow: 'Cheap watch',
         title: 'Find Cheap Items',
         desc: 'See the cheapest MM2 items on eBay right now and jump straight to the listing.',
         preview: [
@@ -1761,9 +1766,12 @@ export default function App() {
           { label: 'Price', value: cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--' },
           { label: 'Listings', value: `${SHOP_LISTINGS.length} live` },
         ],
+        meta: 'Direct eBay listings',
       },
       {
         id: 'inventory-tracker',
+        tone: 'inventory',
+        eyebrow: 'Inventory total',
         title: 'Value My Inventory',
         desc: 'Calculate how much your MM2 inventory is worth using current market data.',
         preview: [
@@ -1771,9 +1779,12 @@ export default function App() {
           { label: 'Items', value: `${inventoryPreview.count} tracked` },
           { label: 'Source', value: 'Live eBay' },
         ],
+        meta: 'Portfolio-style value check',
       },
       {
         id: 'board',
+        tone: 'board',
+        eyebrow: 'Main board',
         title: 'Browse the Board',
         desc: 'Scan live MM2 values, recent movement, and underpriced items in one place.',
         preview: [
@@ -1781,6 +1792,7 @@ export default function App() {
           { label: 'Filters', value: 'Chroma | Godly | Ancient' },
           { label: 'Updated', value: marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--' },
         ],
+        meta: 'Board filters and live movement',
       },
     ];
 
@@ -1808,11 +1820,25 @@ export default function App() {
               <span className="gw-home-pulse-chip">{homeRecentMoves ?? '--'} movers today</span>
               <span className="gw-home-pulse-chip">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'} eBay coverage</span>
             </div>
+            <div className="gw-home-mini-grid">
+              <div className="gw-home-mini-card">
+                <span className="gw-home-mini-label">Cheapest pull</span>
+                <strong className="gw-home-mini-value">{cheapestListing?.name ?? 'Loading'}</strong>
+                <span className="gw-home-mini-sub">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)} live on eBay` : 'Scanning live listings'}</span>
+              </div>
+              <div className="gw-home-mini-card">
+                <span className="gw-home-mini-label">Board signal</span>
+                <strong className="gw-home-mini-value">{bestValueGap ? `${bestValueGap.gapPct}% gap` : 'No gap yet'}</strong>
+                <span className="gw-home-mini-sub">{bestValueGap ? `${bestValueGap.name} is trading under board price` : 'Waiting for a stronger underpriced listing'}</span>
+              </div>
+            </div>
           </div>
 
           <aside className="gw-home-snapshot">
             <div className="gw-home-snapshot-head">
               <span className="gw-home-snapshot-label">Live Market Snapshot</span>
+              <strong className="gw-home-snapshot-price">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</strong>
+              <span className="gw-home-snapshot-sub">{cheapestListing?.name ?? 'Cheapest live listing'}</span>
             </div>
             <div className="gw-home-snapshot-row">
               <span className="gw-home-snapshot-key">Cheapest listing</span>
@@ -1830,13 +1856,16 @@ export default function App() {
               <span className="gw-home-snapshot-key">eBay coverage</span>
               <span className="gw-home-snapshot-value">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</span>
             </div>
+            <div className="gw-home-snapshot-note">
+              Board value and live listing prices are tracked side by side so you can spot weak listings faster.
+            </div>
           </aside>
         </div>
 
         <div className="gw-home-strip">
           <div className="gw-home-strip-copy">
             <span className="gw-home-strip-label">Tools</span>
-            <h2>One place for values, trades, inventory, and cheap MM2 listings.</h2>
+            <h2>Jump straight into the part of the market you need.</h2>
           </div>
           <button className="gw-home-strip-link" onClick={() => navigateToTab('board')}>
             Open full board {'->'}
@@ -1847,9 +1876,10 @@ export default function App() {
           {homeCards.map((card) => (
             <button
               key={card.id}
-              className="gw-home-card"
+              className={`gw-home-card gw-home-card-${card.tone}`}
               onClick={() => navigateToTab(card.id)}
             >
+              <span className="gw-home-card-eyebrow">{card.eyebrow}</span>
               <div className="gw-home-card-topline" />
               <h2 className="gw-home-card-title">{card.title}</h2>
               <p className="gw-home-card-desc">{card.desc}</p>
@@ -1862,7 +1892,7 @@ export default function App() {
                 ))}
               </div>
               <div className="gw-home-card-foot">
-                <span className="gw-home-card-meta">Open tool</span>
+                <span className="gw-home-card-meta">{card.meta}</span>
                 <span className="gw-home-card-arrow">{'->'}</span>
               </div>
             </button>
