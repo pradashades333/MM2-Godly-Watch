@@ -1658,28 +1658,28 @@ export default function App() {
     const homeCards = [
       {
         id: 'trade-checker',
-        eyebrow: 'Trade Tool',
+        eyebrow: '01',
         title: 'Check a Trade',
         desc: 'See if your trade is a W or L before you accept it.',
         meta: 'Live values · fast compare',
       },
       {
         id: 'marketplace',
-        eyebrow: 'Marketplace',
+        eyebrow: '02',
         title: 'Find Cheap Items',
         desc: 'See the cheapest MM2 items on eBay right now and jump straight to the listing.',
         meta: cheapestListing ? `From €${cheapestListing.price.toFixed(2)} · ${SHOP_LISTINGS.length} listings live` : `${SHOP_LISTINGS.length} listings live`,
       },
       {
         id: 'inventory-tracker',
-        eyebrow: 'Inventory Tool',
+        eyebrow: '03',
         title: 'Value My Inventory',
         desc: 'Calculate how much your MM2 inventory is worth using current market data.',
         meta: 'Track totals · watch allocation',
       },
       {
         id: 'board',
-        eyebrow: 'Price Board',
+        eyebrow: '04',
         title: 'Browse the Board',
         desc: 'Scan live MM2 values, recent movement, and underpriced items in one place.',
         meta: `${items.length} tracked items · refreshed ${formatTimestamp(marketData.refreshedAt)}`,
@@ -1690,13 +1690,13 @@ export default function App() {
       <section className="gw-home">
         <div className="gw-home-hero">
           <div className="gw-home-copy">
-            <span className="gw-home-kicker">MM2 tools, values, and marketplace tracking</span>
+            <span className="gw-home-kicker">MM2 value board · trade tools · marketplace watch</span>
             <h1 className="gw-home-title">
               Find underpriced MM2 items, check trades, and avoid overpaying.
             </h1>
             <p className="gw-home-sub">
-              GodlyWatch brings together live values, trade checking, inventory totals, and your item marketplace
-              so new visitors immediately know where to go.
+              GodlyWatch gives you a cleaner way to move through MM2: check a trade, spot cheap listings,
+              value your inventory, or scan the full board without getting lost.
             </p>
             <div className="gw-home-cta-row">
               <button className="gw-home-primary" onClick={() => setActiveTab('trade-checker')}>
@@ -1706,26 +1706,43 @@ export default function App() {
                 Find Cheap Items
               </button>
             </div>
+            <div className="gw-home-pulse">
+              <span className="gw-home-pulse-chip">{items.length} tracked items</span>
+              <span className="gw-home-pulse-chip">{recentMoves.length} movers today</span>
+              <span className="gw-home-pulse-chip">{ebayCoveragePct}% eBay coverage</span>
+            </div>
           </div>
 
-          <aside className="gw-home-stats">
-            <div className="gw-home-stat">
-              <span className="gw-home-stat-value">{items.length}</span>
-              <span className="gw-home-stat-label">tracked items</span>
+          <aside className="gw-home-quickstart">
+            <div className="gw-home-quickstart-head">
+              <span className="gw-home-quickstart-label">Start here</span>
+              <strong>Pick what you need</strong>
             </div>
-            <div className="gw-home-stat">
-              <span className="gw-home-stat-value">{SHOP_LISTINGS.length}</span>
-              <span className="gw-home-stat-label">shop listings</span>
-            </div>
-            <div className="gw-home-stat">
-              <span className="gw-home-stat-value">{recentMoves.length}</span>
-              <span className="gw-home-stat-label">recent movers</span>
-            </div>
-            <div className="gw-home-stat">
-              <span className="gw-home-stat-value">{ebayCoveragePct}%</span>
-              <span className="gw-home-stat-label">eBay coverage</span>
-            </div>
+            <button className="gw-home-quick-action" onClick={() => setActiveTab('trade-checker')}>
+              <span className="gw-home-quick-action-title">Trade Checker</span>
+              <span className="gw-home-quick-action-copy">See whether your trade is a win or loss.</span>
+            </button>
+            <button className="gw-home-quick-action" onClick={() => setActiveTab('inventory-tracker')}>
+              <span className="gw-home-quick-action-title">Inventory Value</span>
+              <span className="gw-home-quick-action-copy">Add your items and total them up fast.</span>
+            </button>
+            <button className="gw-home-quick-action" onClick={() => setActiveTab('marketplace')}>
+              <span className="gw-home-quick-action-title">Cheap Listings</span>
+              <span className="gw-home-quick-action-copy">
+                {cheapestListing ? `Current floor starts at €${cheapestListing.price.toFixed(2)}.` : 'Jump into live eBay listings.'}
+              </span>
+            </button>
           </aside>
+        </div>
+
+        <div className="gw-home-strip">
+          <div className="gw-home-strip-copy">
+            <span className="gw-home-strip-label">What you can do</span>
+            <h2>One place for values, trades, inventory, and cheap MM2 listings.</h2>
+          </div>
+          <button className="gw-home-strip-link" onClick={() => setActiveTab('board')}>
+            Open full board →
+          </button>
         </div>
 
         <div className="gw-home-grid">
@@ -1736,6 +1753,7 @@ export default function App() {
               onClick={() => setActiveTab(card.id)}
             >
               <span className="gw-home-card-eyebrow">{card.eyebrow}</span>
+              <div className="gw-home-card-topline" />
               <h2 className="gw-home-card-title">{card.title}</h2>
               <p className="gw-home-card-desc">{card.desc}</p>
               <div className="gw-home-card-foot">
