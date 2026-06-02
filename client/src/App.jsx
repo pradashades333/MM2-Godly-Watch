@@ -1844,7 +1844,7 @@ export default function App() {
         </div>
 
         <div className="gw-home-grid">
-          {displayHomeCards.map((card) => (
+          {homeCards.map((card) => (
             <button
               key={card.id}
               className="gw-home-card"
