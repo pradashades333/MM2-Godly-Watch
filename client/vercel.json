@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/board",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/trade-checker",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/inventory",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/marketplace",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/seller-dashboard",
+      "destination": "/index.html"
+    }
+  ]
+}

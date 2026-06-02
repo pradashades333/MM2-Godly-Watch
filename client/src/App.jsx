@@ -118,6 +118,29 @@ const TABS = [
   { id: "seller-dashboard", label: "Seller Dashboard" }
 ];
 
+const TAB_PATHS = {
+  home: "/",
+  board: "/board",
+  "trade-checker": "/trade-checker",
+  "inventory-tracker": "/inventory",
+  marketplace: "/marketplace",
+  "seller-dashboard": "/seller-dashboard",
+};
+
+const PATH_TO_TAB = Object.fromEntries(
+  Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab])
+);
+
+function normalizePathname(pathname) {
+  if (!pathname || pathname === "/") return "/";
+  return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+}
+
+function getTabFromLocation() {
+  const pathname = normalizePathname(window.location.pathname);
+  return PATH_TO_TAB[pathname] || "home";
+}
+
 const FAVORITES_STORAGE_KEY = "mm2-goldywatch-favorites";
 const INVENTORY_STORAGE_KEY  = "mm2-goldywatch-inventory";
 const TRADE_SLOT_COUNT = 4;
@@ -546,7 +569,7 @@ function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChan
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState(getTabFromLocation);
   const [marketData, setMarketData] = useState({ items: [], refreshedAt: null });
   const [serverStats, setServerStats] = useState(null);
   const [recentMoves, setRecentMoves] = useState([]);
@@ -605,8 +628,32 @@ export default function App() {
     [items]
   );
 
+  function navigateToTab(tabId, { replace = false } = {}) {
+    const path = TAB_PATHS[tabId] || TAB_PATHS.home;
+    const nextUrl = `${path}${window.location.hash || ""}`;
+    const historyMethod = replace ? "replaceState" : "pushState";
+    window.history[historyMethod]({}, "", nextUrl);
+    setActiveTab(tabId);
+  }
+
   useEffect(() => {
     loadDashboard();
+  }, []);
+
+  useEffect(() => {
+    const currentPath = normalizePathname(window.location.pathname);
+    const resolvedTab = PATH_TO_TAB[currentPath];
+    if (!resolvedTab) {
+      navigateToTab("home", { replace: true });
+      return undefined;
+    }
+
+    const handlePopState = () => {
+      setActiveTab(getTabFromLocation());
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   useEffect(() => {
@@ -630,8 +677,7 @@ export default function App() {
       setOrderRef(shortRef);
       setCheckoutOpen(true);
       setOrderStatus('success');
-      setActiveTab('marketplace');
-      window.history.replaceState({}, '', window.location.pathname);
+      navigateToTab('marketplace', { replace: true });
     }
   }, []);
 
@@ -1701,10 +1747,10 @@ export default function App() {
               value your inventory, or scan the full board without getting lost.
             </p>
             <div className="gw-home-cta-row">
-              <button className="gw-home-primary" onClick={() => setActiveTab('trade-checker')}>
+              <button className="gw-home-primary" onClick={() => navigateToTab('trade-checker')}>
                 Check a Trade
               </button>
-              <button className="gw-home-secondary" onClick={() => setActiveTab('marketplace')}>
+              <button className="gw-home-secondary" onClick={() => navigateToTab('marketplace')}>
                 Find Cheap Items
               </button>
             </div>
@@ -1720,15 +1766,15 @@ export default function App() {
               <span className="gw-home-quickstart-label">Start here</span>
               <strong>Pick what you need</strong>
             </div>
-            <button className="gw-home-quick-action" onClick={() => setActiveTab('trade-checker')}>
+            <button className="gw-home-quick-action" onClick={() => navigateToTab('trade-checker')}>
               <span className="gw-home-quick-action-title">Trade Checker</span>
               <span className="gw-home-quick-action-copy">See whether your trade is a win or loss.</span>
             </button>
-            <button className="gw-home-quick-action" onClick={() => setActiveTab('inventory-tracker')}>
+            <button className="gw-home-quick-action" onClick={() => navigateToTab('inventory-tracker')}>
               <span className="gw-home-quick-action-title">Inventory Value</span>
               <span className="gw-home-quick-action-copy">Add your items and total them up fast.</span>
             </button>
-            <button className="gw-home-quick-action" onClick={() => setActiveTab('marketplace')}>
+            <button className="gw-home-quick-action" onClick={() => navigateToTab('marketplace')}>
               <span className="gw-home-quick-action-title">Cheap Listings</span>
               <span className="gw-home-quick-action-copy">
                 {cheapestListing ? `Current floor starts at €${cheapestListing.price.toFixed(2)}.` : 'Jump into live eBay listings.'}
@@ -1742,7 +1788,7 @@ export default function App() {
             <span className="gw-home-strip-label">What you can do</span>
             <h2>One place for values, trades, inventory, and cheap MM2 listings.</h2>
           </div>
-          <button className="gw-home-strip-link" onClick={() => setActiveTab('board')}>
+          <button className="gw-home-strip-link" onClick={() => navigateToTab('board')}>
             Open full board →
           </button>
         </div>
@@ -1752,7 +1798,7 @@ export default function App() {
             <button
               key={card.id}
               className="gw-home-card"
-              onClick={() => setActiveTab(card.id)}
+              onClick={() => navigateToTab(card.id)}
             >
               <span className="gw-home-card-eyebrow">{card.eyebrow}</span>
               <div className="gw-home-card-topline" />
@@ -1783,7 +1829,7 @@ export default function App() {
               <button
                 key={tab.id}
                 className={`gw-nav-pill${activeTab === tab.id ? ' active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => navigateToTab(tab.id)}
               >
                 {tab.label}
               </button>
