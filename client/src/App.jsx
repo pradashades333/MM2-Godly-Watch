@@ -588,9 +588,11 @@ export default function App() {
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
   const derivedStats = calculateMarketStats(items);
-  const ebayCoveragePct = items.length
-    ? Math.round(((derivedStats?.itemsWithEbay ?? 0) / items.length) * 100)
-    : 0;
+  const homeTrackedItems = serverStats?.totalItems ?? marketData.items?.length ?? null;
+  const homeRecentMoves = Array.isArray(recentMoves) ? recentMoves.length : null;
+  const ebayCoveragePct = serverStats?.totalItems
+    ? Math.round(((serverStats?.itemsWithEbayPrice ?? 0) / serverStats.totalItems) * 100)
+    : null;
 
   const itemLookup = useMemo(
     () => new Map(items.map((item) => [item.id, item])),
@@ -1707,9 +1709,9 @@ export default function App() {
               </button>
             </div>
             <div className="gw-home-pulse">
-              <span className="gw-home-pulse-chip">{items.length} tracked items</span>
-              <span className="gw-home-pulse-chip">{recentMoves.length} movers today</span>
-              <span className="gw-home-pulse-chip">{ebayCoveragePct}% eBay coverage</span>
+              <span className="gw-home-pulse-chip">{homeTrackedItems ?? '--'} tracked items</span>
+              <span className="gw-home-pulse-chip">{homeRecentMoves ?? '--'} movers today</span>
+              <span className="gw-home-pulse-chip">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'} eBay coverage</span>
             </div>
           </div>
 
