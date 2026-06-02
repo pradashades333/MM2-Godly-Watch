@@ -123,7 +123,7 @@ const TAB_PATHS = {
   board: "/board",
   "trade-checker": "/trade-checker",
   "inventory-tracker": "/inventory",
-  marketplace: "/market",
+  marketplace: "/marketplace",
   "seller-dashboard": "/seller-dashboard",
 };
 
@@ -1800,7 +1800,7 @@ export default function App() {
       <section className="gw-home">
         <div className="gw-home-hero">
           <div className="gw-home-copy">
-            <span className="gw-home-kicker">MM2 values, trades, and marketplace watch</span>
+            <span className="gw-home-kicker">GodlyWatch board</span>
             <h1 className="gw-home-title">
               MM2 values, trades, and cheap listings in one board.
             </h1>
@@ -1822,21 +1822,21 @@ export default function App() {
             </div>
             <div className="gw-home-mini-grid">
               <div className="gw-home-mini-card">
-                <span className="gw-home-mini-label">Cheapest pull</span>
+                <span className="gw-home-mini-label">Cheapest listing</span>
                 <strong className="gw-home-mini-value">{cheapestListing?.name ?? 'Loading'}</strong>
-                <span className="gw-home-mini-sub">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)} live on eBay` : 'Scanning live listings'}</span>
+                <span className="gw-home-mini-sub">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)} on eBay right now` : 'Scanning live listings'}</span>
               </div>
               <div className="gw-home-mini-card">
-                <span className="gw-home-mini-label">Board signal</span>
+                <span className="gw-home-mini-label">Best board gap</span>
                 <strong className="gw-home-mini-value">{bestValueGap ? `${bestValueGap.gapPct}% gap` : 'No gap yet'}</strong>
-                <span className="gw-home-mini-sub">{bestValueGap ? `${bestValueGap.name} is trading under board price` : 'Waiting for a stronger underpriced listing'}</span>
+                <span className="gw-home-mini-sub">{bestValueGap ? `${bestValueGap.name} is below board value` : 'Waiting for a stronger underpriced listing'}</span>
               </div>
             </div>
           </div>
 
           <aside className="gw-home-snapshot">
             <div className="gw-home-snapshot-head">
-              <span className="gw-home-snapshot-label">Live Market Snapshot</span>
+              <span className="gw-home-snapshot-label">Live market snapshot</span>
               <strong className="gw-home-snapshot-price">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</strong>
               <span className="gw-home-snapshot-sub">{cheapestListing?.name ?? 'Cheapest live listing'}</span>
             </div>
@@ -1856,16 +1856,13 @@ export default function App() {
               <span className="gw-home-snapshot-key">eBay coverage</span>
               <span className="gw-home-snapshot-value">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</span>
             </div>
-            <div className="gw-home-snapshot-note">
-              Board value and live listing prices are tracked side by side so you can spot weak listings faster.
-            </div>
           </aside>
         </div>
 
         <div className="gw-home-strip">
           <div className="gw-home-strip-copy">
             <span className="gw-home-strip-label">Tools</span>
-            <h2>Jump straight into the part of the market you need.</h2>
+            <h2>Open the board, price a trade, or scan cheap listings fast.</h2>
           </div>
           <button className="gw-home-strip-link" onClick={() => navigateToTab('board')}>
             Open full board {'->'}
