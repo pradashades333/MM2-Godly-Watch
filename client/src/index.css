@@ -382,25 +382,25 @@ select {
   margin-bottom: 10px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--tier-chroma);
 }
 .gw-home-title {
   margin: 0 0 12px;
-  max-width: 11ch;
+  max-width: 9ch;
   font-family: 'Saira Condensed', 'Arial Narrow', sans-serif;
-  font-size: clamp(2.15rem, 3.4vw, 3.05rem);
-  line-height: 0.92;
+  font-size: clamp(1.95rem, 3vw, 2.65rem);
+  line-height: 0.95;
   letter-spacing: -0.02em;
   color: var(--ink);
 }
 .gw-home-sub {
-  max-width: 50ch;
+  max-width: 47ch;
   margin: 0 0 16px;
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
   font-size: 14px;
-  line-height: 1.5;
-  color: #a8b4c7;
+  line-height: 1.45;
+  color: #9eabc1;
 }
 .gw-home-cta-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .gw-home-primary,
@@ -434,8 +434,8 @@ select {
 .gw-home-pulse-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 0 9px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.07);
   background: rgba(255,255,255,0.02);
@@ -444,40 +444,35 @@ select {
   letter-spacing: 0.04em;
   color: #bcc6d8;
 }
-.gw-home-mini-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+.gw-home-tape {
   width: 100%;
   margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
-.gw-home-mini-card {
+.gw-home-tape-row {
   display: grid;
-  gap: 4px;
-  padding: 11px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(255,255,255,0.022);
+  grid-template-columns: 140px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 42px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.gw-home-mini-label {
+.gw-home-tape-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.03em;
-  color: #8abfbb;
+  color: #7f8da6;
 }
-.gw-home-mini-value {
+.gw-home-tape-value {
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.015em;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink);
 }
-.gw-home-mini-sub {
-  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 12px;
-  line-height: 1.45;
-  color: #8f9bb0;
+.gw-home-tape-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #c4cfdf;
 }
 .gw-home-snapshot {
   display: grid;
@@ -502,7 +497,7 @@ select {
 }
 .gw-home-snapshot-price {
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.03em;
@@ -551,9 +546,9 @@ select {
 }
 .gw-home-strip-copy h2 {
   margin: 0;
-  max-width: 22ch;
+  max-width: 18ch;
   font-family: 'Saira Condensed', 'Arial Narrow', sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1.02;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -583,7 +578,7 @@ select {
   position: relative;
   overflow: hidden;
   text-align: left;
-  padding: 18px;
+  padding: 16px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.06);
   background: linear-gradient(180deg, rgba(18,22,32,0.96), rgba(11,14,20,0.98));
@@ -608,36 +603,36 @@ select {
 .gw-home-card-topline {
   width: 34px;
   height: 2px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--up), var(--tier-chroma));
 }
 .gw-home-card-title {
   margin: 0 0 6px;
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--ink);
 }
 .gw-home-card-desc {
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #aab5c8;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #9facc0;
 }
 .gw-home-card-preview {
   display: grid;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 .gw-home-card-preview-row {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  padding-top: 8px;
+  padding-top: 7px;
   border-top: 1px solid rgba(255,255,255,0.05);
 }
 .gw-home-card-preview-label {
@@ -2598,7 +2593,7 @@ select {
   .gw-home-title { max-width: none; font-size: clamp(2.35rem, 10vw, 3.05rem); }
   .gw-home-sub { font-size: 14px; }
   .gw-home-pulse { margin-top: 14px; }
-  .gw-home-mini-grid { grid-template-columns: 1fr; }
+  .gw-home-tape-row { grid-template-columns: 1fr; gap: 4px; padding: 8px 0; }
   .gw-home-strip { flex-direction: column; align-items: flex-start; }
   .gw-home-strip-copy h2 { max-width: none; font-size: 24px; }
   .gw-home-snapshot-value { font-size: 13px; }

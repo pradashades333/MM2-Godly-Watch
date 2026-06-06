@@ -1745,9 +1745,9 @@ export default function App() {
       {
         id: 'trade-checker',
         tone: 'trade',
-        eyebrow: 'Trade read',
+        eyebrow: 'Trade',
         title: 'Check a Trade',
-        desc: 'See if your trade is a W or L before you accept it.',
+        desc: 'Compare both sides fast before you accept.',
         preview: [
           { label: 'Your side', value: sampleTrade.have ? `SV ${sampleTrade.have.toLocaleString()}` : 'Add items' },
           { label: 'Their side', value: sampleTrade.want ? `SV ${sampleTrade.want.toLocaleString()}` : 'Compare live' },
@@ -1758,9 +1758,9 @@ export default function App() {
       {
         id: 'marketplace',
         tone: 'market',
-        eyebrow: 'Cheap watch',
+        eyebrow: 'Market',
         title: 'Find Cheap Items',
-        desc: 'See the cheapest MM2 items on eBay right now and jump straight to the listing.',
+        desc: 'Open the lowest live eBay listings right away.',
         preview: [
           { label: 'Item', value: cheapestListing?.name ?? 'Loading' },
           { label: 'Price', value: cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--' },
@@ -1771,9 +1771,9 @@ export default function App() {
       {
         id: 'inventory-tracker',
         tone: 'inventory',
-        eyebrow: 'Inventory total',
+        eyebrow: 'Inventory',
         title: 'Value My Inventory',
-        desc: 'Calculate how much your MM2 inventory is worth using current market data.',
+        desc: 'Total your inventory against current prices.',
         preview: [
           { label: 'Total', value: `EUR ${inventoryPreview.value.toFixed(2)}` },
           { label: 'Items', value: `${inventoryPreview.count} tracked` },
@@ -1784,9 +1784,9 @@ export default function App() {
       {
         id: 'board',
         tone: 'board',
-        eyebrow: 'Main board',
+        eyebrow: 'Board',
         title: 'Browse the Board',
-        desc: 'Scan live MM2 values, recent movement, and underpriced items in one place.',
+        desc: 'Track values, movement, and underpriced items.',
         preview: [
           { label: 'Tracked', value: `${homeTrackedItems ?? '--'} items` },
           { label: 'Filters', value: 'Chroma | Godly | Ancient' },
@@ -1800,12 +1800,12 @@ export default function App() {
       <section className="gw-home">
         <div className="gw-home-hero">
           <div className="gw-home-copy">
-            <span className="gw-home-kicker">GodlyWatch board</span>
+            <span className="gw-home-kicker">live mm2 board</span>
             <h1 className="gw-home-title">
-              MM2 values, trades, and cheap listings in one board.
+              Values, trades, and cheap listings.
             </h1>
             <p className="gw-home-sub">
-              Compare Supreme Values with live eBay prices, check trades, and find underpriced MM2 items faster.
+              One place to compare Supreme values, live eBay prices, trade totals, and inventory value.
             </p>
             <div className="gw-home-cta-row">
               <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
@@ -1820,16 +1820,21 @@ export default function App() {
               <span className="gw-home-pulse-chip">{homeRecentMoves ?? '--'} movers today</span>
               <span className="gw-home-pulse-chip">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'} eBay coverage</span>
             </div>
-            <div className="gw-home-mini-grid">
-              <div className="gw-home-mini-card">
-                <span className="gw-home-mini-label">Cheapest listing</span>
-                <strong className="gw-home-mini-value">{cheapestListing?.name ?? 'Loading'}</strong>
-                <span className="gw-home-mini-sub">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)} on eBay right now` : 'Scanning live listings'}</span>
+            <div className="gw-home-tape">
+              <div className="gw-home-tape-row">
+                <span className="gw-home-tape-label">Cheapest listing</span>
+                <span className="gw-home-tape-value">{cheapestListing?.name ?? 'Loading'}</span>
+                <span className="gw-home-tape-meta">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</span>
               </div>
-              <div className="gw-home-mini-card">
-                <span className="gw-home-mini-label">Best board gap</span>
-                <strong className="gw-home-mini-value">{bestValueGap ? `${bestValueGap.gapPct}% gap` : 'No gap yet'}</strong>
-                <span className="gw-home-mini-sub">{bestValueGap ? `${bestValueGap.name} is below board value` : 'Waiting for a stronger underpriced listing'}</span>
+              <div className="gw-home-tape-row">
+                <span className="gw-home-tape-label">Best board gap</span>
+                <span className="gw-home-tape-value">{bestValueGap?.name ?? 'No gap yet'}</span>
+                <span className="gw-home-tape-meta">{bestValueGap ? `${bestValueGap.gapPct}%` : '--'}</span>
+              </div>
+              <div className="gw-home-tape-row">
+                <span className="gw-home-tape-label">Last refresh</span>
+                <span className="gw-home-tape-value">{marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--'}</span>
+                <span className="gw-home-tape-meta">{homeTrackedItems ?? '--'} tracked</span>
               </div>
             </div>
           </div>
@@ -1861,8 +1866,8 @@ export default function App() {
 
         <div className="gw-home-strip">
           <div className="gw-home-strip-copy">
-            <span className="gw-home-strip-label">Tools</span>
-            <h2>Open the board, price a trade, or scan cheap listings fast.</h2>
+            <span className="gw-home-strip-label">Quick tools</span>
+            <h2>Open what you need.</h2>
           </div>
           <button className="gw-home-strip-link" onClick={() => navigateToTab('board')}>
             Open full board {'->'}
