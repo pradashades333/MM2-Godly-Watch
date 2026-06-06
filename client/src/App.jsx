@@ -601,6 +601,7 @@ export default function App() {
   const [mpSearch, setMpSearch] = useState('');
   const [mpTier, setMpTier] = useState('all');
   const [mpSort, setMpSort] = useState('price-asc');
+  const [homeBoardTier, setHomeBoardTier] = useState('chroma');
   const [cartItems, setCartItems] = useState(() => {
     try { return JSON.parse(localStorage.getItem('gw-cart')) || []; } catch { return []; }
   });
@@ -1834,20 +1835,41 @@ export default function App() {
     const howSteps = [
       {
         num: '01',
-        title: 'Pick your items',
-        desc: 'Search tracked items by name or tier and add them to a trade, inventory total, or live board check.',
+        title: 'Pick an item',
+        desc: 'Search any MM2 item or set and pull its live Supreme value instantly.',
       },
       {
         num: '02',
-        title: 'See live numbers',
-        desc: 'Compare Supreme values with live eBay listings and crunch totals in one screen.',
+        title: 'Compare live prices',
+        desc: 'See the cheapest eBay listings and the value gap side by side.',
       },
       {
         num: '03',
-        title: 'Trade with confidence',
-        desc: 'Know what is underpriced, who is up in a trade, and where to buy before you accept.',
+        title: 'Trade or list smarter',
+        desc: 'Confirm a fair trade or list at the right price with confidence.',
       },
     ];
+
+    const showcaseRows = {
+      chroma: [
+        { name: 'Full Chroma Set', sublabel: 'SETS', price: 'EUR 1.16', change: '—', up: true },
+        { name: 'Chroma Luger', sublabel: 'CHROMA', price: 'EUR 0.90', change: '—', up: true },
+        { name: 'Chroma Seer', sublabel: 'CHROMA', price: 'EUR 1.40', change: '↘', up: false },
+        { name: 'Chroma Gemstone', sublabel: 'CHROMA', price: 'EUR 2.10', change: '—', up: true },
+      ],
+      godly: [
+        { name: 'Luger Set', sublabel: 'SETS', price: 'EUR 6.25', change: '↗', up: true },
+        { name: 'Iceblaster', sublabel: 'GODLY', price: 'EUR 4.90', change: '↗', up: true },
+        { name: 'Hallowgun', sublabel: 'GODLY', price: 'EUR 1.16', change: '↗', up: true },
+        { name: 'Heart Wand', sublabel: 'GODLY', price: 'EUR 6.69', change: '—', up: true },
+      ],
+      ancient: [
+        { name: 'Bat', sublabel: 'ANCIENT', price: 'EUR 4.40', change: '↗', up: true },
+        { name: 'Eternal', sublabel: 'ANCIENT', price: 'EUR 88.00', change: '↘', up: false },
+        { name: 'Icepiercer', sublabel: 'ANCIENT', price: 'EUR 4.40', change: '—', up: true },
+        { name: 'Harvester Bundle', sublabel: 'ANCIENT', price: 'EUR 12.50', change: '↗', up: true },
+      ],
+    };
 
     return (
       <section className="gw-home">
@@ -1968,11 +1990,14 @@ export default function App() {
           </div>
         </section>
 
-        <section className="gw-home-how-wrap" id="how">
+        <section className="gw-home-how-wrap" id="how-it-works">
           <div className="gw-home-section gw-home-how">
             <div className="gw-home-section-head gw-home-section-head-center">
               <span className="gw-home-kicker">How it works</span>
-              <h2 className="gw-home-section-title">From guess to gain in three steps.</h2>
+              <h2 className="gw-home-section-title">From guess to gain.</h2>
+              <p className="gw-home-section-copy">
+                Search the item, compare the live prices, then make the trade or listing call with real numbers.
+              </p>
             </div>
 
             <div className="gw-home-how-grid">
@@ -1987,21 +2012,73 @@ export default function App() {
           </div>
         </section>
 
+        <section className="gw-home-section gw-home-board-showcase" id="board-preview">
+          <div className="gw-home-board-layout">
+            <div className="gw-home-board-copy">
+              <span className="gw-home-kicker">The board</span>
+              <h2 className="gw-home-section-title">Every tier, one live table.</h2>
+              <p className="gw-home-section-copy">
+                Track Chroma, Godly, and Ancient tiers in one place and compare values against live market movement without leaving the board.
+              </p>
+              <button className="gw-home-board-link" onClick={() => navigateToTab('board')}>
+                Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
+              </button>
+            </div>
+
+            <div className="gw-home-board-card">
+              <div className="gw-home-board-tabs" role="tablist" aria-label="Board tiers">
+                {[
+                  ['chroma', 'Chroma'],
+                  ['godly', 'Godly'],
+                  ['ancient', 'Ancient'],
+                ].map(([key, label]) => (
+                  <button
+                    key={key}
+                    role="tab"
+                    aria-selected={homeBoardTier === key}
+                    className={`gw-home-board-tab${homeBoardTier === key ? ' active' : ''}`}
+                    onClick={() => setHomeBoardTier(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="gw-home-board-rows">
+                {showcaseRows[homeBoardTier].map((row) => (
+                  <div key={row.name} className="gw-home-board-row">
+                    <div className="gw-home-board-row-left">
+                      <strong>{row.name}</strong>
+                      <span>{row.sublabel}</span>
+                    </div>
+                    <div className="gw-home-board-row-right">
+                      <strong>{row.price}</strong>
+                      <span className={`gw-home-board-chip${row.up ? ' up' : ' down'}`}>{row.change}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="gw-home-section" id="pricing">
           <div className="gw-home-cta-panel">
             <div className="gw-home-glow" aria-hidden="true" />
-            <h2 className="gw-home-cta-title">Start trading smarter today.</h2>
+            <span className="gw-home-kicker">Ready?</span>
+            <h2 className="gw-home-cta-title">Stop guessing. Start trading smarter.</h2>
             <p className="gw-home-section-copy">
-              The full value board is free to use, with no account required. Open it and see live prices in seconds.
+              Open the board, compare the live numbers, and move faster without bouncing between tabs.
             </p>
             <div className="gw-home-cta-row gw-home-cta-row-center">
               <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
                 Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
               </button>
-              <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
-                Check a Trade
-              </button>
+              <a className="gw-home-secondary gw-home-secondary-link" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">
+                Join the Discord
+              </a>
             </div>
+            <div className="gw-home-subnote">Free to use · No account needed</div>
           </div>
         </section>
 
@@ -2010,7 +2087,7 @@ export default function App() {
             <div className="gw-home-footer-brand">
               <div className="gw-home-footer-logo">
                 <span className="gw-home-footer-logo-box">↗</span>
-                <strong>MM2 Board</strong>
+                <strong>godlywatch</strong>
               </div>
               <p>
                 Live values, trades, and cheap listings for Murder Mystery 2. Not affiliated with Roblox.
@@ -2027,10 +2104,10 @@ export default function App() {
 
             <div className="gw-home-footer-links">
               <span>Resources</span>
-              <button onClick={() => jumpHomeSection('features')}>Value List</button>
-              <button onClick={() => jumpHomeSection('how')}>Tier Guide</button>
+              <button onClick={() => jumpHomeSection('how-it-works')}>How it works</button>
+              <button onClick={() => jumpHomeSection('board-preview')}>Tier guide</button>
               <button onClick={() => jumpHomeSection('market')}>Changelog</button>
-              <button onClick={() => jumpHomeSection('pricing')}>API</button>
+              <a href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">Discord</a>
             </div>
 
             <div className="gw-home-footer-links">
@@ -2043,8 +2120,8 @@ export default function App() {
           </div>
 
           <div className="gw-home-footer-bottom">
-            <span>© 2026 MM2 Board. All rights reserved.</span>
-            <span>Prices update every few minutes.</span>
+            <span>© 2026 godlywatch. Not affiliated with Roblox.</span>
+            <span>Updated 06 JUN · 21:29</span>
           </div>
         </footer>
       </section>
