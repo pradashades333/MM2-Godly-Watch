@@ -2132,24 +2132,24 @@ export default function App() {
     <div className="gw-page">
       {/* TopBar */}
       <header className="gw-topbar">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="gw-topbar-left">
           <div className="gw-wordmark">
             godly<span className="gw-wordmark-accent">watch</span>
             <span className="gw-wordmark-beta">BETA</span>
           </div>
-          <nav className="gw-nav">
-            {TABS.map(tab => (
-              <button
-                key={tab.id}
-                className={`gw-nav-pill${activeTab === tab.id ? ' active' : ''}`}
-                onClick={() => navigateToTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <nav className="gw-nav">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              className={`gw-nav-pill${activeTab === tab.id ? ' active' : ''}`}
+              onClick={() => navigateToTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <div className="gw-topbar-right">
         <a
           href="https://discord.gg/6Ad4YvhkDg"
           target="_blank"
