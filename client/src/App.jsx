@@ -1696,6 +1696,11 @@ export default function App() {
   }
 
   function renderHome() {
+    const jumpHomeSection = (id) => {
+      const node = document.getElementById(id);
+      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
     const cheapestListing = [...SHOP_LISTINGS]
       .map((listing) => {
         const marketItem = findMarketplaceItem(items, listing);
@@ -1741,165 +1746,307 @@ export default function App() {
     };
     const tradeResult = sampleTrade.have === sampleTrade.want ? 'Even' : sampleTrade.have > sampleTrade.want ? 'Win' : 'Loss';
 
+    const previewCandidates = recentMoves.length ? recentMoves : items.slice(0, 8);
+    const marketPreviewRows = previewCandidates.slice(0, 4).map((item, index) => {
+      const tier = deriveTier(item);
+      const ebayPrice = item.current?.ebay?.totalPrice;
+      const trend = getItemTrend(item);
+      const trendUp = trend >= 0;
+      const trendPct = `${trendUp ? '+' : '-'}${Math.abs(trend * 100).toFixed(1)}%`;
+      const fallbackNames = ['Hallowgun', 'Chroma Seer', 'Eternal', "Nik's Scythe"];
+      const fallbackTiers = ['Godly', 'Chroma', 'Ancient', 'Vintage'];
+      const fallbackPrices = ['EUR 1.16', 'EUR 42.50', 'EUR 88.00', 'EUR 12.30'];
+      const fallbackChange = ['+4.2%', '+1.8%', '-2.1%', '+0.6%'];
+
+      return {
+        name: item?.name ?? fallbackNames[index] ?? 'Market item',
+        tierLabel: item ? tier.label : fallbackTiers[index] ?? 'Godly',
+        tierColor: item ? tier.color : (
+          index === 1 ? 'var(--tier-chroma)' :
+          index === 2 ? 'var(--tier-ancient)' :
+          index === 3 ? 'var(--ink-faint)' :
+          'var(--tier-godly)'
+        ),
+        price: ebayPrice != null ? `EUR ${ebayPrice.toFixed(2)}` : (fallbackPrices[index] ?? '--'),
+        trend: item ? trendPct : (fallbackChange[index] ?? '--'),
+        trendUp: item ? trendUp : !(fallbackChange[index] ?? '').startsWith('-'),
+      };
+    });
+
+    const homeStats = [
+      { value: `${homeTrackedItems ?? '--'}`, label: 'Items tracked' },
+      { value: `${ebayCoveragePct ?? '--'}%`, label: 'eBay coverage' },
+      { value: `${homeRecentMoves ?? '--'}`, label: 'Movers today' },
+      { value: '24/7', label: 'Live updates' },
+    ];
+
     const homeCards = [
       {
         id: 'trade-checker',
-        tone: 'trade',
         eyebrow: 'Trade',
         title: 'Check a Trade',
-        desc: 'Compare both sides fast before you accept.',
+        desc: 'Add items to both sides and see who is winning fast.',
         preview: [
           { label: 'Your side', value: sampleTrade.have ? `SV ${sampleTrade.have.toLocaleString()}` : 'Add items' },
           { label: 'Their side', value: sampleTrade.want ? `SV ${sampleTrade.want.toLocaleString()}` : 'Compare live' },
           { label: 'Result', value: tradeResult },
         ],
-        meta: 'Live Supreme comparison',
+        cta: 'Live Supreme comparison',
       },
       {
         id: 'marketplace',
-        tone: 'market',
         eyebrow: 'Market',
         title: 'Find Cheap Items',
-        desc: 'Open the lowest live eBay listings right away.',
+        desc: 'Jump to the lowest live eBay listings without digging around.',
         preview: [
           { label: 'Item', value: cheapestListing?.name ?? 'Loading' },
           { label: 'Price', value: cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--' },
           { label: 'Listings', value: `${SHOP_LISTINGS.length} live` },
         ],
-        meta: 'Direct eBay listings',
+        cta: 'Direct eBay listings',
       },
       {
         id: 'inventory-tracker',
-        tone: 'inventory',
         eyebrow: 'Inventory',
         title: 'Value My Inventory',
-        desc: 'Total your inventory against current prices.',
+        desc: 'Total every item against current prices in one pass.',
         preview: [
           { label: 'Total', value: `EUR ${inventoryPreview.value.toFixed(2)}` },
           { label: 'Items', value: `${inventoryPreview.count} tracked` },
           { label: 'Source', value: 'Live eBay' },
         ],
-        meta: 'Portfolio-style value check',
+        cta: 'Portfolio value check',
       },
       {
         id: 'board',
-        tone: 'board',
         eyebrow: 'Board',
         title: 'Browse the Board',
-        desc: 'Track values, movement, and underpriced items.',
+        desc: 'Track values, movement, and underpriced items across the main tiers.',
         preview: [
           { label: 'Tracked', value: `${homeTrackedItems ?? '--'} items` },
           { label: 'Filters', value: 'Chroma | Godly | Ancient' },
           { label: 'Updated', value: marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--' },
         ],
-        meta: 'Board filters and live movement',
+        cta: 'Filters and live movement',
+      },
+    ];
+
+    const howSteps = [
+      {
+        num: '01',
+        title: 'Pick your items',
+        desc: 'Search tracked items by name or tier and add them to a trade, inventory total, or live board check.',
+      },
+      {
+        num: '02',
+        title: 'See live numbers',
+        desc: 'Compare Supreme values with live eBay listings and crunch totals in one screen.',
+      },
+      {
+        num: '03',
+        title: 'Trade with confidence',
+        desc: 'Know what is underpriced, who is up in a trade, and where to buy before you accept.',
       },
     ];
 
     return (
       <section className="gw-home">
-        <div className="gw-home-hero">
-          <div className="gw-home-copy">
-            <span className="gw-home-kicker">live mm2 board</span>
-            <h1 className="gw-home-title">
-              Values, trades, and cheap listings.
-            </h1>
-            <p className="gw-home-sub">
-              One place to compare Supreme values, live eBay prices, trade totals, and inventory value.
+        <section className="gw-home-section gw-home-hero-shell">
+          <div className="gw-home-glow" aria-hidden="true" />
+          <div className="gw-home-hero">
+            <div className="gw-home-copy">
+              <span className="gw-home-live-pill">
+                <span className="gw-home-live-dot" />
+                276 items tracked live
+              </span>
+              <h1 className="gw-home-title">
+                Know what every MM2 item is <span>really worth.</span>
+              </h1>
+              <p className="gw-home-sub">
+                Compare Supreme values, live eBay prices, and trade totals in one place. Spot underpriced listings and value your whole inventory in seconds.
+              </p>
+              <div className="gw-home-cta-row">
+                <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
+                  Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
+                </button>
+                <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
+                  Check a Trade
+                </button>
+              </div>
+              <div className="gw-home-subnote">
+                Free to use · No account needed · Updated {marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--'}
+              </div>
+            </div>
+
+            <aside className="gw-home-market-card" id="market">
+              <div className="gw-home-market-head">
+                <div>
+                  <span className="gw-home-kicker">Live market</span>
+                  <p className="gw-home-market-subhead">Top movers today</p>
+                </div>
+                <span className="gw-home-market-live">
+                  <span className="gw-home-market-live-dot" />
+                  Live
+                </span>
+              </div>
+
+              <div className="gw-home-market-list">
+                {marketPreviewRows.map((row) => (
+                  <div key={row.name} className="gw-home-market-row">
+                    <div className="gw-home-market-item">
+                      <strong>{row.name}</strong>
+                      <span style={{ color: row.tierColor }}>{row.tierLabel}</span>
+                    </div>
+                    <div className="gw-home-market-side">
+                      <strong>{row.price}</strong>
+                      <span className={`gw-home-market-trend${row.trendUp ? ' up' : ' down'}`}>
+                        <span>{row.trendUp ? '↗' : '↘'}</span>
+                        <span>{row.trend}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="gw-home-market-foot">
+                <span>eBay coverage</span>
+                <strong>{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</strong>
+              </div>
+
+              <div className="gw-home-floating-stat">
+                <span>Cheapest listing</span>
+                <strong>{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</strong>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="gw-home-stats-bar">
+          <div className="gw-home-stats-grid">
+            {homeStats.map((stat) => (
+              <div key={stat.label} className="gw-home-stat-cell">
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="gw-home-section" id="features">
+          <div className="gw-home-section-head gw-home-section-head-center">
+            <span className="gw-home-kicker">Everything in one board</span>
+            <h2 className="gw-home-section-title">Built for traders who hate guessing.</h2>
+            <p className="gw-home-section-copy">
+              Stop bouncing between random value lists, Discord messages, and eBay tabs just to price one trade.
             </p>
-            <div className="gw-home-cta-row">
+          </div>
+
+          <div className="gw-home-feature-grid">
+            {homeCards.map((card) => (
+              <button
+                key={card.id}
+                className="gw-home-feature-card"
+                onClick={() => navigateToTab(card.id)}
+              >
+                <div className="gw-home-feature-icon">{card.eyebrow.slice(0, 1)}</div>
+                <span className="gw-home-feature-eyebrow">{card.eyebrow}</span>
+                <h3 className="gw-home-feature-title">{card.title}</h3>
+                <p className="gw-home-feature-desc">{card.desc}</p>
+                <div className="gw-home-card-preview">
+                  {card.preview.map((row) => (
+                    <div key={row.label} className="gw-home-card-preview-row">
+                      <span className="gw-home-card-preview-label">{row.label}</span>
+                      <span className="gw-home-card-preview-value">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="gw-home-feature-link">
+                  {card.cta} <span className="gw-home-inline-arrow">-&gt;</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="gw-home-how-wrap" id="how">
+          <div className="gw-home-section gw-home-how">
+            <div className="gw-home-section-head gw-home-section-head-center">
+              <span className="gw-home-kicker">How it works</span>
+              <h2 className="gw-home-section-title">From guess to gain in three steps.</h2>
+            </div>
+
+            <div className="gw-home-how-grid">
+              {howSteps.map((step) => (
+                <div key={step.num} className="gw-home-how-card">
+                  <span className="gw-home-how-num">{step.num}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="gw-home-section" id="pricing">
+          <div className="gw-home-cta-panel">
+            <div className="gw-home-glow" aria-hidden="true" />
+            <h2 className="gw-home-cta-title">Start trading smarter today.</h2>
+            <p className="gw-home-section-copy">
+              The full value board is free to use, with no account required. Open it and see live prices in seconds.
+            </p>
+            <div className="gw-home-cta-row gw-home-cta-row-center">
               <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
-                Open Value Board
+                Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
               </button>
               <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
                 Check a Trade
               </button>
             </div>
-            <div className="gw-home-pulse">
-              <span className="gw-home-pulse-chip">{homeTrackedItems ?? '--'} tracked items</span>
-              <span className="gw-home-pulse-chip">{homeRecentMoves ?? '--'} movers today</span>
-              <span className="gw-home-pulse-chip">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'} eBay coverage</span>
+          </div>
+        </section>
+
+        <footer className="gw-home-footer">
+          <div className="gw-home-footer-grid">
+            <div className="gw-home-footer-brand">
+              <div className="gw-home-footer-logo">
+                <span className="gw-home-footer-logo-box">↗</span>
+                <strong>MM2 Board</strong>
+              </div>
+              <p>
+                Live values, trades, and cheap listings for Murder Mystery 2. Not affiliated with Roblox.
+              </p>
             </div>
-            <div className="gw-home-tape">
-              <div className="gw-home-tape-row">
-                <span className="gw-home-tape-label">Cheapest listing</span>
-                <span className="gw-home-tape-value">{cheapestListing?.name ?? 'Loading'}</span>
-                <span className="gw-home-tape-meta">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</span>
-              </div>
-              <div className="gw-home-tape-row">
-                <span className="gw-home-tape-label">Best board gap</span>
-                <span className="gw-home-tape-value">{bestValueGap?.name ?? 'No gap yet'}</span>
-                <span className="gw-home-tape-meta">{bestValueGap ? `${bestValueGap.gapPct}%` : '--'}</span>
-              </div>
-              <div className="gw-home-tape-row">
-                <span className="gw-home-tape-label">Last refresh</span>
-                <span className="gw-home-tape-value">{marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--'}</span>
-                <span className="gw-home-tape-meta">{homeTrackedItems ?? '--'} tracked</span>
-              </div>
+
+            <div className="gw-home-footer-links">
+              <span>Product</span>
+              <button onClick={() => navigateToTab('board')}>Value Board</button>
+              <button onClick={() => navigateToTab('trade-checker')}>Check a Trade</button>
+              <button onClick={() => navigateToTab('marketplace')}>Find Cheap Items</button>
+              <button onClick={() => navigateToTab('inventory-tracker')}>Inventory Value</button>
+            </div>
+
+            <div className="gw-home-footer-links">
+              <span>Resources</span>
+              <button onClick={() => jumpHomeSection('features')}>Value List</button>
+              <button onClick={() => jumpHomeSection('how')}>Tier Guide</button>
+              <button onClick={() => jumpHomeSection('market')}>Changelog</button>
+              <button onClick={() => jumpHomeSection('pricing')}>API</button>
+            </div>
+
+            <div className="gw-home-footer-links">
+              <span>Company</span>
+              <button onClick={() => navigateToTab('home')}>About</button>
+              <a href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">Discord</a>
+              <button onClick={() => jumpHomeSection('pricing')}>Contact</button>
+              <button onClick={() => jumpHomeSection('pricing')}>Terms</button>
             </div>
           </div>
 
-          <aside className="gw-home-snapshot">
-            <div className="gw-home-snapshot-head">
-              <span className="gw-home-snapshot-label">Live market snapshot</span>
-              <strong className="gw-home-snapshot-price">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</strong>
-              <span className="gw-home-snapshot-sub">{cheapestListing?.name ?? 'Cheapest live listing'}</span>
-            </div>
-            <div className="gw-home-snapshot-row">
-              <span className="gw-home-snapshot-key">Cheapest listing</span>
-              <span className="gw-home-snapshot-value">{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</span>
-            </div>
-            <div className="gw-home-snapshot-row">
-              <span className="gw-home-snapshot-key">Best value gap</span>
-              <span className="gw-home-snapshot-value">{bestValueGap ? `${bestValueGap.name} | ${bestValueGap.gapPct}%` : '--'}</span>
-            </div>
-            <div className="gw-home-snapshot-row">
-              <span className="gw-home-snapshot-key">Movers today</span>
-              <span className="gw-home-snapshot-value">{homeRecentMoves ?? '--'}</span>
-            </div>
-            <div className="gw-home-snapshot-row">
-              <span className="gw-home-snapshot-key">eBay coverage</span>
-              <span className="gw-home-snapshot-value">{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</span>
-            </div>
-          </aside>
-        </div>
-
-        <div className="gw-home-strip">
-          <div className="gw-home-strip-copy">
-            <span className="gw-home-strip-label">Quick tools</span>
-            <h2>Open what you need.</h2>
+          <div className="gw-home-footer-bottom">
+            <span>© 2026 MM2 Board. All rights reserved.</span>
+            <span>Prices update every few minutes.</span>
           </div>
-          <button className="gw-home-strip-link" onClick={() => navigateToTab('board')}>
-            Open full board {'->'}
-          </button>
-        </div>
-
-        <div className="gw-home-grid">
-          {homeCards.map((card) => (
-            <button
-              key={card.id}
-              className={`gw-home-card gw-home-card-${card.tone}`}
-              onClick={() => navigateToTab(card.id)}
-            >
-              <span className="gw-home-card-eyebrow">{card.eyebrow}</span>
-              <div className="gw-home-card-topline" />
-              <h2 className="gw-home-card-title">{card.title}</h2>
-              <p className="gw-home-card-desc">{card.desc}</p>
-              <div className="gw-home-card-preview">
-                {card.preview.map((row) => (
-                  <div key={row.label} className="gw-home-card-preview-row">
-                    <span className="gw-home-card-preview-label">{row.label}</span>
-                    <span className="gw-home-card-preview-value">{row.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="gw-home-card-foot">
-                <span className="gw-home-card-meta">{card.meta}</span>
-                <span className="gw-home-card-arrow">{'->'}</span>
-              </div>
-            </button>
-          ))}
-        </div>
+        </footer>
       </section>
     );
   }
