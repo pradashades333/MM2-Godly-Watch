@@ -1,2 +1,3 @@
 - [2026-06-04 14:25:43+02:00] checked watch list display.
 - [2026-06-05 15:00:48+02:00] tracked client cleanup pass.
+- [2026-06-08 17:35:53+02:00] reviewed item card refresh.
