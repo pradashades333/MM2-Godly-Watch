@@ -91,22 +91,38 @@ function dedupeQueries(queries) {
   return [...new Set(queries.filter(Boolean).map((query) => query.trim()))];
 }
 
+function expandChromaAlias(name) {
+  const baseName = String(name || "").trim();
+  if (!baseName) return baseName;
+  return baseName.replace(/\bC\.\s*/gi, "Chroma ");
+}
+
 function buildSearchNameVariants(itemName) {
   const baseName = String(itemName || "").replace(/\s+/g, " ").trim();
+  const chromaExpanded = expandChromaAlias(baseName);
   const withoutParentheses = baseName.replace(/\s*\([^)]*\)/g, "").trim();
+  const chromaWithoutParentheses = expandChromaAlias(withoutParentheses);
   const parentheticalAsWords = baseName
     .replace(/\(([^)]+)\)/g, " $1 ")
     .replace(/\s+/g, " ")
     .trim();
+  const chromaParentheticalAsWords = expandChromaAlias(parentheticalAsWords);
   const withoutApostrophes = baseName.replace(/['']/g, "").trim();
+  const chromaWithoutApostrophes = expandChromaAlias(withoutApostrophes);
   const possessiveAsPlural = baseName.replace(/['']s\b/gi, "s").trim();
+  const chromaPossessiveAsPlural = expandChromaAlias(possessiveAsPlural);
 
   return dedupeQueries([
     baseName,
+    chromaExpanded,
     withoutParentheses,
+    chromaWithoutParentheses,
     parentheticalAsWords,
+    chromaParentheticalAsWords,
     withoutApostrophes,
-    possessiveAsPlural
+    chromaWithoutApostrophes,
+    possessiveAsPlural,
+    chromaPossessiveAsPlural
   ]);
 }
 
@@ -210,11 +226,12 @@ function pickBestListing(listings, itemName, category = null) {
 
 async function fetchEbayForItem(itemName, customQueries = [], category = null) {
   const token = await getEbayAccessToken();
+  const nameVariants = buildSearchNameVariants(itemName);
 
   const primaryQueries =
     customQueries.length > 0
       ? dedupeQueries(customQueries)
-      : [`Murder Mystery 2 ${itemName}`];
+      : dedupeQueries(nameVariants.map((name) => `Murder Mystery 2 ${name}`));
 
   const allListings = await fetchListingsForQueries(primaryQueries, token);
   let queriesUsed = [...primaryQueries];

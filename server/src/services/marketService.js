@@ -30,7 +30,7 @@ async function buildMarketData({ refreshEbay = true } = {}) {
 
     let ebayData = previousItem?.current?.ebay ?? null;
 
-    if (refreshEbay && sourceItem.category !== "chromas") {
+    if (refreshEbay) {
       let bestListing = null;
       try {
         const ebayResult = await ebayService.fetchEbayForItem(

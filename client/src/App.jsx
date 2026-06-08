@@ -114,8 +114,7 @@ const TABS = [
   { id: "board", label: "Board" },
   { id: "trade-checker", label: "Trade Checker" },
   { id: "inventory-tracker", label: "Inventory Tracker" },
-  { id: "marketplace", label: "Marketplace" },
-  { id: "seller-dashboard", label: "Seller Dashboard" }
+  { id: "marketplace", label: "Marketplace" }
 ];
 
 const TAB_PATHS = {
@@ -124,7 +123,6 @@ const TAB_PATHS = {
   "trade-checker": "/trade-checker",
   "inventory-tracker": "/inventory",
   marketplace: "/marketplace",
-  "seller-dashboard": "/seller-dashboard",
 };
 
 const PATH_TO_TAB = Object.fromEntries(
@@ -593,9 +591,6 @@ export default function App() {
   const [inventorySearch, setInventorySearch] = useState("");
   const [invTimeframe, setInvTimeframe] = useState('3M');
   const [invChartMode, setInvChartMode] = useState('eur');
-  const [announcementDismissed, setAnnouncementDismissed] = useState(
-    () => localStorage.getItem('gw-announce-v1') === '1'
-  );
   const [tradePickerState, setTradePickerState] = useState(null); // { sideKey, slotIndex }
   const [tradePickerSearch, setTradePickerSearch] = useState("");
   const [mpSearch, setMpSearch] = useState('');
@@ -1475,10 +1470,6 @@ export default function App() {
   }
 
   function renderMarketplace() {
-    const CHROMA_TOTAL = 10;
-    const CHROMA_CLAIMED = 3;
-    const chromaLeft = CHROMA_TOTAL - CHROMA_CLAIMED;
-
     const q = mpSearch.trim().toLowerCase();
     const filtered = q ? SHOP_LISTINGS.filter(l => l.name.toLowerCase().includes(q)) : SHOP_LISTINGS;
 
@@ -1511,21 +1502,6 @@ export default function App() {
     return (
       <section className="mp-wrap">
 
-        {/* Announcement strip */}
-        <div className="mkt-announce">
-          <span className="mkt-announce-dot" />
-          <span className="mkt-announce-copy">
-            <span className="mkt-cyan">free Chroma</span> for the first {CHROMA_TOTAL} eBay buyers —&nbsp;
-            <span className="mkt-scarcity-bar">
-              {Array.from({ length: CHROMA_TOTAL }).map((_, i) => (
-                <span key={i} className={`mkt-tick${i < chromaLeft ? ' active' : ''}`} />
-              ))}
-            </span>
-            &nbsp;<span className="mkt-cyan">{chromaLeft} left</span>, claim on Discord after buying
-          </span>
-          <a className="mkt-announce-join" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">join →</a>
-        </div>
-
         {/* Hero */}
         <div className="mkt-hero">
           <div className="mkt-hero-left">
@@ -1541,22 +1517,21 @@ export default function App() {
               Buy MM2 godlies,<br/><span className="mkt-accent">safely</span> &amp; fast.
             </h1>
             <p className="mkt-subhead">
-              Pay on <strong>eBay</strong>, get your item delivered over Discord. Robux accepted too — every trade tracked against live market value.
+              Pay on <strong>eBay</strong>, compare every listing against live market value, and claim your item fast after checkout.
             </p>
             <div className="mkt-steps">
               <span className="mkt-step"><span className="mkt-step-idx">01</span> browse listings</span>
               <span className="mkt-arrow">→</span>
-              <span className="mkt-step"><span className="mkt-step-idx">02</span> pay on eBay or DM for Robux</span>
+              <span className="mkt-step"><span className="mkt-step-idx">02</span> pay on eBay</span>
               <span className="mkt-arrow">→</span>
-              <span className="mkt-step"><span className="mkt-step-idx">03</span> join Discord &amp; claim</span>
+              <span className="mkt-step"><span className="mkt-step-idx">03</span> claim your item</span>
             </div>
             <div className="mkt-cta-row">
-              <a className="mkt-btn-primary" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">
-                <svg width="18" height="14" viewBox="0 0 20 15" fill="currentColor"><path d="M16.93 1.33A16.47 16.47 0 0 0 12.86.02a.06.06 0 0 0-.06.03 11.46 11.46 0 0 0-.51 1.04 15.21 15.21 0 0 0-4.57 0C7.54.7 7.3.2 7.19.05a.06.06 0 0 0-.06-.03 16.43 16.43 0 0 0-4.07 1.31.05.05 0 0 0-.03.02C.45 5.37-.27 9.3.08 13.17c0 .02.01.03.03.04a16.57 16.57 0 0 0 4.99 2.52.06.06 0 0 0 .07-.02c.38-.53.73-1.08 1.02-1.66a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.56-.74.06.06 0 0 1-.01-.1l.31-.24a.06.06 0 0 1 .06-.01c3.27 1.5 6.82 1.5 10.05 0a.06.06 0 0 1 .06.01l.31.25a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.02 1.66a.06.06 0 0 0 .07.02 16.52 16.52 0 0 0 5-2.52.06.06 0 0 0 .03-.04c.42-4.31-.7-8.21-2.96-11.6a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.82.91 1.8 2.01 0 1.11-.8 2.01-1.8 2.01zm6.65 0c-.99 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.81.91 1.8 2.01 0 1.11-.79 2.01-1.8 2.01z"/></svg>
-                Join Discord to buy with Robux
-              </a>
-              <button className="mkt-btn-secondary" onClick={() => document.getElementById('mp-listings')?.scrollIntoView({ behavior: 'smooth' })}>
+              <button className="mkt-btn-primary" onClick={() => document.getElementById('mp-listings')?.scrollIntoView({ behavior: 'smooth' })}>
                 ↓ browse {SHOP_LISTINGS.length} listings
+              </button>
+              <button className="mkt-btn-secondary" onClick={() => navigateToTab('board')}>
+                open value board
               </button>
             </div>
             <div className="mkt-hours">
@@ -1597,7 +1572,7 @@ export default function App() {
             <div className="mkt-proof-copy">
               <span className="mkt-proof-kicker">Proof</span>
               <h3>Real eBay store, real track record</h3>
-              <p>Buy through eBay first, then claim on eBay or in Discord for delivery and support.</p>
+              <p>Buy through eBay first, then use your order details to claim delivery and support.</p>
             </div>
           </div>
 
@@ -1619,8 +1594,8 @@ export default function App() {
             <div className="mkt-quick-pill">
               <span className="mkt-quick-num">03</span>
               <div>
-                <strong>Claim on eBay or Discord</strong>
-                <p>Use whichever is easier for delivery and support.</p>
+                <strong>Claim your item</strong>
+                <p>Use your order details for delivery and support.</p>
               </div>
             </div>
           </div>
@@ -1959,7 +1934,7 @@ export default function App() {
             <span className="gw-home-kicker">Everything in one board</span>
             <h2 className="gw-home-section-title">Built for traders who hate guessing.</h2>
             <p className="gw-home-section-copy">
-              Stop bouncing between random value lists, Discord messages, and eBay tabs just to price one trade.
+              Stop bouncing between random value lists, marketplace pages, and eBay tabs just to price one trade.
             </p>
           </div>
 
@@ -2074,9 +2049,9 @@ export default function App() {
               <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
                 Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
               </button>
-              <a className="gw-home-secondary gw-home-secondary-link" href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">
-                Join the Discord
-              </a>
+              <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
+                Check a Trade
+              </button>
             </div>
             <div className="gw-home-subnote">Free to use · No account needed</div>
           </div>
@@ -2107,13 +2082,13 @@ export default function App() {
               <button onClick={() => jumpHomeSection('how-it-works')}>How it works</button>
               <button onClick={() => jumpHomeSection('board-preview')}>Tier guide</button>
               <button onClick={() => jumpHomeSection('market')}>Changelog</button>
-              <a href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">Discord</a>
+              <button onClick={() => jumpHomeSection('pricing')}>Updates</button>
             </div>
 
             <div className="gw-home-footer-links">
               <span>Company</span>
               <button onClick={() => navigateToTab('home')}>About</button>
-              <a href="https://discord.gg/6Ad4YvhkDg" target="_blank" rel="noopener noreferrer">Discord</a>
+              <button onClick={() => jumpHomeSection('pricing')}>Privacy</button>
               <button onClick={() => jumpHomeSection('pricing')}>Contact</button>
               <button onClick={() => jumpHomeSection('pricing')}>Terms</button>
             </div>
@@ -2150,24 +2125,6 @@ export default function App() {
           ))}
         </nav>
         <div className="gw-topbar-right">
-        <a
-          href="https://discord.gg/6Ad4YvhkDg"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Join our Discord"
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-            background: '#5865F2', color: '#fff', textDecoration: 'none',
-            transition: 'opacity 120ms'
-          }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-        >
-          <svg width="24" height="18" viewBox="0 0 20 15" fill="currentColor">
-            <path d="M16.93 1.33A16.47 16.47 0 0 0 12.86.02a.06.06 0 0 0-.06.03 11.46 11.46 0 0 0-.51 1.04 15.21 15.21 0 0 0-4.57 0C7.54.7 7.3.2 7.19.05a.06.06 0 0 0-.06-.03 16.43 16.43 0 0 0-4.07 1.31.05.05 0 0 0-.03.02C.45 5.37-.27 9.3.08 13.17c0 .02.01.03.03.04a16.57 16.57 0 0 0 4.99 2.52.06.06 0 0 0 .07-.02c.38-.53.73-1.08 1.02-1.66a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.56-.74.06.06 0 0 1-.01-.1l.31-.24a.06.06 0 0 1 .06-.01c3.27 1.5 6.82 1.5 10.05 0a.06.06 0 0 1 .06.01l.31.25a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.02 1.66a.06.06 0 0 0 .07.02 16.52 16.52 0 0 0 5-2.52.06.06 0 0 0 .03-.04c.42-4.31-.7-8.21-2.96-11.6a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.82.91 1.8 2.01 0 1.11-.8 2.01-1.8 2.01zm6.65 0c-.99 0-1.8-.9-1.8-2.01s.8-2.01 1.8-2.01c1.01 0 1.81.91 1.8 2.01 0 1.11-.79 2.01-1.8 2.01z"/>
-          </svg>
-        </a>
         <div className="gw-search">
           <span className="gw-search-icon">⌕</span>
           <input
@@ -2201,29 +2158,6 @@ export default function App() {
           })}
         </div>
       </div>
-
-      {/* Promo announcement */}
-      {!announcementDismissed && (
-        <div className="gw-announce">
-          <span className="gw-announce-dot" />
-          <span className="gw-announce-text">
-            join the discord — only <strong style={{ color: 'var(--tier-vintage)' }}>7 Chromas left</strong> for early members 🔥
-          </span>
-          <a
-            className="gw-announce-btn"
-            href="https://discord.gg/6Ad4YvhkDg"
-            target="_blank"
-            rel="noopener noreferrer"
-          >join →</a>
-          <button
-            className="gw-announce-close"
-            onClick={() => {
-              localStorage.setItem('gw-announce-v1', '1');
-              setAnnouncementDismissed(true);
-            }}
-          >×</button>
-        </div>
-      )}
 
       {/* Banners */}
       {error ? <div className="gw-banner error">{error}</div> : null}
@@ -2357,18 +2291,6 @@ export default function App() {
             </div>
           ) : null}
 
-          {activeTab === "seller-dashboard" ? (
-            <div className="gw-tab-content">
-              <div className="gw-placeholder-panel">
-                <span className="gw-placeholder-badge">In Progress</span>
-                <h1 className="gw-placeholder-title">Seller Dashboard</h1>
-                <p className="gw-placeholder-text">
-                  Surface best eBay listings, watch targets, price mismatch alerts,
-                  and item-level selling signals built from your tracked market data.
-                </p>
-              </div>
-            </div>
-          ) : null}
         </>
       ) : null}
 

@@ -1,6 +1,7 @@
 function normalizeName(name) {
   return String(name || "")
     .toLowerCase()
+    .replace(/\bc\.\s*/g, "chroma ")
     .replace(/['â€˜â€™]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
