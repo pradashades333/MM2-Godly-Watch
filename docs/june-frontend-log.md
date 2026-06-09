@@ -12,3 +12,4 @@
 - [2026-06-30 12:50:38+02:00] noted loading state polish.
 - [2026-06-04 13:25:47+02:00] tracked client cleanup task.
 - [2026-06-06 18:10:12+02:00] tracked client cleanup task.
+- [2026-06-09 14:55:37+02:00] captured dashboard follow-up.
