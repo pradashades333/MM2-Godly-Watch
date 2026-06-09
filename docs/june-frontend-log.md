@@ -13,3 +13,4 @@
 - [2026-06-04 13:25:47+02:00] tracked client cleanup task.
 - [2026-06-06 18:10:12+02:00] tracked client cleanup task.
 - [2026-06-09 14:55:37+02:00] captured dashboard follow-up.
+- [2026-06-09 18:40:02+02:00] captured dashboard follow-up.
