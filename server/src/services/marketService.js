@@ -28,7 +28,7 @@ async function buildMarketData({ refreshEbay = true } = {}) {
     const trackedItem = findTrackedItemByName(sourceItem.name);
     const previousItem = previousMap.get(sourceItem.id);
 
-    let ebayData = previousItem?.current?.ebay ?? null;
+    let ebayData = previousItem?.current?.ebay ?? sourceItem.current?.ebay ?? null;
 
     if (refreshEbay) {
       let bestListing = null;
@@ -90,10 +90,20 @@ async function refreshMarketData() {
 async function getMarketData() {
   const items = await readHistory();
 
+  const chromaMap = new Map(chromaItems.map((c) => [c.id, c]));
+
+  // Overlay hardcoded eBay prices for chromas whose cached entry doesn't have one yet
+  const patchedItems = items.map((item) => {
+    if (item.current?.ebay != null) return item;
+    const chroma = chromaMap.get(item.id);
+    if (!chroma?.current?.ebay) return item;
+    return { ...item, current: { ...item.current, ebay: chroma.current.ebay } };
+  });
+
   // Always include hardcoded chromas even before the refresh runs
-  const existingIds = new Set(items.map(i => i.id));
+  const existingIds = new Set(patchedItems.map(i => i.id));
   const missingChromas = chromaItems.filter(c => !existingIds.has(c.id));
-  const allItems = [...items, ...missingChromas];
+  const allItems = [...patchedItems, ...missingChromas];
 
   const hydratedItems = await hydrateItemImages(allItems);
   return {
