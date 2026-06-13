@@ -1,0 +1,16 @@
+# GodlyWatch
+
+> GodlyWatch tracks live eBay prices and SupremeValues.com data for Murder Mystery 2 (MM2) items on Roblox, including Godlies, Ancients, Chromas, and Sets. It also offers a trade checker, an inventory value tracker, and a marketplace of real MM2 items for sale.
+
+## Pages
+
+- [Value Board](https://godlywatch.com/board): Live Supreme values and eBay prices for every tracked MM2 Godly, Ancient, Chroma, and Set, with 7-day price trend charts and demand/rarity ratings.
+- [Marketplace](https://godlywatch.com/marketplace): Real MM2 Godly, Ancient, Chroma, and Set items for sale on eBay at competitive prices, with Robux-equivalent pricing shown.
+- [Trade Checker](https://godlywatch.com/trade-checker): Compare two MM2 trade offers side by side using Supreme values and eBay totals to see if a trade is a win, fair, or loss.
+- [Inventory Tracker](https://godlywatch.com/inventory): Track the total Supreme value and eBay value of a personal MM2 item inventory over time.
+
+## Notes
+
+- Item categories: Godly, Ancient, Chroma, Sets
+- Supreme values sourced from supremevalues.com; eBay prices refreshed automatically
+- Prices are shown in EUR with an approximate Robux equivalent
