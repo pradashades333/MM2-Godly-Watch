@@ -16,3 +16,4 @@
 - [2026-06-09 18:40:02+02:00] captured dashboard follow-up.
 - [2026-06-11 17:25:27+02:00] noted loading state polish.
 - [2026-06-14 09:10:52+02:00] reviewed item card display.
+- [2026-06-16 16:55:17+02:00] noted loading state polish.
