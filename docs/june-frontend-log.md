@@ -4,3 +4,4 @@
 - [2026-06-10 09:10:58+02:00] noted loading state polish.
 - [2026-06-12 14:45:03+02:00] checked watch list display.
 - [2026-06-15 09:20:08+02:00] tracked client cleanup pass.
+- [2026-06-17 17:55:13+02:00] reviewed item card refresh.
