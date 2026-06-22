@@ -3499,6 +3499,8 @@ function buildChartSeries(item) {
 
 function formatTimestamp(value) {
   if (!value) return "Never";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "Recently";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
@@ -3506,16 +3508,18 @@ function formatTimestamp(value) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit"
-  }).format(new Date(value));
+  }).format(d);
 }
 
 function compactDate(value) {
   if (!value) return "--";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "--";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short"
-  }).format(new Date(value));
+  }).format(d);
 }
 
 function signedValue(value) {
