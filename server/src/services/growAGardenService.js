@@ -1,19 +1,18 @@
 const { execFile } = require("child_process");
 const { promisify } = require("util");
+const http2 = require("http2");
+const zlib = require("zlib");
 
 const EXTRA_PETS = require("../data/growAGardenExtraPets");
 
 const execFileAsync = promisify(execFile);
 
 const ITEMS_URL = "https://traderie.com/api/growagarden/items";
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL_MS = 60 * 60 * 1000;
 const MAX_PAGES = 60;
 
-// traderie.com sits behind Cloudflare bot-management that fingerprints
-// Node's fetch/TLS stack and returns a 403 challenge page, but curl's
-// requests pass through fine. Shell out to curl as a workaround.
 const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
 let cache = { items: [], refreshedAt: null };
 let inFlight = null;
@@ -68,23 +67,105 @@ function normalizeExtraPet(extra) {
   };
 }
 
+function fetchPageHttp2(url) {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const client = http2.connect(`https://${parsed.hostname}`, {
+      settings: { enablePush: false },
+    });
+    client.on("error", (err) => { client.close(); reject(err); });
+
+    const timer = setTimeout(() => { client.close(); reject(new Error("http2 timeout")); }, 20000);
+
+    const req = client.request({
+      ":method": "GET",
+      ":path": parsed.pathname + parsed.search,
+      "user-agent": USER_AGENT,
+      "accept": "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9",
+      "accept-encoding": "gzip, deflate, br",
+      "referer": "https://traderie.com/growagarden",
+      "origin": "https://traderie.com",
+    });
+
+    let encoding = null;
+    req.on("response", (headers) => {
+      encoding = headers["content-encoding"];
+    });
+
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", () => {
+      clearTimeout(timer);
+      client.close();
+      const raw = Buffer.concat(chunks);
+      try {
+        let body;
+        if (encoding === "br") body = zlib.brotliDecompressSync(raw);
+        else if (encoding === "gzip") body = zlib.gunzipSync(raw);
+        else if (encoding === "deflate") body = zlib.inflateSync(raw);
+        else body = raw;
+        resolve(body.toString("utf8"));
+      } catch {
+        resolve(raw.toString("utf8"));
+      }
+    });
+    req.on("error", (err) => { clearTimeout(timer); client.close(); reject(err); });
+    req.end();
+  });
+}
+
+async function fetchPageCurl(url) {
+  const { stdout } = await execFileAsync(
+    "curl",
+    [
+      "-s", "--compressed",
+      "-A", USER_AGENT,
+      "-H", "Accept: application/json, text/plain, */*",
+      "-H", "Accept-Language: en-US,en;q=0.9",
+      "-H", "Referer: https://traderie.com/growagarden",
+      "-H", "Origin: https://traderie.com",
+      "--max-time", "20",
+      url,
+    ],
+    { maxBuffer: 10 * 1024 * 1024 }
+  );
+  return stdout;
+}
+
 async function fetchPage(page) {
   const url = `${ITEMS_URL}?page=${encodeURIComponent(String(page))}`;
 
-  const { stdout } = await execFileAsync(
-    "curl",
-    ["-s", "-A", USER_AGENT, "--max-time", "20", url],
-    { maxBuffer: 10 * 1024 * 1024 }
-  );
+  const strategies = [
+    { name: "curl", fn: () => fetchPageCurl(url) },
+    { name: "http2", fn: () => fetchPageHttp2(url) },
+    { name: "fetch", fn: async () => {
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": USER_AGENT,
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Referer": "https://traderie.com/growagarden",
+        },
+      });
+      return await res.text();
+    }},
+  ];
 
-  let payload;
-  try {
-    payload = JSON.parse(stdout);
-  } catch {
-    throw new Error(`traderie.com returned a non-JSON response for page ${page}`);
+  for (const { name, fn } of strategies) {
+    try {
+      const text = await fn();
+      const payload = JSON.parse(text);
+      if (Array.isArray(payload?.items)) {
+        if (page === 1) console.log(`[growagarden] fetching via ${name}`);
+        return payload.items;
+      }
+    } catch (err) {
+      console.warn(`[growagarden] ${name} failed for page ${page}: ${err.message}`);
+    }
   }
 
-  return Array.isArray(payload?.items) ? payload.items : [];
+  throw new Error(`All fetch strategies failed for page ${page}`);
 }
 
 async function fetchAllItems() {
