@@ -8,6 +8,11 @@
 
   <!-- MM2 -->
   <url>
+    <loc>https://godlywatch.com/mm2</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://godlywatch.com/mm2/board</loc>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
@@ -30,6 +35,11 @@
 
   <!-- Adopt Me -->
   <url>
+    <loc>https://godlywatch.com/adoptme</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://godlywatch.com/adoptme/board</loc>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
@@ -46,6 +56,11 @@
   </url>
 
   <!-- Grow a Garden -->
+  <url>
+    <loc>https://godlywatch.com/growagarden</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
   <url>
     <loc>https://godlywatch.com/growagarden/board</loc>
     <changefreq>hourly</changefreq>
