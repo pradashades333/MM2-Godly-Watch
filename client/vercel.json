@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://mm2-godly-watch.onrender.com/api/:path*" },
     { "source": "/mm2/:path*", "destination": "/index.html" },
     { "source": "/adoptme/:path*", "destination": "/index.html" },
     { "source": "/growagarden/:path*", "destination": "/index.html" },
