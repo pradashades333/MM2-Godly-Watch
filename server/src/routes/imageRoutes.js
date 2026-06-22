@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const ALLOWED_HOST = "static.wikia.nocookie.net";
+const ALLOWED_HOSTS = ["static.wikia.nocookie.net", "amvgg.com", "cdn.nookazon.com"];
 
 router.get("/", async (req, res) => {
   const { url } = req.query;
@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
     return res.status(400).json({ message: "Invalid url" });
   }
 
-  if (parsed.hostname !== ALLOWED_HOST) {
+  if (!ALLOWED_HOSTS.includes(parsed.hostname)) {
     return res.status(403).json({ message: "URL not allowed" });
   }
 

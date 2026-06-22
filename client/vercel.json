@@ -1,28 +1,13 @@
 {
   "rewrites": [
-    {
-      "source": "/board",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/trade-checker",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/inventory",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/market",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/marketplace",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/seller-dashboard",
-      "destination": "/index.html"
-    }
+    { "source": "/mm2/:path*", "destination": "/index.html" },
+    { "source": "/adoptme/:path*", "destination": "/index.html" },
+    { "source": "/growagarden/:path*", "destination": "/index.html" },
+    { "source": "/board", "destination": "/index.html" },
+    { "source": "/trade-checker", "destination": "/index.html" },
+    { "source": "/inventory", "destination": "/index.html" },
+    { "source": "/market", "destination": "/index.html" },
+    { "source": "/marketplace", "destination": "/index.html" },
+    { "source": "/seller-dashboard", "destination": "/index.html" }
   ]
 }

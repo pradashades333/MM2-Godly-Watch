@@ -1,16 +1,23 @@
 # GodlyWatch
 
-> GodlyWatch tracks live eBay prices and SupremeValues.com data for Murder Mystery 2 (MM2) items on Roblox, including Godlies, Ancients, Chromas, and Sets. It also offers a trade checker, an inventory value tracker, and a marketplace of real MM2 items for sale.
+> GodlyWatch tracks live values and prices for Roblox trading games — Murder Mystery 2 (MM2), Adopt Me, and Grow a Garden. Covers MM2 Godlies, Ancients, Chromas, and Sets; Adopt Me pets and vehicles; and Grow a Garden pets, crops, gears, and eggs. It also offers a trade checker, an inventory value tracker, and a marketplace of real MM2 items for sale.
 
 ## Pages
 
-- [Value Board](https://godlywatch.com/board): Live Supreme values and eBay prices for every tracked MM2 Godly, Ancient, Chroma, and Set, with 7-day price trend charts and demand/rarity ratings.
-- [Marketplace](https://godlywatch.com/marketplace): Real MM2 Godly, Ancient, Chroma, and Set items for sale on eBay at competitive prices, with Robux-equivalent pricing shown.
-- [Trade Checker](https://godlywatch.com/trade-checker): Compare two MM2 trade offers side by side using Supreme values and eBay totals to see if a trade is a win, fair, or loss.
-- [Inventory Tracker](https://godlywatch.com/inventory): Track the total Supreme value and eBay value of a personal MM2 item inventory over time.
+- [MM2 Board](https://godlywatch.com/mm2/board): Live values and eBay prices for MM2 Godly, Ancient, Chroma, and Set items, with 7-day price trend charts and demand/rarity ratings.
+- [MM2 Marketplace](https://godlywatch.com/mm2/marketplace): Real MM2 items for sale on eBay at competitive prices, with Robux-equivalent pricing shown.
+- [Adopt Me Board](https://godlywatch.com/adoptme/board): Live pet and vehicle values across Legendary, Ultra-Rare, Rare, Uncommon, and Common tiers.
+- [Grow a Garden Board](https://godlywatch.com/growagarden/board): Live pet, crop, gear, and egg values sourced from traderie.com.
+- [Trade Checker](https://godlywatch.com/mm2/trade-checker): Compare two trade offers side by side for MM2, Adopt Me, or Grow a Garden using live values.
+- [Inventory Tracker](https://godlywatch.com/mm2/inventory): Track the total value of a personal item inventory over time.
+
+## Games tracked
+
+- MM2 (Murder Mystery 2): Godly, Ancient, Chroma, and Set values sourced from supremevalues.com; eBay prices refreshed automatically.
+- Adopt Me: Pet and vehicle values across Legendary, Ultra-Rare, Rare, Uncommon, and Common tiers, with Fly/Ride/Neon/Mega variant support.
+- Grow a Garden: Pet, crop, gear, and egg values sourced from traderie.com, across Mythical, Legendary, Rare, Uncommon, and Common tiers.
 
 ## Notes
 
-- Item categories: Godly, Ancient, Chroma, Sets
-- Supreme values sourced from supremevalues.com; eBay prices refreshed automatically
-- Prices are shown in EUR with an approximate Robux equivalent
+- Item categories: Godly, Ancient, Chroma, Sets (MM2); Pets, Vehicles (Adopt Me); Pets, Crops, Gears, Eggs (Grow a Garden)
+- MM2 prices shown in EUR with an approximate Robux equivalent; eBay prices refreshed automatically

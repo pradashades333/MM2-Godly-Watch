@@ -7,13 +7,26 @@ import {
 import { calculateMarketStats } from "./utils/calculateMarketStats";
 import { formatCurrency } from "./utils/formatCurrency";
 import { formatValue } from "./utils/formatValue";
+import { GAMES, GAME_LIST, DEFAULT_GAME, getGameConfig } from "./config/games";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+const GAME_STORAGE_KEY = "mm2-goldywatch-game";
+
+const PROXIED_IMAGE_HOSTS = ["wikia.nocookie.net", "amvgg.com"];
 
 function proxyImg(url) {
   if (!url) return null;
-  if (!url.includes("wikia.nocookie.net")) return url;
+  if (!PROXIED_IMAGE_HOSTS.some((host) => url.includes(host))) return url;
   return `${API_BASE}/img?url=${encodeURIComponent(url)}`;
+}
+
+function readStoredGame() {
+  try {
+    const stored = localStorage.getItem(GAME_STORAGE_KEY);
+    return GAMES[stored] ? stored : DEFAULT_GAME;
+  } catch {
+    return DEFAULT_GAME;
+  }
 }
 
 const LOCAL_ITEM_IMAGES = {
@@ -117,33 +130,52 @@ const TABS = [
   { id: "marketplace", label: "Marketplace" }
 ];
 
-const TAB_PATHS = {
-  home: "/",
-  board: "/board",
-  "trade-checker": "/trade-checker",
-  "inventory-tracker": "/inventory",
-  marketplace: "/marketplace",
+const TAB_SLUGS = {
+  home: "",
+  board: "board",
+  "trade-checker": "trade-checker",
+  "inventory-tracker": "inventory",
+  marketplace: "marketplace",
 };
 
-const PATH_TO_TAB = Object.fromEntries(
-  Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab])
-);
-PATH_TO_TAB["/market"] = "marketplace";
-PATH_TO_TAB["/marketplace"] = "marketplace";
+const SLUG_TO_TAB = {};
+for (const [tab, slug] of Object.entries(TAB_SLUGS)) SLUG_TO_TAB[slug] = tab;
+SLUG_TO_TAB["market"] = "marketplace";
+SLUG_TO_TAB["marketplace"] = "marketplace";
 
-function normalizePathname(pathname) {
-  if (!pathname || pathname === "/") return "/";
-  return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+const GAME_ID_SET = new Set(Object.keys(GAMES));
+
+function buildPath(gameId, tabId) {
+  const slug = TAB_SLUGS[tabId] ?? "";
+  if (!slug) return `/${gameId}`;
+  return `/${gameId}/${slug}`;
 }
 
-function getTabFromLocation() {
-  const pathname = normalizePathname(window.location.pathname);
-  return PATH_TO_TAB[pathname] || "home";
+function parseLocation() {
+  let p = window.location.pathname;
+  if (p !== "/" && p.endsWith("/")) p = p.slice(0, -1);
+  const parts = p.split("/").filter(Boolean);
+
+  if (parts.length === 0) return { game: null, tab: "home" };
+
+  if (parts.length === 1) {
+    if (GAME_ID_SET.has(parts[0])) return { game: parts[0], tab: "home" };
+    return { game: null, tab: SLUG_TO_TAB[parts[0]] || "home" };
+  }
+
+  const game = GAME_ID_SET.has(parts[0]) ? parts[0] : null;
+  const tab = SLUG_TO_TAB[parts[1]] || "home";
+  return { game, tab };
 }
 
 const FAVORITES_STORAGE_KEY = "mm2-goldywatch-favorites";
 const INVENTORY_STORAGE_KEY  = "mm2-goldywatch-inventory";
 const TRADE_SLOT_COUNT = 4;
+const ADOPTME_TRADE_SLOT_COUNT = 9;
+
+function getTradeSlotCount(gameId) {
+  return gameId === "adoptme" ? ADOPTME_TRADE_SLOT_COUNT : TRADE_SLOT_COUNT;
+}
 
 function readStoredInventory() {
   try { return JSON.parse(localStorage.getItem(INVENTORY_STORAGE_KEY)) || []; }
@@ -161,7 +193,63 @@ function isChroma(item) {
   return name.startsWith('chroma ') || name.startsWith('c. ');
 }
 
+// Adopt Me pets have a value/demand for every combination of
+// tier (Regular/Neon/Mega) x potions (none/Fly/Ride/Fly+Ride).
+const ADOPTME_VALUE_FIELDS = {
+  regular: { none: 'npRegularValue', f: 'fValue', r: 'rValue', fr: 'regularValue' },
+  neon: { none: 'npNeonValue', f: 'nfValue', r: 'nrValue', fr: 'neonValue' },
+  mega: { none: 'npMegaValue', f: 'mfValue', r: 'mrValue', fr: 'megaValue' },
+};
+const ADOPTME_DEMAND_FIELDS = {
+  regular: { none: 'npRegularDemand', f: 'fDemand', r: 'rDemand', fr: 'regularDemand' },
+  neon: { none: 'npNeonDemand', f: 'nfDemand', r: 'nrDemand', fr: 'neonDemand' },
+  mega: { none: 'npMegaDemand', f: 'mfDemand', r: 'mrDemand', fr: 'megaDemand' },
+};
+
+function getAdoptMePotionKey(fly, ride) {
+  if (fly && ride) return 'fr';
+  if (fly) return 'f';
+  if (ride) return 'r';
+  return 'none';
+}
+
+// Resolves a trade slot's value, accounting for the selected Adopt Me
+// variant (Regular/Neon/Mega x Fly/Ride potions) when present.
+function getSlotValue(item, slot) {
+  if (!item) return 0;
+
+  if (item.game === 'adoptme' && slot.variant) {
+    const potionKey = getAdoptMePotionKey(slot.variant.fly, slot.variant.ride);
+    const field = ADOPTME_VALUE_FIELDS[slot.variant.tier]?.[potionKey];
+    const value = item.current?.adoptme?.[field];
+    if (value != null) return value;
+  }
+
+  return item.current?.supreme?.value ?? 0;
+}
+
+function deriveAdoptMeTier(item) {
+  const value = item.current?.adoptme?.regularValue ?? item.current?.supreme?.value ?? 0;
+  if (value >= 1) return { key: 'legendary', label: 'LEGENDARY', color: 'var(--tier-legend)' };
+  if (value >= 0.25) return { key: 'ultra-rare', label: 'ULTRA-RARE', color: 'var(--tier-chroma)' };
+  if (value >= 0.05) return { key: 'rare', label: 'RARE', color: 'var(--tier-godly)' };
+  if (value >= 0.01) return { key: 'uncommon', label: 'UNCOMMON', color: 'var(--tier-ancient)' };
+  return { key: 'common', label: 'COMMON', color: 'var(--tier-vintage)' };
+}
+
+function deriveGrowAGardenTier(item) {
+  const value = item.current?.supreme?.value ?? 0;
+  if (value >= 1e21) return { key: 'mythical', label: 'MYTHICAL', color: 'var(--tier-legend)' };
+  if (value >= 1e9) return { key: 'legendary', label: 'LEGENDARY', color: 'var(--tier-chroma)' };
+  if (value >= 1e6) return { key: 'rare', label: 'RARE', color: 'var(--tier-godly)' };
+  if (value >= 1e3) return { key: 'uncommon', label: 'UNCOMMON', color: 'var(--tier-ancient)' };
+  return { key: 'common', label: 'COMMON', color: 'var(--tier-vintage)' };
+}
+
 function deriveTier(item) {
+  if (item.game === 'adoptme') return deriveAdoptMeTier(item);
+  if (item.game === 'growagarden') return deriveGrowAGardenTier(item);
+
   const value = item.current?.supreme?.value ?? 0;
   if (isChroma(item)) return { key: 'chroma', label: 'CHROMA', color: 'var(--tier-chroma)' };
   if (item.category === 'sets') return { key: 'sets', label: 'SETS', color: 'var(--tier-vintage)' };
@@ -363,6 +451,180 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInvent
   );
 }
 
+function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
+  const tier = deriveTier(item);
+  const isPet = item.category === 'pets';
+  const adoptme = item.current?.adoptme ?? {};
+  const [variant, setVariant] = useState({ tier: 'regular', fly: true, ride: true });
+
+  const potionKey = getAdoptMePotionKey(variant.fly, variant.ride);
+  const currentValue = isPet
+    ? adoptme[ADOPTME_VALUE_FIELDS[variant.tier][potionKey]]
+    : item.current?.supreme?.value;
+  const currentDemand = isPet
+    ? (adoptme[ADOPTME_DEMAND_FIELDS[variant.tier][potionKey]] ?? 0)
+    : (item.current?.supreme?.demand ?? 0);
+
+  function toggleFly(e) { e.stopPropagation(); setVariant(v => ({ ...v, fly: !v.fly })); }
+  function toggleRide(e) { e.stopPropagation(); setVariant(v => ({ ...v, ride: !v.ride })); }
+  function toggleNeon(e) { e.stopPropagation(); setVariant(v => ({ ...v, tier: v.tier === 'neon' ? 'regular' : 'neon' })); }
+  function toggleMega(e) { e.stopPropagation(); setVariant(v => ({ ...v, tier: v.tier === 'mega' ? 'regular' : 'mega' })); }
+
+  return (
+    <article
+      className="gw-card"
+      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
+      onClick={onOpenChart}
+    >
+      <button
+        className={`gw-card-fav${isFavorite ? ' active' : ''}`}
+        onClick={e => { e.stopPropagation(); onToggleFavorite(); }}
+        title={isFavorite ? 'Remove favorite' : 'Add to favorites'}
+      >★</button>
+
+      <div
+        className="gw-card-art"
+        style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}
+      >
+        {item.imageUrl ? (
+          <img
+            className="gw-card-art-img"
+            src={proxyImg(item.imageUrl)}
+            alt={item.name}
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+          />
+        ) : (
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--ink-ghost)' }}>
+            {item.name}
+          </span>
+        )}
+      </div>
+
+      <div className="gw-card-body">
+        <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
+
+        <h3 className="gw-card-name">{item.name}</h3>
+
+        <div className="gw-card-prices">
+          <div>
+            <div className="gw-price-label">Value</div>
+            <div className="gw-price-value">{formatValue(currentValue)}</div>
+          </div>
+          {isPet && (
+            <div className="gw-price-right">
+              <div className="gw-price-label">Origin</div>
+              <div className="gw-price-value" style={{ fontSize: 10, lineHeight: 1.3 }}>{adoptme.origin ?? '--'}</div>
+            </div>
+          )}
+        </div>
+
+        {isPet && (
+          <div className="gw-am-variants">
+            <button
+              className={`gw-am-variant-btn fly${variant.fly ? ' active' : ''}`}
+              onClick={toggleFly}
+              title="Fly"
+            >F</button>
+            <button
+              className={`gw-am-variant-btn ride${variant.ride ? ' active' : ''}`}
+              onClick={toggleRide}
+              title="Ride"
+            >R</button>
+            <button
+              className={`gw-am-variant-btn neon${variant.tier === 'neon' ? ' active' : ''}`}
+              onClick={toggleNeon}
+              title="Neon"
+            >N</button>
+            <button
+              className={`gw-am-variant-btn mega${variant.tier === 'mega' ? ' active' : ''}`}
+              onClick={toggleMega}
+              title="Mega"
+            >M</button>
+          </div>
+        )}
+
+        <div className="gw-gauges">
+          <GWGauge value={currentDemand} color="var(--tier-ancient)" label="DEM" />
+        </div>
+      </div>
+      {onAddToInventory && (
+        <button
+          className="gw-card-add-inv"
+          onClick={e => { e.stopPropagation(); onAddToInventory(); }}
+          title="Add to Inventory"
+        >+ inventory</button>
+      )}
+    </article>
+  );
+}
+
+function GrowAGardenCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
+  const tier = deriveTier(item);
+  const value = item.current?.supreme?.value ?? null;
+  const demandRaw = item.current?.supreme?.demandRaw ?? 0;
+
+  return (
+    <article
+      className="gw-card"
+      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
+      onClick={onOpenChart}
+    >
+      <button
+        className={`gw-card-fav${isFavorite ? ' active' : ''}`}
+        onClick={e => { e.stopPropagation(); onToggleFavorite(); }}
+        title={isFavorite ? 'Remove favorite' : 'Add to favorites'}
+      >★</button>
+
+      <div
+        className="gw-card-art"
+        style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}
+      >
+        {item.imageUrl ? (
+          <img
+            className="gw-card-art-img"
+            src={proxyImg(item.imageUrl)}
+            alt={item.name}
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+          />
+        ) : (
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--ink-ghost)' }}>
+            {item.name}
+          </span>
+        )}
+      </div>
+
+      <div className="gw-card-body">
+        <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
+
+        <h3 className="gw-card-name">{item.name}</h3>
+
+        <div className="gw-card-prices">
+          <div>
+            <div className="gw-price-label">Value</div>
+            <div className="gw-price-value">{formatValue(value)}</div>
+          </div>
+        </div>
+
+        {demandRaw > 0 && (
+          <div className="gw-card-demand-row">
+            <span className="gw-price-label">Demand</span>
+            <span className="gw-card-demand-num" style={{ color: demandRaw >= 8 ? 'var(--tier-legend)' : demandRaw >= 5 ? 'var(--tier-ancient)' : 'var(--ink-faint)' }}>
+              {demandRaw}<span style={{ opacity: 0.45, fontSize: '0.75em' }}>/10</span>
+            </span>
+          </div>
+        )}
+      </div>
+      {onAddToInventory && (
+        <button
+          className="gw-card-add-inv"
+          onClick={e => { e.stopPropagation(); onAddToInventory(); }}
+          title="Add to Inventory"
+        >+ inventory</button>
+      )}
+    </article>
+  );
+}
+
 function GWSparkline({ data, up, w = 120, h = 28 }) {
   const vals = (data || []).filter(v => v != null);
   if (vals.length < 2) return <svg width={w} height={h} />;
@@ -493,21 +755,18 @@ function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddTo
   );
 }
 
-function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChange, sortBy, onSortChange, refreshedAt, favoriteIds, recentMoves }) {
+function GWSidebar({ items, gameConfig, activeTier, onTierChange, activeFilter, onFilterChange, refreshedAt, favoriteIds, recentMoves }) {
   const tierCounts = useMemo(() => {
-    const counts = { chroma: 0, godly: 0, ancient: 0, sets: 0 };
+    const counts = {};
     items.forEach(item => {
       const t = deriveTier(item);
-      if (counts[t.key] != null) counts[t.key]++;
+      counts[t.key] = (counts[t.key] ?? 0) + 1;
     });
     return [
-      { key: 'all',    label: 'All',    count: items.length,   color: null },
-      { key: 'chroma', label: 'Chroma', count: counts.chroma,  color: 'var(--tier-chroma)' },
-      { key: 'godly',  label: 'Godly',  count: counts.godly,   color: 'var(--tier-godly)' },
-      { key: 'ancient',label: 'Ancient',count: counts.ancient, color: 'var(--tier-ancient)' },
-      { key: 'sets',   label: 'Sets',   count: counts.sets,    color: 'var(--tier-vintage)' },
+      { key: 'all', label: 'All', count: items.length, color: null },
+      ...gameConfig.tiers.map(t => ({ ...t, count: counts[t.key] ?? 0 })),
     ];
-  }, [items]);
+  }, [items, gameConfig]);
 
   return (
     <aside className="gw-sidebar">
@@ -548,16 +807,6 @@ function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChan
         </div>
       </div>
 
-      <div>
-        <div className="gw-sidebar-section-label">Sort</div>
-        <select className="gw-sort-select" value={sortBy} onChange={e => onSortChange(e.target.value)}>
-          <option value="name">Name A–Z</option>
-          <option value="value-desc">Highest value</option>
-          <option value="value-asc">Lowest value</option>
-          <option value="ebay-desc">Highest eBay price</option>
-        </select>
-      </div>
-
       <div className="gw-sidebar-footer">
         <div className="gw-last-refresh-label">Last refresh</div>
         <div className="gw-last-refresh-value">{formatTimestamp(refreshedAt)}</div>
@@ -569,7 +818,15 @@ function GWSidebar({ items, activeTier, onTierChange, activeFilter, onFilterChan
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState(getTabFromLocation);
+  const [activeTab, setActiveTab] = useState(() => parseLocation().tab);
+  const [activeGame, setActiveGame] = useState(() => {
+    const loc = parseLocation();
+    if (loc.game) { try { localStorage.setItem(GAME_STORAGE_KEY, loc.game); } catch {} return loc.game; }
+    return readStoredGame();
+  });
+  const activeGameRef = useRef(activeGame);
+  const [gameMenuOpen, setGameMenuOpen] = useState(false);
+  const gameMenuRef = useRef(null);
   const [marketData, setMarketData] = useState({ items: [], refreshedAt: null });
   const [serverStats, setServerStats] = useState(null);
   const [recentMoves, setRecentMoves] = useState([]);
@@ -580,10 +837,10 @@ export default function App() {
   const [error, setError] = useState("");
   const [selectedChartItemId, setSelectedChartItemId] = useState(null);
   const [favoriteIds, setFavoriteIds] = useState(readStoredFavoriteIds);
-  const [haveTradeSlots, setHaveTradeSlots] = useState(createEmptyTradeSide);
-  const [wantTradeSlots, setWantTradeSlots] = useState(createEmptyTradeSide);
-  const [haveTradeSearch, setHaveTradeSearch] = useState(createEmptyTradeSearch);
-  const [wantTradeSearch, setWantTradeSearch] = useState(createEmptyTradeSearch);
+  const [haveTradeSlots, setHaveTradeSlots] = useState(() => createEmptyTradeSide(getTradeSlotCount(readStoredGame())));
+  const [wantTradeSlots, setWantTradeSlots] = useState(() => createEmptyTradeSide(getTradeSlotCount(readStoredGame())));
+  const [haveTradeSearch, setHaveTradeSearch] = useState(() => createEmptyTradeSearch(getTradeSlotCount(readStoredGame())));
+  const [wantTradeSearch, setWantTradeSearch] = useState(() => createEmptyTradeSearch(getTradeSlotCount(readStoredGame())));
   const [activeTier, setActiveTier] = useState('all');
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
@@ -593,6 +850,7 @@ export default function App() {
   const [invChartMode, setInvChartMode] = useState('eur');
   const [tradePickerState, setTradePickerState] = useState(null); // { sideKey, slotIndex }
   const [tradePickerSearch, setTradePickerSearch] = useState("");
+  const [tradeVariantState, setTradeVariantState] = useState(null); // { itemId, fly, ride, tier, quantity }
   const [mpSearch, setMpSearch] = useState('');
   const [mpTier, setMpTier] = useState('all');
   const [mpSort, setMpSort] = useState('price-asc');
@@ -605,6 +863,8 @@ export default function App() {
   const [checkoutDiscord, setCheckoutDiscord] = useState('');
   const [orderStatus, setOrderStatus] = useState('idle');
   const [orderRef, setOrderRef] = useState('');
+
+  const gameConfig = getGameConfig(activeGame);
 
   const deferredQuery = useDeferredValue(query);
   const items = marketData.items || [];
@@ -627,10 +887,9 @@ export default function App() {
   );
 
   function navigateToTab(tabId, { replace = false } = {}) {
-    const path = TAB_PATHS[tabId] || TAB_PATHS.home;
+    const path = buildPath(activeGame, tabId);
     const nextUrl = `${path}${window.location.hash || ""}`;
-    const historyMethod = replace ? "replaceState" : "pushState";
-    window.history[historyMethod]({}, "", nextUrl);
+    window.history[replace ? "replaceState" : "pushState"]({}, "", nextUrl);
     setActiveTab(tabId);
   }
 
@@ -639,15 +898,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const currentPath = normalizePathname(window.location.pathname);
-    const resolvedTab = PATH_TO_TAB[currentPath];
-    if (!resolvedTab) {
+    const loc = parseLocation();
+    if (!loc.game && loc.tab === "home" && window.location.pathname !== "/") {
       navigateToTab("home", { replace: true });
-      return undefined;
     }
 
     const handlePopState = () => {
-      setActiveTab(getTabFromLocation());
+      const next = parseLocation();
+      setActiveTab(next.tab);
+      if (next.game && next.game !== activeGameRef.current) {
+        changeGame(next.game);
+      }
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -753,15 +1014,15 @@ export default function App() {
 
   function clearInventory() { setInventoryItems([]); }
 
-  async function loadDashboard() {
+  async function loadDashboard(game = activeGame) {
     setLoading(true);
     setError("");
 
     try {
       const [market, stats, moves] = await Promise.all([
-        getMarketData(),
-        getMarketStats(),
-        getRecentMoves()
+        getMarketData(game),
+        getMarketStats(game),
+        getRecentMoves(game)
       ]);
 
       setMarketData(market);
@@ -774,10 +1035,24 @@ export default function App() {
     }
   }
 
-
-  const categories = useMemo(() => {
-    return ["all", ...new Set(items.map((item) => item.category).filter(Boolean))];
-  }, [items]);
+  function changeGame(gameId) {
+    if (gameId === activeGameRef.current || !GAMES[gameId]) return;
+    setActiveGame(gameId);
+    activeGameRef.current = gameId;
+    setActiveTier('all');
+    setActiveFilter('all');
+    setCategoryFilter('all');
+    setQuery('');
+    setSelectedChartItemId(null);
+    const slotCount = getTradeSlotCount(gameId);
+    setHaveTradeSlots(createEmptyTradeSide(slotCount));
+    setWantTradeSlots(createEmptyTradeSide(slotCount));
+    setHaveTradeSearch(createEmptyTradeSearch(slotCount));
+    setWantTradeSearch(createEmptyTradeSearch(slotCount));
+    try { localStorage.setItem(GAME_STORAGE_KEY, gameId); } catch {}
+    window.history.pushState({}, "", buildPath(gameId, activeTab));
+    loadDashboard(gameId);
+  }
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = deferredQuery.trim().toLowerCase();
@@ -866,6 +1141,26 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
+  useEffect(() => {
+    if (!gameMenuOpen) return;
+
+    function handleOutsideClick(event) {
+      if (gameMenuRef.current && !gameMenuRef.current.contains(event.target)) {
+        setGameMenuOpen(false);
+      }
+    }
+    function handleEscape(event) {
+      if (event.key === "Escape") setGameMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [gameMenuOpen]);
+
   function applyTradeInput(sideKey, slotIndex, nextValue) {
     const setSearch = sideKey === "have" ? setHaveTradeSearch : setWantTradeSearch;
 
@@ -891,7 +1186,8 @@ export default function App() {
         index === slotIndex
           ? {
               ...slot,
-              itemId
+              itemId,
+              variant: null
             }
           : slot
       )
@@ -905,6 +1201,23 @@ export default function App() {
 
         return itemId ? itemLookup.get(itemId)?.name || "" : "";
       })
+    );
+  }
+
+  function applyTradeSlotSelection(sideKey, slotIndex, { itemId, quantity, variant }) {
+    const setSlots = sideKey === "have" ? setHaveTradeSlots : setWantTradeSlots;
+    const setSearch = sideKey === "have" ? setHaveTradeSearch : setWantTradeSearch;
+
+    setSlots((current) =>
+      current.map((slot, index) =>
+        index === slotIndex
+          ? { ...slot, itemId, quantity: clampTradeQuantity(quantity), variant }
+          : slot
+      )
+    );
+
+    setSearch((current) =>
+      current.map((value, index) => (index === slotIndex ? itemLookup.get(itemId)?.name || "" : value))
     );
   }
 
@@ -930,10 +1243,18 @@ export default function App() {
   }
 
   function clearTradeState() {
-    setHaveTradeSlots(createEmptyTradeSide());
-    setWantTradeSlots(createEmptyTradeSide());
-    setHaveTradeSearch(createEmptyTradeSearch());
-    setWantTradeSearch(createEmptyTradeSearch());
+    const slotCount = getTradeSlotCount(activeGame);
+    setHaveTradeSlots(createEmptyTradeSide(slotCount));
+    setWantTradeSlots(createEmptyTradeSide(slotCount));
+    setHaveTradeSearch(createEmptyTradeSearch(slotCount));
+    setWantTradeSearch(createEmptyTradeSearch(slotCount));
+  }
+
+  function swapTradeSides() {
+    setHaveTradeSlots(wantTradeSlots);
+    setWantTradeSlots(haveTradeSlots);
+    setHaveTradeSearch(wantTradeSearch);
+    setWantTradeSearch(haveTradeSearch);
   }
 
   function openTradePicker(sideKey, slotIndex) {
@@ -944,6 +1265,7 @@ export default function App() {
   function closeTradePicker() {
     setTradePickerState(null);
     setTradePickerSearch("");
+    setTradeVariantState(null);
   }
 
   function selectTradeItem(itemId) {
@@ -952,20 +1274,116 @@ export default function App() {
     closeTradePicker();
   }
 
+  function openTradeVariantPicker(item) {
+    if (!tradePickerState) return;
+
+    if (activeGame !== "adoptme" || !item.current?.adoptme) {
+      selectTradeItem(item.id);
+      return;
+    }
+
+    const slots = tradePickerState.sideKey === "have" ? haveTradeSlots : wantTradeSlots;
+    const slot = slots[tradePickerState.slotIndex];
+    const existingVariant = slot?.itemId === item.id ? slot.variant : null;
+
+    setTradeVariantState({
+      itemId: item.id,
+      fly: existingVariant?.fly ?? true,
+      ride: existingVariant?.ride ?? true,
+      tier: existingVariant?.tier ?? "regular",
+      quantity: slot?.itemId === item.id ? slot.quantity : 1
+    });
+  }
+
+  function confirmTradeVariantSelection() {
+    if (!tradePickerState || !tradeVariantState) return;
+
+    applyTradeSlotSelection(tradePickerState.sideKey, tradePickerState.slotIndex, {
+      itemId: tradeVariantState.itemId,
+      quantity: tradeVariantState.quantity,
+      variant: { fly: tradeVariantState.fly, ride: tradeVariantState.ride, tier: tradeVariantState.tier }
+    });
+
+    closeTradePicker();
+  }
+
+  function renderTradeVariantPicker() {
+    const item = itemLookup.get(tradeVariantState.itemId);
+    if (!item) return null;
+
+    const value = getSlotValue(item, {
+      variant: { tier: tradeVariantState.tier, fly: tradeVariantState.fly, ride: tradeVariantState.ride }
+    });
+
+    return (
+      <div className="tp-overlay" onClick={closeTradePicker}>
+        <div className="tp-modal tp-variant-modal" onClick={e => e.stopPropagation()}>
+          <div className="tp-header">
+            <button className="tp-back" onClick={() => setTradeVariantState(null)} title="Back">‹</button>
+            <span className="tp-title">Select Variant</span>
+            <button className="tp-close" onClick={closeTradePicker}>×</button>
+          </div>
+          <div className="tp-variant-body">
+            <div className="tp-variant-art">
+              {item.imageUrl
+                ? <img src={proxyImg(item.imageUrl)} className="tp-variant-img" alt="" />
+                : <div className="tp-variant-img tp-item-img-empty">{getInitials(item.name)}</div>}
+              <span className="tp-variant-value">{formatValue(value)}</span>
+            </div>
+            <h3 className="tp-variant-name">{item.name}</h3>
+            <div className="gw-am-variants tp-variant-toggles">
+              <button
+                className={`gw-am-variant-btn fly${tradeVariantState.fly ? ' active' : ''}`}
+                onClick={() => setTradeVariantState(v => ({ ...v, fly: !v.fly }))}
+                title="Fly"
+              >F</button>
+              <button
+                className={`gw-am-variant-btn ride${tradeVariantState.ride ? ' active' : ''}`}
+                onClick={() => setTradeVariantState(v => ({ ...v, ride: !v.ride }))}
+                title="Ride"
+              >R</button>
+              <button
+                className={`gw-am-variant-btn neon${tradeVariantState.tier === 'neon' ? ' active' : ''}`}
+                onClick={() => setTradeVariantState(v => ({ ...v, tier: v.tier === 'neon' ? 'regular' : 'neon' }))}
+                title="Neon"
+              >N</button>
+              <button
+                className={`gw-am-variant-btn mega${tradeVariantState.tier === 'mega' ? ' active' : ''}`}
+                onClick={() => setTradeVariantState(v => ({ ...v, tier: v.tier === 'mega' ? 'regular' : 'mega' }))}
+                title="Mega"
+              >M</button>
+            </div>
+            <div className="tp-variant-qty">
+              <span>Quantity</span>
+              <select
+                value={tradeVariantState.quantity}
+                onChange={e => setTradeVariantState(v => ({ ...v, quantity: clampTradeQuantity(Number(e.target.value)) }))}
+              >
+                {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+            </div>
+            <button className="tp-variant-select" onClick={confirmTradeVariantSelection}>Select</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function renderTradePicker() {
     if (!tradePickerState) return null;
+
+    if (tradeVariantState) {
+      return renderTradeVariantPicker();
+    }
 
     const q = tradePickerSearch.trim().toLowerCase();
     const filtered = q
       ? items.filter(i => i.name.toLowerCase().includes(q))
       : items;
 
-    const tiers = [
-      { key: 'chroma', label: 'Chroma',  color: 'var(--tier-chroma)'  },
-      { key: 'godly',  label: 'Godly',   color: 'var(--tier-godly)'   },
-      { key: 'ancient',label: 'Ancient', color: 'var(--tier-ancient)' },
-      { key: 'sets',   label: 'Sets',    color: 'var(--tier-vintage)'  },
-    ];
+    const tiers = gameConfig.tiers;
     const grouped = tiers.map(t => ({
       ...t,
       items: filtered.filter(i => deriveTier(i).key === t.key)
@@ -979,7 +1397,13 @@ export default function App() {
             <input
               autoFocus
               className="tp-search"
-              placeholder="Search weapons..."
+              placeholder={
+                activeGame === "adoptme"
+                  ? "Search pets..."
+                  : activeGame === "growagarden"
+                    ? "Search items..."
+                    : "Search weapons..."
+              }
               value={tradePickerSearch}
               onChange={e => setTradePickerSearch(e.target.value)}
             />
@@ -991,7 +1415,7 @@ export default function App() {
                 {!q && <div className="tp-group-label" style={{ color: group.color }}>{group.label}</div>}
                 <div className="tp-grid">
                   {group.items.map(item => (
-                    <button key={item.id} className="tp-item" onClick={() => selectTradeItem(item.id)}>
+                    <button key={item.id} className="tp-item" onClick={() => openTradeVariantPicker(item)}>
                       {item.imageUrl
                         ? <img src={proxyImg(item.imageUrl)} className="tp-item-img" alt="" />
                         : <div className="tp-item-img tp-item-img-empty">{getInitials(item.name)}</div>}
@@ -1066,15 +1490,18 @@ export default function App() {
   }
 
   function renderTradeChecker() {
+    if (activeGame === "adoptme") {
+      return renderAdoptMeTradeChecker();
+    }
+
     return (
       <section className="trade-checker-panel">
         <h1 className="trade-checker-title">Trade Checker</h1>
 
         <div className="trade-intro-card">
-          Welcome to the MM2Values Trade Checker. This tool lets you compare two trade sides
-          using the tracked Supreme values from your rebuilt backend. Weapons are stackable,
-          quantities multiply item value, and the verdict below tells you whether the offer is
-          a Win, Fair, or Loss.
+          {activeGame === "growagarden"
+            ? "Welcome to the GodlyWatch Trade Checker. This tool lets you compare two trade sides using live Grow a Garden values. Items are stackable, quantities multiply item value, and the verdict below tells you whether the offer is a Win, Fair, or Loss."
+            : "Welcome to the MM2Values Trade Checker. This tool lets you compare two trade sides using the tracked Supreme values from your rebuilt backend. Weapons are stackable, quantities multiply item value, and the verdict below tells you whether the offer is a Win, Fair, or Loss."}
         </div>
 
         <div className="trade-link-card">
@@ -1088,8 +1515,8 @@ export default function App() {
         </datalist>
 
         <div className="trade-board retro-board">
-          {renderTradeSlots("have", haveTradeSlots, haveTradeSearch, "Weapons You Have", "trade-have")}
-          {renderTradeSlots("want", wantTradeSlots, wantTradeSearch, "Weapons They Offer", "trade-want")}
+          {renderTradeSlots("have", haveTradeSlots, haveTradeSearch, activeGame === "mm2" ? "Weapons You Have" : "Items You Have", "trade-have")}
+          {renderTradeSlots("want", wantTradeSlots, wantTradeSearch, activeGame === "mm2" ? "Weapons They Offer" : "Items They Offer", "trade-want")}
         </div>
 
         <div className="trade-summary retro-summary">
@@ -1123,6 +1550,87 @@ export default function App() {
     );
   }
 
+  function renderAmTradeSide(sideKey, slots, label) {
+    const filledCount = slots.filter((slot) => slot.itemId).length;
+    const total = getTradeSideTotal(slots, itemLookup);
+
+    return (
+      <section className="am-trade-side">
+        <div className="am-trade-side-header">
+          <h2>{label}</h2>
+          <span className="am-trade-side-count">{filledCount} / {slots.length}</span>
+        </div>
+
+        <div className="am-trade-grid">
+          {slots.map((slot, slotIndex) =>
+            buildAmTradeSlot({
+              sideKey,
+              slot,
+              slotIndex,
+              item: slot.itemId ? itemLookup.get(slot.itemId) : null,
+              openPicker: openTradePicker,
+              clearTradeSlot
+            })
+          )}
+        </div>
+
+        <div className="am-trade-side-total">
+          <span>{gameConfig.valueLabel} Total</span>
+          <strong>{formatValue(total)}</strong>
+        </div>
+      </section>
+    );
+  }
+
+  function renderAdoptMeTradeChecker() {
+    return (
+      <section className="trade-checker-panel am-trade-checker">
+        <h1 className="trade-checker-title">Trade Checker</h1>
+
+        <div className="trade-intro-card">
+          Build both sides of an Adopt Me trade and compare values instantly. Add up to{" "}
+          {ADOPTME_TRADE_SLOT_COUNT} pets per side, then check the verdict below.
+        </div>
+
+        <div className="am-trade-board">
+          {renderAmTradeSide("have", haveTradeSlots, "You")}
+
+          <div className="am-trade-divider">
+            <button
+              className="am-trade-swap"
+              onClick={swapTradeSides}
+              title="Swap sides"
+              aria-label="Swap sides"
+            >
+              ⇄
+            </button>
+            <span className="am-trade-divider-label">Trade</span>
+          </div>
+
+          {renderAmTradeSide("want", wantTradeSlots, "Them")}
+        </div>
+
+        <div className="trade-summary retro-summary">
+          <h3>Trade Summary</h3>
+          <div className="trade-summary-grid">
+            <SummaryMetric label="Your total" value={formatValue(yourTradeTotal)} accent="muted" />
+            <SummaryMetric label="Their total" value={formatValue(theirTradeTotal)} accent="muted" />
+            <SummaryMetric
+              label="Difference"
+              value={tradeDifference === 0 ? "0" : signedValue(tradeDifference)}
+              accent={tradeDifference > 0 ? "positive" : tradeDifference < 0 ? "negative" : "fair"}
+            />
+            <SummaryMetric label="Verdict" value={tradeVerdict} accent={tradeVerdict.toLowerCase()} />
+          </div>
+
+          <div className="trade-summary-actions">
+            <button className="trade-generate-button" onClick={clearTradeState}>Clear Trade</button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   function renderInventoryTracker() {
     const TIMEFRAMES = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
 
@@ -1138,11 +1646,14 @@ export default function App() {
     );
     const totalQty = inventoryWithItems.reduce((s, { qty }) => s + qty, 0);
 
-    const primaryTotal = invChartMode === 'sv' ? totalSV : totalEbay;
-    const secondaryTotal = invChartMode === 'sv' ? totalEbay : totalSV;
-    const chartColor = invChartMode === 'sv' ? '#b794f4' : '#5eff8d';
+    const useEbay = gameConfig.hasEbay;
+    const effectiveMode = useEbay ? invChartMode : 'sv';
 
-    const portfolioSeries = buildPortfolioSeries(inventoryWithItems, invChartMode);
+    const primaryTotal = effectiveMode === 'sv' ? totalSV : totalEbay;
+    const secondaryTotal = effectiveMode === 'sv' ? totalEbay : totalSV;
+    const chartColor = effectiveMode === 'sv' ? '#b794f4' : '#5eff8d';
+
+    const portfolioSeries = buildPortfolioSeries(inventoryWithItems, effectiveMode);
     const filteredSeries = filterByTimeframe(portfolioSeries, invTimeframe);
     const startVal = filteredSeries.length > 1 ? filteredSeries[0].value : 0;
     const portfolioDelta = startVal > 0 ? (primaryTotal - startVal) / startVal : 0;
@@ -1168,7 +1679,7 @@ export default function App() {
     const allocItems = [...inventoryWithItems]
       .map(({ item, qty }) => ({
         item, qty,
-        value: (item.current?.ebay?.totalPrice ?? 0) * qty,
+        value: (useEbay ? (item.current?.ebay?.totalPrice ?? 0) : (item.current?.supreme?.value ?? 0)) * qty,
         tier: deriveTier(item),
       }))
       .filter(a => a.value > 0)
@@ -1217,7 +1728,7 @@ export default function App() {
           <div className="inv2-header-row">
             <div>
               <h1 className="inv2-page-title">Inventory Tracker</h1>
-              <p className="inv2-page-sub">Track your MM2 portfolio. Saved in your browser.</p>
+              <p className="inv2-page-sub">Track your {gameConfig.name} portfolio. Saved in your browser.</p>
             </div>
           </div>
           {searchBar}
@@ -1231,7 +1742,7 @@ export default function App() {
         <div className="inv2-header-row">
           <div>
             <h1 className="inv2-page-title">Inventory Tracker</h1>
-            <p className="inv2-page-sub">Track your MM2 portfolio. Saved in your browser.</p>
+            <p className="inv2-page-sub">Track your {gameConfig.name} portfolio. Saved in your browser.</p>
           </div>
           <button className="inv2-clear-btn" onClick={clearInventory}>Clear All</button>
         </div>
@@ -1245,8 +1756,8 @@ export default function App() {
                 <div className="inv2-hero-left">
                   <div className="inv2-label">portfolio value</div>
                   <div className="inv2-hero-value-row">
-                    <span className="inv2-portfolio-val" style={{ color: invChartMode === 'sv' ? '#b794f4' : 'var(--ink)' }}>
-                      {invChartMode === 'sv'
+                    <span className="inv2-portfolio-val" style={{ color: effectiveMode === 'sv' ? '#b794f4' : 'var(--ink)' }}>
+                      {effectiveMode === 'sv'
                         ? (totalSV > 0 ? formatSV(totalSV) : '—')
                         : (totalEbay > 0 ? `€${totalEbay.toFixed(2)}` : '—')}
                     </span>
@@ -1258,10 +1769,10 @@ export default function App() {
                     <span className="inv2-period-label">{invTimeframe}</span>
                   </div>
                   <div className="inv2-hero-secondary">
-                    {invChartMode === 'eur' && totalSV > 0 && (
+                    {effectiveMode === 'eur' && totalSV > 0 && (
                       <span className="inv2-secondary-val">{formatSV(totalSV)} <span style={{ color: 'var(--ink-faint)' }}>SV</span></span>
                     )}
-                    {invChartMode === 'sv' && totalEbay > 0 && (
+                    {effectiveMode === 'sv' && totalEbay > 0 && (
                       <span className="inv2-secondary-val">€{totalEbay.toFixed(2)} <span style={{ color: 'var(--ink-faint)' }}>eBay</span></span>
                     )}
                   </div>
@@ -1293,16 +1804,18 @@ export default function App() {
                       >{tf}</button>
                     ))}
                   </div>
-                  <div className="inv2-chart-toggle">
-                    <button
-                      className={`inv2-ct-btn${invChartMode === 'eur' ? ' active' : ''}`}
-                      onClick={() => setInvChartMode('eur')}
-                    >eBay €</button>
-                    <button
-                      className={`inv2-ct-btn${invChartMode === 'sv' ? ' active active-sv' : ''}`}
-                      onClick={() => setInvChartMode('sv')}
-                    >SV</button>
-                  </div>
+                  {useEbay && (
+                    <div className="inv2-chart-toggle">
+                      <button
+                        className={`inv2-ct-btn${invChartMode === 'eur' ? ' active' : ''}`}
+                        onClick={() => setInvChartMode('eur')}
+                      >eBay €</button>
+                      <button
+                        className={`inv2-ct-btn${invChartMode === 'sv' ? ' active active-sv' : ''}`}
+                        onClick={() => setInvChartMode('sv')}
+                      >SV</button>
+                    </div>
+                  )}
                 </div>
               </div>
               <PortfolioAreaChart values={chartVals} series={filteredSeries} color={chartColor} gradId={`inv2-grad-${invChartMode}`} mode={invChartMode} />
@@ -1321,8 +1834,8 @@ export default function App() {
                     <th style={{ width: 44 }} />
                     <th className="l">Item</th>
                     <th className="l">Tier</th>
-                    <th>eBay €</th>
-                    <th>SV</th>
+                    {useEbay && <th>eBay €</th>}
+                    <th>{useEbay ? 'SV' : gameConfig.valueLabel}</th>
                     <th>7d</th>
                     <th>Qty</th>
                     <th>Position</th>
@@ -1371,7 +1884,7 @@ export default function App() {
                             {tier.label}
                           </span>
                         </td>
-                        <td className="inv2-num inv2-muted">{ebay != null ? ebay.toFixed(2) : '—'}</td>
+                        {useEbay && <td className="inv2-num inv2-muted">{ebay != null ? ebay.toFixed(2) : '—'}</td>}
                         <td className="inv2-num inv2-muted">{sv != null ? formatSV(sv) : '—'}</td>
                         <td className="inv2-pct-td">
                           <span className={`inv2-pct-cell ${pctClass(pctVal)}`}>
@@ -1386,8 +1899,14 @@ export default function App() {
                           </div>
                         </td>
                         <td className="inv2-pos-cell">
-                          <span className="inv2-pos-total">{posTotal != null ? `€${posTotal.toFixed(2)}` : '—'}</span>
-                          <span className="inv2-pos-sv">{posSV != null ? formatSV(posSV) + ' SV' : ''}</span>
+                          {useEbay ? (
+                            <>
+                              <span className="inv2-pos-total">{posTotal != null ? `€${posTotal.toFixed(2)}` : '—'}</span>
+                              <span className="inv2-pos-sv">{posSV != null ? formatSV(posSV) + ' SV' : ''}</span>
+                            </>
+                          ) : (
+                            <span className="inv2-pos-total">{posSV != null ? formatValue(posSV) : '—'}</span>
+                          )}
                         </td>
                         <td style={{ padding: '0 8px' }}>
                           <button className="inv2-remove" onClick={() => updateInventoryQty(item.id, -qty)}>×</button>
@@ -1412,6 +1931,7 @@ export default function App() {
                   {topMovers.map(({ item, trend }) => {
                     const tier = deriveTier(item);
                     const ebay = item.current?.ebay?.totalPrice ?? null;
+                    const moverValue = useEbay ? ebay : (item.current?.supreme?.value ?? null);
                     const trendUp = trend >= 0;
                     return (
                       <div key={item.id} className="inv2-mover-row">
@@ -1422,7 +1942,7 @@ export default function App() {
                         </div>
                         <div className="inv2-mover-info">
                           <span className="inv2-mover-name">{item.name}</span>
-                          <span className="inv2-mover-price">{ebay != null ? `€${ebay.toFixed(2)}` : '—'}</span>
+                          <span className="inv2-mover-price">{moverValue != null ? (useEbay ? `€${moverValue.toFixed(2)}` : formatValue(moverValue)) : '—'}</span>
                         </div>
                         <span className={`inv2-mover-pct ${trendUp ? 'up' : 'down'}`}>
                           {trendUp ? '+' : ''}{(Math.abs(trend) * 100).toFixed(1)}%
@@ -1438,7 +1958,7 @@ export default function App() {
             <div className="inv2-card">
               <div className="inv2-card-label">allocation</div>
               {allocItems.length === 0 ? (
-                <div className="inv2-sidebar-empty">No eBay price data for allocation.</div>
+                <div className="inv2-sidebar-empty">{useEbay ? 'No eBay price data for allocation.' : 'No value data for allocation.'}</div>
               ) : (
                 <>
                   <div className="inv2-alloc-bar">
@@ -1470,6 +1990,17 @@ export default function App() {
   }
 
   function renderMarketplace() {
+    if (!gameConfig.hasMarketplace) {
+      return (
+        <section className="mp-wrap">
+          <h1 className="trade-checker-title">Marketplace</h1>
+          <div className="inv2-empty">
+            The {gameConfig.label} marketplace isn't available yet. Switch back to MM2 to browse listings.
+          </div>
+        </section>
+      );
+    }
+
     const q = mpSearch.trim().toLowerCase();
     const filtered = q ? SHOP_LISTINGS.filter(l => l.name.toLowerCase().includes(q)) : SHOP_LISTINGS;
 
@@ -1811,7 +2342,7 @@ export default function App() {
       {
         num: '01',
         title: 'Pick an item',
-        desc: 'Search any MM2 item or set and pull its live Supreme value instantly.',
+        desc: 'Search any MM2, Adopt Me, or Grow a Garden item and pull its live value instantly.',
       },
       {
         num: '02',
@@ -1854,13 +2385,13 @@ export default function App() {
             <div className="gw-home-copy">
               <span className="gw-home-live-pill">
                 <span className="gw-home-live-dot" />
-                276 items tracked live
+                MM2, Adopt Me &amp; Grow a Garden values tracked live
               </span>
               <h1 className="gw-home-title">
-                Know what every MM2 item is <span>really worth.</span>
+                Know what every item is <span>really worth.</span>
               </h1>
               <p className="gw-home-sub">
-                Compare Supreme values, live eBay prices, and trade totals in one place. Spot underpriced listings and value your whole inventory in seconds.
+                Compare live values for MM2, Adopt Me, and Grow a Garden — plus eBay prices and trade totals — all in one place. Spot underpriced listings and value your whole inventory in seconds.
               </p>
               <div className="gw-home-cta-row">
                 <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
@@ -2065,7 +2596,7 @@ export default function App() {
                 <strong>godlywatch</strong>
               </div>
               <p>
-                Live values, trades, and cheap listings for Murder Mystery 2. Not affiliated with Roblox.
+                Live values and trade tools for MM2, Adopt Me, and Grow a Garden. Not affiliated with Roblox.
               </p>
             </div>
 
@@ -2111,6 +2642,45 @@ export default function App() {
           <div className="gw-wordmark">
             godly<span className="gw-wordmark-accent">watch</span>
             <span className="gw-wordmark-beta">BETA</span>
+          </div>
+          <div className="gw-game-switcher-wrap" ref={gameMenuRef}>
+            <button
+              type="button"
+              className="gw-game-switcher"
+              onClick={() => setGameMenuOpen(open => !open)}
+              aria-expanded={gameMenuOpen}
+              title="Switch game"
+            >
+              <span className="gw-game-badge" style={{ background: gameConfig.color }}>
+                {gameConfig.icon
+                  ? <img className="gw-game-badge-img" src={gameConfig.icon} alt="" />
+                  : gameConfig.shortLabel}
+              </span>
+              <span className="gw-game-switcher-text">
+                <span className="gw-game-switcher-name">{gameConfig.label}</span>
+                <span className="gw-game-switcher-count">{items.length} items</span>
+              </span>
+              <span className={`gw-game-switcher-chevron${gameMenuOpen ? ' open' : ''}`}>⌄</span>
+            </button>
+            {gameMenuOpen && (
+              <div className="gw-game-menu">
+                {GAME_LIST.map(game => (
+                  <button
+                    key={game.id}
+                    type="button"
+                    className={`gw-game-menu-item${game.id === activeGame ? ' active' : ''}`}
+                    onClick={() => { changeGame(game.id); setGameMenuOpen(false); }}
+                  >
+                    <span className="gw-game-badge" style={{ background: game.color }}>
+                      {game.icon
+                        ? <img className="gw-game-badge-img" src={game.icon} alt="" />
+                        : game.shortLabel}
+                    </span>
+                    <span className="gw-game-menu-name">{game.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <nav className="gw-nav">
@@ -2161,7 +2731,7 @@ export default function App() {
 
       {/* Banners */}
       {error ? <div className="gw-banner error">{error}</div> : null}
-      {loading ? <div className="gw-banner">Fetching latest MM2 prices...</div> : null}
+      {loading ? <div className="gw-banner">Fetching latest {gameConfig.label} prices...</div> : null}
 
       {!loading && activeTab === 'home' ? (
         <div className="gw-tab-content">
@@ -2174,12 +2744,11 @@ export default function App() {
         <div className="gw-board-body">
           <GWSidebar
             items={items}
+            gameConfig={gameConfig}
             activeTier={activeTier}
             onTierChange={t => { setActiveTier(t); setActiveFilter('all'); }}
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
             refreshedAt={marketData.refreshedAt}
             favoriteIds={favoriteIds}
             recentMoves={recentMoves}
@@ -2197,15 +2766,36 @@ export default function App() {
                 />
                 <span className="gw-keycap">⌘K</span>
               </div>
+              {gameConfig.categories ? (
+                <div className="gw-category-pills">
+                  {[
+                    { key: 'all', label: 'All', color: 'var(--ink-faint)' },
+                    ...gameConfig.categories,
+                  ].map(c => (
+                    <button
+                      key={c.key}
+                      className={`gw-category-pill${categoryFilter === c.key ? ' active' : ''}`}
+                      style={categoryFilter === c.key ? { borderColor: c.color, color: c.color } : {}}
+                      onClick={() => { setCategoryFilter(c.key); setActiveTier('all'); setActiveFilter('all'); }}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              <select className="gw-mobile-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value="name">A–Z</option>
+                <option value="value-desc">Highest {gameConfig.valueLabel}</option>
+                <option value="value-asc">Lowest {gameConfig.valueLabel}</option>
+                {gameConfig.hasEbay && <option value="ebay-desc">Highest eBay</option>}
+              </select>
             </div>
+
             {/* Mobile tier filter strip */}
             <div className="gw-mobile-filters">
               {[
-                { key: 'all',    label: 'All',    color: 'var(--ink-faint)' },
-                { key: 'chroma', label: 'Chroma', color: 'var(--tier-chroma)' },
-                { key: 'godly',  label: 'Godly',  color: 'var(--tier-godly)' },
-                { key: 'ancient',label: 'Ancient',color: 'var(--tier-ancient)' },
-                { key: 'sets',   label: 'Sets',   color: 'var(--tier-vintage)' },
+                { key: 'all', label: 'All', color: 'var(--ink-faint)' },
+                ...gameConfig.tiers,
               ].map(t => (
                 <button
                   key={t.key}
@@ -2216,12 +2806,6 @@ export default function App() {
                   {t.label}
                 </button>
               ))}
-              <select className="gw-mobile-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                <option value="name">A–Z</option>
-                <option value="value-desc">Highest SV</option>
-                <option value="value-asc">Lowest SV</option>
-                <option value="ebay-desc">Highest eBay</option>
-              </select>
             </div>
 
             <div className="gw-main-header">
@@ -2231,26 +2815,35 @@ export default function App() {
                   {shownCount} items · refreshed {formatTimestamp(marketData.refreshedAt)}
                 </p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div className="gw-view-toggle">
-                  <button className={`gw-view-btn${viewMode === 'grid' ? ' active' : ''}`} onClick={() => setViewMode('grid')}>Grid</button>
-                  <button className={`gw-view-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')}>List</button>
+              {gameConfig.hasListView && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div className="gw-view-toggle">
+                    <button className={`gw-view-btn${viewMode === 'grid' ? ' active' : ''}`} onClick={() => setViewMode('grid')}>Grid</button>
+                    <button className={`gw-view-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')}>List</button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-            {viewMode === 'grid' ? (
+            {viewMode === 'grid' || !gameConfig.hasListView ? (
               <div className="gw-grid">
-                {tierBoardItems.map((item, index) => (
-                  <GWCard
-                    key={item.id}
-                    item={item}
-                    index={index}
-                    isFavorite={favoriteIds.includes(item.id)}
-                    onToggleFavorite={() => toggleFavorite(item.id)}
-                    onOpenChart={() => setSelectedChartItemId(item.id)}
-                    onAddToInventory={() => addInventoryItem(item.id)}
-                  />
-                ))}
+                {tierBoardItems.map((item, index) => {
+                  const CardComponent = item.game === 'adoptme'
+                    ? AdoptMeCard
+                    : item.game === 'growagarden'
+                      ? GrowAGardenCard
+                      : GWCard;
+                  return (
+                    <CardComponent
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      isFavorite={favoriteIds.includes(item.id)}
+                      onToggleFavorite={() => toggleFavorite(item.id)}
+                      onOpenChart={() => setSelectedChartItemId(item.id)}
+                      onAddToInventory={() => addInventoryItem(item.id)}
+                    />
+                  );
+                })}
                 {!tierBoardItems.length ? (
                   <p style={{ gridColumn: '1/-1', color: 'var(--ink-faint)', fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>
                     No items match this filter.
@@ -2662,6 +3255,40 @@ function buildTradeSlot({
   );
 }
 
+function buildAmTradeSlot({ sideKey, slot, slotIndex, item, openPicker, clearTradeSlot }) {
+  const value = item ? getSlotValue(item, slot) : null;
+
+  return (
+    <div key={`${sideKey}-${slotIndex}`} className="am-trade-slot-wrap">
+      <button
+        className={`am-trade-slot ${item ? "filled" : "empty"}`}
+        onClick={() => openPicker(sideKey, slotIndex)}
+        title={item?.name || "Add item"}
+      >
+        {item?.imageUrl ? (
+          <img className="am-trade-slot-image" src={proxyImg(item.imageUrl)} alt={item.name} />
+        ) : (
+          <span className="am-trade-slot-plus">+</span>
+        )}
+        {item && value != null && (
+          <span className="am-trade-slot-value">{formatValue(value)}</span>
+        )}
+      </button>
+
+      {item && (
+        <button
+          className="am-trade-slot-remove"
+          onClick={(e) => { e.stopPropagation(); clearTradeSlot(sideKey, slotIndex); }}
+          title="Remove"
+          aria-label={`Remove ${item.name}`}
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+}
+
 function MetricCard({ label, value, note }) {
   return (
     <article className="metric-card">
@@ -2716,15 +3343,16 @@ function writeStoredFavoriteIds(favoriteIds) {
   }
 }
 
-function createEmptyTradeSide() {
-  return Array.from({ length: TRADE_SLOT_COUNT }, () => ({
+function createEmptyTradeSide(count = TRADE_SLOT_COUNT) {
+  return Array.from({ length: count }, () => ({
     itemId: null,
-    quantity: 1
+    quantity: 1,
+    variant: null
   }));
 }
 
-function createEmptyTradeSearch() {
-  return Array.from({ length: TRADE_SLOT_COUNT }, () => "");
+function createEmptyTradeSearch(count = TRADE_SLOT_COUNT) {
+  return Array.from({ length: count }, () => "");
 }
 
 function normalizeTradeName(value) {
@@ -2748,7 +3376,7 @@ function getTradeSideTotal(slots, itemLookup) {
     }
 
     const item = itemLookup.get(slot.itemId);
-    const value = item?.current?.supreme?.value ?? 0;
+    const value = getSlotValue(item, slot);
 
     return sum + value * slot.quantity;
   }, 0);
