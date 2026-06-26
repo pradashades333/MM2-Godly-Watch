@@ -1,4 +1,5 @@
 const { getPetImageMap } = require("./adoptMeImageService");
+const { readHistory, writeHistory, mergeSnapshots, getRecentMoves: buildRecentMoves } = require("./historyService");
 
 const PETS_SOURCE_URL = "https://amvgg.com/values/pets";
 const VEHICLES_SOURCE_URL = "https://amvgg.com/values/vehicles";
@@ -271,8 +272,14 @@ async function buildMarketData() {
     throw new Error("Failed to fetch any Adopt Me market data");
   }
 
-  const items = [...pets, ...vehicles];
-  cache = { items, refreshedAt: new Date().toISOString() };
+  const allFresh = [...pets, ...vehicles];
+
+  const previousItems = await readHistory("adoptme");
+  const merged = mergeSnapshots(previousItems, allFresh);
+  await writeHistory(merged, "adoptme");
+  console.log(`[adoptme] saved history for ${merged.length} items`);
+
+  cache = { items: merged, refreshedAt: new Date().toISOString() };
   return cache;
 }
 
@@ -285,8 +292,15 @@ async function getMarketData() {
   if (isStale()) {
     if (!inFlight) {
       inFlight = buildMarketData()
-        .catch((err) => {
+        .catch(async (err) => {
           console.error("[adoptme] failed to refresh pet data:", err.message);
+          if (!cache.items.length) {
+            const saved = await readHistory("adoptme");
+            if (saved.length) {
+              console.log(`[adoptme] loaded ${saved.length} items from history file`);
+              cache = { items: saved, refreshedAt: new Date().toISOString() };
+            }
+          }
           return cache;
         })
         .finally(() => {
@@ -312,7 +326,8 @@ async function getMarketItemById(itemId) {
 }
 
 async function getRecentMoves() {
-  return [];
+  const items = await getMarketItems();
+  return buildRecentMoves(items);
 }
 
 async function getStats() {

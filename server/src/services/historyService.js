@@ -1,14 +1,22 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const HISTORY_FILE = process.env.DATA_DIR
-  ? path.join(process.env.DATA_DIR, "history.json")
-  : path.join(__dirname, "..", "data", "history.json");
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "..", "data");
 const MAX_HISTORY_POINTS = 180;
 
-async function readHistory() {
+const HISTORY_FILES = {
+  mm2: path.join(DATA_DIR, "history.json"),
+  adoptme: path.join(DATA_DIR, "adoptmeHistory.json"),
+  growagarden: path.join(DATA_DIR, "gagHistory.json"),
+};
+
+function historyFile(game) {
+  return HISTORY_FILES[game] || HISTORY_FILES.mm2;
+}
+
+async function readHistory(game = "mm2") {
   try {
-    const raw = await fs.readFile(HISTORY_FILE, "utf8");
+    const raw = await fs.readFile(historyFile(game), "utf8");
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
@@ -19,9 +27,10 @@ async function readHistory() {
   }
 }
 
-async function writeHistory(items) {
-  await fs.mkdir(path.dirname(HISTORY_FILE), { recursive: true });
-  await fs.writeFile(HISTORY_FILE, JSON.stringify(items, null, 2), "utf8");
+async function writeHistory(items, game = "mm2") {
+  const file = historyFile(game);
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(file, JSON.stringify(items, null, 2), "utf8");
 }
 
 function createHistoryPoint(item) {

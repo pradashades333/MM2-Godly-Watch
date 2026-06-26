@@ -333,6 +333,39 @@ function GWDualLine({ data, upTone, id = "x" }) {
   );
 }
 
+function Sparkline({ item }) {
+  const hist = item.history ?? [];
+  const vals = hist.map(p => p.supremeValue ?? null).filter(v => v != null);
+  const current = item.current?.supreme?.value;
+  if (current == null) return null;
+  if (current != null) vals.push(current);
+  if (vals.length < 2) vals.unshift(current);
+  const series = vals.slice(-20);
+  const W = 80, H = 28;
+  const max = Math.max(...series), min = Math.min(...series);
+  const range = max - min || 1;
+  const pts = series.map((v, i) => [
+    (i / Math.max(series.length - 1, 1)) * W,
+    H - ((v - min) / range) * (H - 6) - 3
+  ]);
+  const path = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const up = series[series.length - 1] >= series[0];
+  const color = up ? 'var(--up)' : 'var(--down)';
+  const gradId = `spark-${item.id}`;
+  return (
+    <svg className="gw-sparkline" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={path + ` L ${W} ${H} L 0 ${H} Z`} fill={`url(#${gradId})`} />
+      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
 function GWGauge({ value, max = 5, color, label }) {
   return (
     <div className="gw-gauge">
@@ -464,6 +497,7 @@ function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToI
   const currentDemand = isPet
     ? (adoptme[ADOPTME_DEMAND_FIELDS[variant.tier][potionKey]] ?? 0)
     : (item.current?.supreme?.demand ?? 0);
+  const hasValue = currentValue != null;
 
   function toggleFly(e) { e.stopPropagation(); setVariant(v => ({ ...v, fly: !v.fly })); }
   function toggleRide(e) { e.stopPropagation(); setVariant(v => ({ ...v, ride: !v.ride })); }
@@ -472,9 +506,9 @@ function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToI
 
   return (
     <article
-      className="gw-card"
-      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
-      onClick={onOpenChart}
+      className={`gw-card${hasValue ? '' : ' no-value'}`}
+      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}`, cursor: hasValue ? 'pointer' : 'default' }}
+      onClick={hasValue ? onOpenChart : undefined}
     >
       <button
         className={`gw-card-fav${isFavorite ? ' active' : ''}`}
@@ -546,6 +580,7 @@ function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToI
         <div className="gw-gauges">
           <GWGauge value={currentDemand} color="var(--tier-ancient)" label="DEM" />
         </div>
+        {hasValue && <Sparkline item={item} />}
       </div>
       {onAddToInventory && (
         <button
@@ -562,12 +597,13 @@ function GrowAGardenCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAd
   const tier = deriveTier(item);
   const value = item.current?.supreme?.value ?? null;
   const demandRaw = item.current?.supreme?.demandRaw ?? 0;
+  const hasValue = value != null;
 
   return (
     <article
-      className="gw-card"
-      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
-      onClick={onOpenChart}
+      className={`gw-card${hasValue ? '' : ' no-value'}`}
+      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}`, cursor: hasValue ? 'pointer' : 'default' }}
+      onClick={hasValue ? onOpenChart : undefined}
     >
       <button
         className={`gw-card-fav${isFavorite ? ' active' : ''}`}
@@ -613,6 +649,7 @@ function GrowAGardenCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAd
             </span>
           </div>
         )}
+        {hasValue && <Sparkline item={item} />}
       </div>
       {onAddToInventory && (
         <button
@@ -843,6 +880,7 @@ export default function App() {
   const [wantTradeSearch, setWantTradeSearch] = useState(() => createEmptyTradeSearch(getTradeSlotCount(readStoredGame())));
   const [activeTier, setActiveTier] = useState('all');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [showOnlyValued, setShowOnlyValued] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const [inventoryItems, setInventoryItems] = useState(readStoredInventory);
   const [inventorySearch, setInventorySearch] = useState("");
@@ -1042,6 +1080,7 @@ export default function App() {
     setActiveTier('all');
     setActiveFilter('all');
     setCategoryFilter('all');
+    setShowOnlyValued(false);
     setQuery('');
     setSelectedChartItemId(null);
     const slotCount = getTradeSlotCount(gameId);
@@ -1064,6 +1103,10 @@ export default function App() {
         item.id.toLowerCase().includes(normalizedQuery);
       const matchesCategory =
         categoryFilter === "all" || item.category === categoryFilter;
+      if (showOnlyValued) {
+        const v = item.current?.supreme?.value;
+        if (v == null || v === 0) return false;
+      }
 
       return matchesQuery && matchesCategory;
     });
@@ -1089,7 +1132,7 @@ export default function App() {
     });
 
     return result;
-  }, [items, deferredQuery, categoryFilter, sortBy]);
+  }, [items, deferredQuery, categoryFilter, sortBy, showOnlyValued]);
 
   const pinnedItems = useMemo(() => {
     return favoriteIds
@@ -2202,389 +2245,124 @@ export default function App() {
     );
   }
 
+  const HERO_GAMES = ['MM2', 'Adopt Me', 'Grow a Garden'];
+  const [heroGameIdx, setHeroGameIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setHeroGameIdx(i => (i + 1) % HERO_GAMES.length), 2200);
+    return () => clearInterval(id);
+  }, []);
+
   function renderHome() {
-    const jumpHomeSection = (id) => {
-      const node = document.getElementById(id);
-      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-
-    const cheapestListing = [...SHOP_LISTINGS]
-      .map((listing) => {
-        const marketItem = findMarketplaceItem(items, listing);
-        const price = listing.price ?? marketItem?.current?.ebay?.totalPrice ?? null;
-        return { ...listing, price };
-      })
-      .filter((listing) => listing.price != null)
-      .sort((a, b) => a.price - b.price)[0];
-
-    const bestValueGap = [...SHOP_LISTINGS]
-      .map((listing) => {
-        const marketItem = findMarketplaceItem(items, listing);
-        const boardPrice = marketItem?.current?.ebay?.totalPrice ?? null;
-        const listingPrice = listing.price ?? boardPrice;
-        if (boardPrice == null || listingPrice == null || boardPrice <= 0 || listingPrice >= boardPrice) return null;
-        return {
-          name: listing.name,
-          gapPct: Math.round(((boardPrice - listingPrice) / boardPrice) * 100),
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.gapPct - a.gapPct)[0];
-
-    const inventoryPreview = inventoryItems.reduce(
-      (acc, entry) => {
-        const item = itemLookup.get(entry.id);
-        acc.count += entry.qty;
-        acc.value += (item?.current?.ebay?.totalPrice ?? 0) * entry.qty;
-        return acc;
-      },
-      { count: 0, value: 0 }
-    );
-
-    const sampleTrade = {
-      have: haveTradeSlots.reduce((sum, slot) => {
-        const item = slot.itemId ? itemLookup.get(slot.itemId) : null;
-        return sum + (item?.current?.supreme?.value ?? 0);
-      }, 0),
-      want: wantTradeSlots.reduce((sum, slot) => {
-        const item = slot.itemId ? itemLookup.get(slot.itemId) : null;
-        return sum + (item?.current?.supreme?.value ?? 0);
-      }, 0),
-    };
-    const tradeResult = sampleTrade.have === sampleTrade.want ? 'Even' : sampleTrade.have > sampleTrade.want ? 'Win' : 'Loss';
-
-    const previewCandidates = recentMoves.length ? recentMoves : items.slice(0, 8);
-    const marketPreviewRows = previewCandidates.slice(0, 4).map((item, index) => {
+    const heroData = items.slice(0, 5).map(item => {
       const tier = deriveTier(item);
-      const ebayPrice = item.current?.ebay?.totalPrice;
       const trend = getItemTrend(item);
-      const trendUp = trend >= 0;
-      const trendPct = `${trendUp ? '+' : '-'}${Math.abs(trend * 100).toFixed(1)}%`;
-      const fallbackNames = ['Hallowgun', 'Chroma Seer', 'Eternal', "Nik's Scythe"];
-      const fallbackTiers = ['Godly', 'Chroma', 'Ancient', 'Vintage'];
-      const fallbackPrices = ['EUR 1.16', 'EUR 42.50', 'EUR 88.00', 'EUR 12.30'];
-      const fallbackChange = ['+4.2%', '+1.8%', '-2.1%', '+0.6%'];
-
+      const up = trend >= 0;
+      const val = item.current?.supreme?.value ?? item.current?.ebay?.totalPrice ?? null;
       return {
-        name: item?.name ?? fallbackNames[index] ?? 'Market item',
-        tierLabel: item ? tier.label : fallbackTiers[index] ?? 'Godly',
-        tierColor: item ? tier.color : (
-          index === 1 ? 'var(--tier-chroma)' :
-          index === 2 ? 'var(--tier-ancient)' :
-          index === 3 ? 'var(--ink-faint)' :
-          'var(--tier-godly)'
-        ),
-        price: ebayPrice != null ? `EUR ${ebayPrice.toFixed(2)}` : (fallbackPrices[index] ?? '--'),
-        trend: item ? trendPct : (fallbackChange[index] ?? '--'),
-        trendUp: item ? trendUp : !(fallbackChange[index] ?? '').startsWith('-'),
+        name: item.name,
+        tier: tier.label,
+        tierColor: tier.color,
+        price: val != null ? formatValue(val) : '--',
+        change: `${up ? '+' : ''}${(trend * 100).toFixed(1)}%`,
+        up,
       };
     });
 
-    const homeStats = [
-      { value: `${homeTrackedItems ?? '--'}`, label: 'Items tracked' },
-      { value: `${ebayCoveragePct ?? '--'}%`, label: 'eBay coverage' },
-      { value: `${homeRecentMoves ?? '--'}`, label: 'Movers today' },
-      { value: '24/7', label: 'Live updates' },
+    const gameCards = [
+      { id: 'mm2', label: 'MM2', game: 'mm2' },
+      { id: 'adoptme', label: 'Adopt Me', game: 'adoptme' },
+      { id: 'growagarden', label: 'Grow a Garden', game: 'growagarden' },
     ];
 
-    const homeCards = [
-      {
-        id: 'trade-checker',
-        eyebrow: 'Trade',
-        title: 'Check a Trade',
-        desc: 'Add items to both sides and see who is winning fast.',
-        preview: [
-          { label: 'Your side', value: sampleTrade.have ? `SV ${sampleTrade.have.toLocaleString()}` : 'Add items' },
-          { label: 'Their side', value: sampleTrade.want ? `SV ${sampleTrade.want.toLocaleString()}` : 'Compare live' },
-          { label: 'Result', value: tradeResult },
-        ],
-        cta: 'Live Supreme comparison',
-      },
-      {
-        id: 'marketplace',
-        eyebrow: 'Market',
-        title: 'Find Cheap Items',
-        desc: 'Jump to the lowest live eBay listings without digging around.',
-        preview: [
-          { label: 'Item', value: cheapestListing?.name ?? 'Loading' },
-          { label: 'Price', value: cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--' },
-          { label: 'Listings', value: `${SHOP_LISTINGS.length} live` },
-        ],
-        cta: 'Direct eBay listings',
-      },
-      {
-        id: 'inventory-tracker',
-        eyebrow: 'Inventory',
-        title: 'Value My Inventory',
-        desc: 'Total every item against current prices in one pass.',
-        preview: [
-          { label: 'Total', value: `EUR ${inventoryPreview.value.toFixed(2)}` },
-          { label: 'Items', value: `${inventoryPreview.count} tracked` },
-          { label: 'Source', value: 'Live eBay' },
-        ],
-        cta: 'Portfolio value check',
-      },
-      {
-        id: 'board',
-        eyebrow: 'Board',
-        title: 'Browse the Board',
-        desc: 'Track values, movement, and underpriced items across the main tiers.',
-        preview: [
-          { label: 'Tracked', value: `${homeTrackedItems ?? '--'} items` },
-          { label: 'Filters', value: 'Chroma | Godly | Ancient' },
-          { label: 'Updated', value: marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--' },
-        ],
-        cta: 'Filters and live movement',
-      },
-    ];
-
-    const howSteps = [
-      {
-        num: '01',
-        title: 'Pick an item',
-        desc: 'Search any MM2, Adopt Me, or Grow a Garden item and pull its live value instantly.',
-      },
-      {
-        num: '02',
-        title: 'Compare live prices',
-        desc: 'See the cheapest eBay listings and the value gap side by side.',
-      },
-      {
-        num: '03',
-        title: 'Trade or list smarter',
-        desc: 'Confirm a fair trade or list at the right price with confidence.',
-      },
-    ];
-
-    const showcaseRows = {
-      chroma: [
-        { name: 'Full Chroma Set', sublabel: 'SETS', price: 'EUR 1.16', change: '—', up: true },
-        { name: 'Chroma Luger', sublabel: 'CHROMA', price: 'EUR 0.90', change: '—', up: true },
-        { name: 'Chroma Seer', sublabel: 'CHROMA', price: 'EUR 1.40', change: '↘', up: false },
-        { name: 'Chroma Gemstone', sublabel: 'CHROMA', price: 'EUR 2.10', change: '—', up: true },
-      ],
-      godly: [
-        { name: 'Luger Set', sublabel: 'SETS', price: 'EUR 6.25', change: '↗', up: true },
-        { name: 'Iceblaster', sublabel: 'GODLY', price: 'EUR 4.90', change: '↗', up: true },
-        { name: 'Hallowgun', sublabel: 'GODLY', price: 'EUR 1.16', change: '↗', up: true },
-        { name: 'Heart Wand', sublabel: 'GODLY', price: 'EUR 6.69', change: '—', up: true },
-      ],
-      ancient: [
-        { name: 'Bat', sublabel: 'ANCIENT', price: 'EUR 4.40', change: '↗', up: true },
-        { name: 'Eternal', sublabel: 'ANCIENT', price: 'EUR 88.00', change: '↘', up: false },
-        { name: 'Icepiercer', sublabel: 'ANCIENT', price: 'EUR 4.40', change: '—', up: true },
-        { name: 'Harvester Bundle', sublabel: 'ANCIENT', price: 'EUR 12.50', change: '↗', up: true },
-      ],
-    };
+    const liveCards = heroData.slice(0, 3);
+    const trendingChips = heroData.slice(0, 5);
 
     return (
       <section className="gw-home">
-        <section className="gw-home-section gw-home-hero-shell">
-          <div className="gw-home-glow" aria-hidden="true" />
-          <div className="gw-home-hero">
-            <div className="gw-home-copy">
-              <span className="gw-home-live-pill">
-                <span className="gw-home-live-dot" />
-                MM2, Adopt Me &amp; Grow a Garden values tracked live
+        <header className="gw-home-header">
+          <div className="gw-home-header-inner">
+            <div className="gw-home-header-logo" onClick={() => navigateToTab('home')}>
+              <span className="gw-home-header-icon">↗</span>
+              <strong>godlywatch</strong>
+            </div>
+            <nav className="gw-home-header-nav">
+              {gameCards.map(g => (
+                <button key={g.id} onClick={() => { changeGame(g.game); navigateToTab('board'); }}>
+                  {g.label}
+                </button>
+              ))}
+            </nav>
+            <button className="gw-home-header-cta" onClick={() => navigateToTab('trade-checker')}>
+              Value Calculator
+            </button>
+          </div>
+        </header>
+
+        <section className="gw-home-hero">
+          <div className="gw-home-hero-inner">
+            <span className="gw-home-pill">
+              <span className="gw-home-pill-dot" />
+              Tracking {homeTrackedItems ?? '2,480'}+ items across 3 games
+            </span>
+
+            <h1 className="gw-home-headline">
+              <span>Every value in</span>
+              <span className="gw-home-headline-game" key={heroGameIdx}>
+                {HERO_GAMES[heroGameIdx]}
               </span>
-              <h1 className="gw-home-title">
-                Know what every item is <span>really worth.</span>
-              </h1>
-              <p className="gw-home-sub">
-                Compare live values for MM2, Adopt Me, and Grow a Garden — plus eBay prices and trade totals — all in one place. Spot underpriced listings and value your whole inventory in seconds.
-              </p>
-              <div className="gw-home-cta-row">
-                <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
-                  Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
+              <span>one place.</span>
+            </h1>
+
+            <p className="gw-home-subhead">
+              Live prices for MM2, Adopt Me &amp; Grow a Garden. Pick a game and know what your items are worth before you trade.
+            </p>
+
+            <div className="gw-home-picker">
+              {gameCards.map(g => (
+                <button
+                  key={g.id}
+                  className="gw-home-picker-card"
+                  onClick={() => { changeGame(g.game); navigateToTab('board'); }}
+                >
+                  <div>
+                    <strong>{g.label}</strong>
+                    <span>View values</span>
+                  </div>
+                  <span className="gw-home-picker-arrow">↗</span>
                 </button>
-                <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
-                  Check a Trade
-                </button>
-              </div>
-              <div className="gw-home-subnote">
-                Free to use · No account needed · Updated {marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--'}
-              </div>
+              ))}
             </div>
 
-            <aside className="gw-home-market-card" id="market">
-              <div className="gw-home-market-head">
-                <div>
-                  <span className="gw-home-kicker">Live market</span>
-                  <p className="gw-home-market-subhead">Top movers today</p>
-                </div>
-                <span className="gw-home-market-live">
-                  <span className="gw-home-market-live-dot" />
-                  Live
-                </span>
+            {trendingChips.length > 0 && (
+              <div className="gw-home-trending">
+                <span className="gw-home-trending-label">↗ Trending now</span>
+                {trendingChips.map(c => (
+                  <span key={c.name} className={`gw-home-trending-chip${c.up ? ' up' : ' down'}`}>
+                    {c.name} <span>{c.change}</span>
+                  </span>
+                ))}
               </div>
+            )}
 
-              <div className="gw-home-market-list">
-                {marketPreviewRows.map((row) => (
-                  <div key={row.name} className="gw-home-market-row">
-                    <div className="gw-home-market-item">
-                      <strong>{row.name}</strong>
-                      <span style={{ color: row.tierColor }}>{row.tierLabel}</span>
+            {liveCards.length > 0 && (
+              <div className="gw-home-live-cards">
+                {liveCards.map(card => (
+                  <div key={card.name} className="gw-home-live-card">
+                    <div className="gw-home-live-card-left">
+                      <strong>{card.name}</strong>
+                      <span style={{ color: card.tierColor }}>{card.tier}</span>
                     </div>
-                    <div className="gw-home-market-side">
-                      <strong>{row.price}</strong>
-                      <span className={`gw-home-market-trend${row.trendUp ? ' up' : ' down'}`}>
-                        <span>{row.trendUp ? '↗' : '↘'}</span>
-                        <span>{row.trend}</span>
+                    <div className="gw-home-live-card-right">
+                      <strong>{card.price}</strong>
+                      <span className={card.up ? 'up' : 'down'}>
+                        {card.up ? '↗' : '↘'} {card.change}
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <div className="gw-home-market-foot">
-                <span>eBay coverage</span>
-                <strong>{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</strong>
-              </div>
-
-              <div className="gw-home-floating-stat">
-                <span>Cheapest listing</span>
-                <strong>{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</strong>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section className="gw-home-stats-bar">
-          <div className="gw-home-stats-grid">
-            {homeStats.map((stat) => (
-              <div key={stat.label} className="gw-home-stat-cell">
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="gw-home-section" id="features">
-          <div className="gw-home-section-head gw-home-section-head-center">
-            <span className="gw-home-kicker">Everything in one board</span>
-            <h2 className="gw-home-section-title">Built for traders who hate guessing.</h2>
-            <p className="gw-home-section-copy">
-              Stop bouncing between random value lists, marketplace pages, and eBay tabs just to price one trade.
-            </p>
-          </div>
-
-          <div className="gw-home-feature-grid">
-            {homeCards.map((card) => (
-              <button
-                key={card.id}
-                className="gw-home-feature-card"
-                onClick={() => navigateToTab(card.id)}
-              >
-                <div className="gw-home-feature-icon">{card.eyebrow.slice(0, 1)}</div>
-                <span className="gw-home-feature-eyebrow">{card.eyebrow}</span>
-                <h3 className="gw-home-feature-title">{card.title}</h3>
-                <p className="gw-home-feature-desc">{card.desc}</p>
-                <div className="gw-home-card-preview">
-                  {card.preview.map((row) => (
-                    <div key={row.label} className="gw-home-card-preview-row">
-                      <span className="gw-home-card-preview-label">{row.label}</span>
-                      <span className="gw-home-card-preview-value">{row.value}</span>
-                    </div>
-                  ))}
-                </div>
-                <span className="gw-home-feature-link">
-                  {card.cta} <span className="gw-home-inline-arrow">-&gt;</span>
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="gw-home-how-wrap" id="how-it-works">
-          <div className="gw-home-section gw-home-how">
-            <div className="gw-home-section-head gw-home-section-head-center">
-              <span className="gw-home-kicker">How it works</span>
-              <h2 className="gw-home-section-title">From guess to gain.</h2>
-              <p className="gw-home-section-copy">
-                Search the item, compare the live prices, then make the trade or listing call with real numbers.
-              </p>
-            </div>
-
-            <div className="gw-home-how-grid">
-              {howSteps.map((step) => (
-                <div key={step.num} className="gw-home-how-card">
-                  <span className="gw-home-how-num">{step.num}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="gw-home-section gw-home-board-showcase" id="board-preview">
-          <div className="gw-home-board-layout">
-            <div className="gw-home-board-copy">
-              <span className="gw-home-kicker">The board</span>
-              <h2 className="gw-home-section-title">Every tier, one live table.</h2>
-              <p className="gw-home-section-copy">
-                Track Chroma, Godly, and Ancient tiers in one place and compare values against live market movement without leaving the board.
-              </p>
-              <button className="gw-home-board-link" onClick={() => navigateToTab('board')}>
-                Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
-              </button>
-            </div>
-
-            <div className="gw-home-board-card">
-              <div className="gw-home-board-tabs" role="tablist" aria-label="Board tiers">
-                {[
-                  ['chroma', 'Chroma'],
-                  ['godly', 'Godly'],
-                  ['ancient', 'Ancient'],
-                ].map(([key, label]) => (
-                  <button
-                    key={key}
-                    role="tab"
-                    aria-selected={homeBoardTier === key}
-                    className={`gw-home-board-tab${homeBoardTier === key ? ' active' : ''}`}
-                    onClick={() => setHomeBoardTier(key)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="gw-home-board-rows">
-                {showcaseRows[homeBoardTier].map((row) => (
-                  <div key={row.name} className="gw-home-board-row">
-                    <div className="gw-home-board-row-left">
-                      <strong>{row.name}</strong>
-                      <span>{row.sublabel}</span>
-                    </div>
-                    <div className="gw-home-board-row-right">
-                      <strong>{row.price}</strong>
-                      <span className={`gw-home-board-chip${row.up ? ' up' : ' down'}`}>{row.change}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="gw-home-section" id="pricing">
-          <div className="gw-home-cta-panel">
-            <div className="gw-home-glow" aria-hidden="true" />
-            <span className="gw-home-kicker">Ready?</span>
-            <h2 className="gw-home-cta-title">Stop guessing. Start trading smarter.</h2>
-            <p className="gw-home-section-copy">
-              Open the board, compare the live numbers, and move faster without bouncing between tabs.
-            </p>
-            <div className="gw-home-cta-row gw-home-cta-row-center">
-              <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
-                Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
-              </button>
-              <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
-                Check a Trade
-              </button>
-            </div>
-            <div className="gw-home-subnote">Free to use · No account needed</div>
+            )}
           </div>
         </section>
 
@@ -2595,39 +2373,24 @@ export default function App() {
                 <span className="gw-home-footer-logo-box">↗</span>
                 <strong>godlywatch</strong>
               </div>
-              <p>
-                Live values and trade tools for MM2, Adopt Me, and Grow a Garden. Not affiliated with Roblox.
-              </p>
+              <p>Live values and trade tools for MM2, Adopt Me, and Grow a Garden. Not affiliated with Roblox.</p>
             </div>
-
             <div className="gw-home-footer-links">
               <span>Product</span>
               <button onClick={() => navigateToTab('board')}>Value Board</button>
-              <button onClick={() => navigateToTab('trade-checker')}>Check a Trade</button>
-              <button onClick={() => navigateToTab('marketplace')}>Find Cheap Items</button>
-              <button onClick={() => navigateToTab('inventory-tracker')}>Inventory Value</button>
+              <button onClick={() => navigateToTab('trade-checker')}>Trade Checker</button>
+              <button onClick={() => navigateToTab('marketplace')}>Marketplace</button>
+              <button onClick={() => navigateToTab('inventory-tracker')}>Inventory</button>
             </div>
-
             <div className="gw-home-footer-links">
-              <span>Resources</span>
-              <button onClick={() => jumpHomeSection('how-it-works')}>How it works</button>
-              <button onClick={() => jumpHomeSection('board-preview')}>Tier guide</button>
-              <button onClick={() => jumpHomeSection('market')}>Changelog</button>
-              <button onClick={() => jumpHomeSection('pricing')}>Updates</button>
-            </div>
-
-            <div className="gw-home-footer-links">
-              <span>Company</span>
-              <button onClick={() => navigateToTab('home')}>About</button>
-              <button onClick={() => jumpHomeSection('pricing')}>Privacy</button>
-              <button onClick={() => jumpHomeSection('pricing')}>Contact</button>
-              <button onClick={() => jumpHomeSection('pricing')}>Terms</button>
+              <span>Games</span>
+              {gameCards.map(g => (
+                <button key={g.id} onClick={() => { changeGame(g.game); navigateToTab('board'); }}>{g.label}</button>
+              ))}
             </div>
           </div>
-
           <div className="gw-home-footer-bottom">
-            <span>© 2026 godlywatch. Not affiliated with Roblox.</span>
-            <span>Updated 06 JUN · 21:29</span>
+            <span>&copy; 2026 godlywatch. Not affiliated with Roblox.</span>
           </div>
         </footer>
       </section>
@@ -2783,6 +2546,13 @@ export default function App() {
                   ))}
                 </div>
               ) : null}
+              <button
+                className={`gw-value-toggle${showOnlyValued ? ' active' : ''}`}
+                onClick={() => setShowOnlyValued(v => !v)}
+                title={showOnlyValued ? 'Showing items with values only' : 'Showing all items'}
+              >
+                {showOnlyValued ? '◉ Valued' : '○ All'}
+              </button>
               <select className="gw-mobile-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}>
                 <option value="name">A–Z</option>
                 <option value="value-desc">Highest {gameConfig.valueLabel}</option>
@@ -3099,10 +2869,10 @@ function ChartModal({ item, isFavorite, onToggleFavorite, onClose }) {
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 16 }}>
           {[
-            { label: 'eBay Price', value: ebayPrice != null ? `€${ebayPrice.toFixed(2)}` : '--' },
-            { label: 'Supreme Value', value: formatSV(supValue) },
+            ebayPrice != null ? { label: 'eBay Price', value: `€${ebayPrice.toFixed(2)}` } : null,
+            { label: item.game === 'mm2' ? 'Supreme Value' : 'Value', value: formatSV(supValue) },
             { label: '7D Trend', value: `${trend >= 0 ? '+' : ''}${trendPct}%`, color: trendColor },
-          ].map(s => (
+          ].filter(Boolean).map(s => (
             <div key={s.label} style={{ background: 'var(--card-hi)', border: '1px solid var(--line)', borderRadius: 4, padding: '10px 12px' }}>
               <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: 'var(--ink-faint)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>{s.label}</div>
               <div style={{ fontFamily: 'Saira Condensed,Arial Narrow,sans-serif', fontSize: 24, fontWeight: 600, color: s.color || 'var(--ink)' }}>{s.value}</div>

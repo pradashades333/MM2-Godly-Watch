@@ -4,6 +4,7 @@ const http2 = require("http2");
 const zlib = require("zlib");
 
 const EXTRA_PETS = require("../data/growAGardenExtraPets");
+const { readHistory, writeHistory, mergeSnapshots, getRecentMoves: buildRecentMoves } = require("./historyService");
 
 const execFileAsync = promisify(execFile);
 
@@ -195,8 +196,6 @@ async function buildMarketData() {
     .filter((item) => item.type !== "Currency")
     .map(normalizeItem);
 
-  // Traderie sometimes lists the same pet/crop twice with different internal
-  // IDs. Deduplicate by name, keeping whichever copy has a value.
   const byName = new Map();
   for (const item of normalized) {
     const existing = byName.get(item.name);
@@ -204,14 +203,21 @@ async function buildMarketData() {
       byName.set(item.name, item);
     }
   }
-  const items = Array.from(byName.values());
+  const freshItems = Array.from(byName.values());
 
-  const existingIds = new Set(items.map((item) => item.id));
+  const existingIds = new Set(freshItems.map((item) => item.id));
   const extraItems = EXTRA_PETS
     .map(normalizeExtraPet)
     .filter((item) => !existingIds.has(item.id));
 
-  cache = { items: [...items, ...extraItems], refreshedAt: new Date().toISOString() };
+  const allFresh = [...freshItems, ...extraItems];
+
+  const previousItems = await readHistory("growagarden");
+  const merged = mergeSnapshots(previousItems, allFresh);
+  await writeHistory(merged, "growagarden");
+  console.log(`[growagarden] saved history for ${merged.length} items`);
+
+  cache = { items: merged, refreshedAt: new Date().toISOString() };
   return cache;
 }
 
@@ -224,11 +230,17 @@ async function getMarketData() {
   if (isStale()) {
     if (!inFlight) {
       inFlight = buildMarketData()
-        .catch((err) => {
+        .catch(async (err) => {
           console.error("[growagarden] failed to refresh data:", err.message);
-          if (!cache.items.length && staticFallback.length) {
-            console.log(`[growagarden] using static fallback (${staticFallback.length} items)`);
-            cache = { items: staticFallback, refreshedAt: "static" };
+          if (!cache.items.length) {
+            const saved = await readHistory("growagarden");
+            if (saved.length) {
+              console.log(`[growagarden] loaded ${saved.length} items from history file`);
+              cache = { items: saved, refreshedAt: new Date().toISOString() };
+            } else if (staticFallback.length) {
+              console.log(`[growagarden] using static fallback (${staticFallback.length} items)`);
+              cache = { items: staticFallback, refreshedAt: "static" };
+            }
           }
           return cache;
         })
@@ -255,7 +267,8 @@ async function getMarketItemById(itemId) {
 }
 
 async function getRecentMoves() {
-  return [];
+  const items = await getMarketItems();
+  return buildRecentMoves(items);
 }
 
 async function getStats() {

@@ -19,6 +19,12 @@ export const GAMES = {
       { key: "godly", label: "Godly", color: "var(--tier-godly)" },
       { key: "ancient", label: "Ancient", color: "var(--tier-ancient)" },
       { key: "sets", label: "Sets", color: "var(--tier-vintage)" }
+    ],
+    categories: [
+      { key: "godlies", label: "Godlies", color: "var(--tier-godly)" },
+      { key: "chromas", label: "Chromas", color: "var(--tier-chroma)" },
+      { key: "ancients", label: "Ancients", color: "var(--tier-ancient)" },
+      { key: "sets", label: "Sets", color: "var(--tier-vintage)" }
     ]
   },
   adoptme: {
