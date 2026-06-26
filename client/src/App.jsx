@@ -2293,9 +2293,6 @@ export default function App() {
                 </button>
               ))}
             </nav>
-            <button className="gw-home-header-cta" onClick={() => navigateToTab('trade-checker')}>
-              Value Calculator
-            </button>
           </div>
         </header>
 
@@ -2402,7 +2399,7 @@ export default function App() {
       {/* TopBar */}
       <header className="gw-topbar">
         <div className="gw-topbar-left">
-          <div className="gw-wordmark">
+          <div className="gw-wordmark" onClick={() => navigateToTab('home')} style={{ cursor: 'pointer' }}>
             godly<span className="gw-wordmark-accent">watch</span>
             <span className="gw-wordmark-beta">BETA</span>
           </div>
