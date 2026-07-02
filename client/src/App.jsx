@@ -3101,6 +3101,65 @@ export default function App() {
               </div>
             )}
           </div>
+          {accountsEnabled && (
+            <div className="gw-account-wrap" ref={accountMenuRef}>
+              {session ? (
+                <button
+                  className={`gw-account-btn${profile?.premium ? " premium" : ""}`}
+                  onClick={() => { setAccountMenuOpen(open => !open); setNotifOpen(false); }}
+                  title={session.user?.email || "Account"}
+                >
+                  {(session.user?.email || "?")[0].toUpperCase()}
+                </button>
+              ) : (
+                <div className="gw-auth-btns">
+                  <button className="gw-signin-btn" onClick={() => openAuth("signin")}>
+                    Sign in
+                  </button>
+                  <button className="gw-signup-btn" onClick={() => openAuth("signup")}>
+                    Sign up
+                  </button>
+                </div>
+              )}
+              {accountMenuOpen && session && (
+                <div className="gw-account-menu">
+                  <div className="gw-account-email">{session.user?.email}</div>
+                  {profile?.premium ? (
+                    <div className="gw-premium-active">★ Premium — favorites sync &amp; price alerts on</div>
+                  ) : (
+                    <div className="gw-premium-upsell">
+                      <div className="gw-premium-perks">
+                        <span>★ Favorites synced across devices</span>
+                        <span>🔔 Price alerts when your items move</span>
+                      </div>
+                      <button className="gw-premium-buy" onClick={startPremiumCheckout} disabled={premiumBusy}>
+                        {premiumBusy ? "..." : "Unlock Premium — $5 one-time"}
+                      </button>
+                    </div>
+                  )}
+                  <button className="gw-account-signout" onClick={handleSignOut}>Sign out</button>
+                </div>
+              )}
+            </div>
+          )}
+          {accountsEnabled && session && profile?.premium && (
+            <div className="gw-notif-wrap" ref={notifRef}>
+              <button
+                className="gw-notif-bell"
+                onClick={toggleNotifPanel}
+                title="Price alerts"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+                </svg>
+                {notifData.unreadCount > 0 && (
+                  <span className="gw-notif-badge">{notifData.unreadCount > 9 ? "9+" : notifData.unreadCount}</span>
+                )}
+              </button>
+              {notifOpen && <NotificationPanel notifications={notifData.notifications} />}
+            </div>
+          )}
         </div>
         <nav className="gw-nav">
           {TABS.map(tab => (
@@ -3125,60 +3184,6 @@ export default function App() {
           />
           <span className="gw-keycap">⌘K</span>
         </div>
-        {accountsEnabled && session && profile?.premium && (
-          <div className="gw-notif-wrap" ref={notifRef}>
-            <button
-              className="gw-notif-bell"
-              onClick={toggleNotifPanel}
-              title="Price alerts"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-              </svg>
-              {notifData.unreadCount > 0 && (
-                <span className="gw-notif-badge">{notifData.unreadCount > 9 ? "9+" : notifData.unreadCount}</span>
-              )}
-            </button>
-            {notifOpen && <NotificationPanel notifications={notifData.notifications} />}
-          </div>
-        )}
-        {accountsEnabled && (
-          <div className="gw-account-wrap" ref={accountMenuRef}>
-            {session ? (
-              <button
-                className={`gw-account-btn${profile?.premium ? " premium" : ""}`}
-                onClick={() => { setAccountMenuOpen(open => !open); setNotifOpen(false); }}
-                title={session.user?.email || "Account"}
-              >
-                {(session.user?.email || "?")[0].toUpperCase()}
-              </button>
-            ) : (
-              <button className="gw-signin-btn" onClick={() => openAuth("signin")}>
-                Sign in
-              </button>
-            )}
-            {accountMenuOpen && session && (
-              <div className="gw-account-menu">
-                <div className="gw-account-email">{session.user?.email}</div>
-                {profile?.premium ? (
-                  <div className="gw-premium-active">★ Premium — favorites sync &amp; price alerts on</div>
-                ) : (
-                  <div className="gw-premium-upsell">
-                    <div className="gw-premium-perks">
-                      <span>★ Favorites synced across devices</span>
-                      <span>🔔 Price alerts when your items move</span>
-                    </div>
-                    <button className="gw-premium-buy" onClick={startPremiumCheckout} disabled={premiumBusy}>
-                      {premiumBusy ? "..." : "Unlock Premium — $5 one-time"}
-                    </button>
-                  </div>
-                )}
-                <button className="gw-account-signout" onClick={handleSignOut}>Sign out</button>
-              </div>
-            )}
-          </div>
-        )}
         </div>
       </header>
 
