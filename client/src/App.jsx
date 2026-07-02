@@ -8,6 +8,13 @@ import { calculateMarketStats } from "./utils/calculateMarketStats";
 import { formatCurrency } from "./utils/formatCurrency";
 import { formatValue } from "./utils/formatValue";
 import { GAMES, GAME_LIST, DEFAULT_GAME, getGameConfig } from "./config/games";
+import {
+  SITE_URL,
+  HOME_META,
+  GAME_META,
+  getItemPageMeta,
+  getItemDescriptionText,
+} from "./config/pageMeta";
 import { supabase, accountsEnabled } from "./api/supabaseClient";
 import {
   getMe,
@@ -161,6 +168,15 @@ function buildPath(gameId, tabId) {
   return `/${gameId}/${slug}`;
 }
 
+function buildItemPath(gameId, itemId) {
+  return `/${gameId}/item/${itemId}`;
+}
+
+// mm2 items carry no `game` field; the other games' items do.
+function itemPagePath(item) {
+  return buildItemPath(item.game || "mm2", item.id);
+}
+
 function parseLocation() {
   let p = window.location.pathname;
   if (p !== "/" && p.endsWith("/")) p = p.slice(0, -1);
@@ -173,109 +189,24 @@ function parseLocation() {
     return { game: null, tab: SLUG_TO_TAB[parts[0]] || "home" };
   }
 
+  if (parts.length >= 3 && GAME_ID_SET.has(parts[0]) && parts[1] === "item") {
+    return { game: parts[0], tab: "item", itemId: decodeURIComponent(parts[2]) };
+  }
+
   const game = GAME_ID_SET.has(parts[0]) ? parts[0] : null;
   const tab = SLUG_TO_TAB[parts[1]] || "home";
   return { game, tab };
 }
 
 // ── SEO: per-page titles, descriptions, canonical URLs ──────────────────────
-
-const SITE_URL = "https://godlywatch.com";
-
-const HOME_META = {
-  title: "GodlyWatch | MM2, Adopt Me & Grow a Garden Value Tracker",
-  description:
-    "GodlyWatch — live values and price tracking for MM2 (Murder Mystery 2), Adopt Me, and Grow a Garden on Roblox. Trade checker, inventory tracker, and marketplace. Updated daily.",
-};
-
-const GAME_META = {
-  mm2: {
-    home: {
-      title: "MM2 Values – Murder Mystery 2 Value List | GodlyWatch",
-      description:
-        "Live Murder Mystery 2 values updated daily. Check MM2 godly, chroma and ancient prices, track price history, and test trades with the free trade checker.",
-    },
-    board: {
-      title: "MM2 Value List – Live Godly & Chroma Values | GodlyWatch",
-      description:
-        "Full MM2 value list with live Supreme values and real eBay sold prices for every godly, chroma, ancient and set. Sort by value, demand and 7-day trend.",
-    },
-    "trade-checker": {
-      title: "MM2 Trade Checker – Win, Fair or Lose | GodlyWatch",
-      description:
-        "Free MM2 trade checker. Add up to 4 items per side and instantly see if your Murder Mystery 2 trade is a win, fair, or a loss based on live values.",
-    },
-    "inventory-tracker": {
-      title: "MM2 Inventory Tracker – Collection Value | GodlyWatch",
-      description:
-        "Track your MM2 inventory value over time. Add your godlies and chromas and watch your collection's total worth update with daily price changes.",
-    },
-    marketplace: {
-      title: "Buy MM2 Godlies – Safe MM2 Marketplace | GodlyWatch",
-      description:
-        "Buy MM2 godlies and chromas safely. Every listing is sold through eBay with buyer protection and compared against live market value before you pay.",
-    },
-  },
-  adoptme: {
-    home: {
-      title: "Adopt Me Values – Pet Value List | GodlyWatch",
-      description:
-        "Live Adopt Me pet values updated daily. Check values for every pet, including Neon and Mega variants with Fly & Ride potions, and test trades for free.",
-    },
-    board: {
-      title: "Adopt Me Value List – Live Pet Values | GodlyWatch",
-      description:
-        "Full Adopt Me value list with live values for every pet and vehicle — including Neon, Mega, Fly and Ride variants. Sorted by value and demand.",
-    },
-    "trade-checker": {
-      title: "Adopt Me Trade Calculator – Win, Fair or Lose | GodlyWatch",
-      description:
-        "Free Adopt Me trade calculator. Add up to 9 items per side, pick Neon/Mega and Fly/Ride variants, and see instantly if your trade is win, fair or lose.",
-    },
-    "inventory-tracker": {
-      title: "Adopt Me Inventory Tracker – Pet Collection Value | GodlyWatch",
-      description:
-        "Track the total value of your Adopt Me pet collection over time with live values for regular, Neon and Mega pets.",
-    },
-  },
-  growagarden: {
-    home: {
-      title: "Grow a Garden Values – Pet & Crop Value List | GodlyWatch",
-      description:
-        "Live Grow a Garden values updated daily. Check prices for every pet, crop, egg and gear, and test your trades with the free trade checker.",
-    },
-    board: {
-      title: "Grow a Garden Value List – Live Pet, Crop & Egg Values | GodlyWatch",
-      description:
-        "Full Grow a Garden value list with live values and demand for every pet, crop, egg and gear. Sorted by tier, value and 7-day trend.",
-    },
-    "trade-checker": {
-      title: "Grow a Garden Trade Checker – Win, Fair or Lose | GodlyWatch",
-      description:
-        "Free Grow a Garden trade checker. Add items to both sides and instantly see if your trade is a win, fair or a loss based on live values.",
-    },
-    "inventory-tracker": {
-      title: "Grow a Garden Inventory Tracker | GodlyWatch",
-      description:
-        "Track the total value of your Grow a Garden pets, crops and gear over time with live daily values.",
-    },
-  },
-};
+// (meta content lives in ./config/pageMeta.js, shared with scripts/prerender.mjs)
 
 function setHeadTag(selector, attribute, value) {
   const el = document.querySelector(selector);
   if (el) el.setAttribute(attribute, value);
 }
 
-// Syncs title, meta description, canonical and OG tags with the current URL.
-// `fallbackGame` covers legacy game-less paths like /board.
-function applyPageMeta(fallbackGame) {
-  const { game, tab } = parseLocation();
-  const metaGame = game || (tab !== "home" ? fallbackGame : null);
-  const meta = (metaGame && (GAME_META[metaGame]?.[tab] || GAME_META[metaGame]?.home)) || HOME_META;
-  const canonicalPath = metaGame ? buildPath(metaGame, tab) : "/";
-  const canonicalUrl = `${SITE_URL}${canonicalPath === "/" ? "/" : canonicalPath}`;
-
+function writeHeadMeta(meta, canonicalUrl) {
   document.title = meta.title;
   setHeadTag('meta[name="description"]', "content", meta.description);
   setHeadTag('link[rel="canonical"]', "href", canonicalUrl);
@@ -284,6 +215,24 @@ function applyPageMeta(fallbackGame) {
   setHeadTag('meta[property="og:url"]', "content", canonicalUrl);
   setHeadTag('meta[name="twitter:title"]', "content", meta.title);
   setHeadTag('meta[name="twitter:description"]', "content", meta.description);
+}
+
+// Syncs title, meta description, canonical and OG tags with the current URL.
+// `fallbackGame` covers legacy game-less paths like /board. For item pages the
+// item name is required — until it's known we leave the (prerendered) tags alone.
+function applyPageMeta(fallbackGame, itemName) {
+  const { game, tab, itemId } = parseLocation();
+
+  if (tab === "item") {
+    if (!game || !itemId || !itemName) return;
+    writeHeadMeta(getItemPageMeta(game, itemName), `${SITE_URL}${buildItemPath(game, itemId)}`);
+    return;
+  }
+
+  const metaGame = game || (tab !== "home" ? fallbackGame : null);
+  const meta = (metaGame && (GAME_META[metaGame]?.[tab] || GAME_META[metaGame]?.home)) || HOME_META;
+  const canonicalPath = metaGame ? buildPath(metaGame, tab) : "/";
+  writeHeadMeta(meta, `${SITE_URL}${canonicalPath === "/" ? "/" : canonicalPath}`);
 }
 
 // Lets ctrl/cmd/middle clicks on internal <a> links open a new tab natively.
@@ -510,7 +459,7 @@ function GWGauge({ value, max = 5, color, label }) {
   );
 }
 
-function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
+function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory, onOpenItemPage }) {
   const tier = deriveTier(item);
   const serial = getItemSerial(item);
   const trend = getItemTrend(item);
@@ -558,7 +507,18 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInvent
       <div className="gw-card-body">
         <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
 
-        <h3 className="gw-card-name">{item.name}</h3>
+        <h3 className="gw-card-name">
+          <a
+            className="gw-item-name-link"
+            href={itemPagePath(item)}
+            onClick={e => {
+              e.stopPropagation();
+              if (isModifiedClick(e) || !onOpenItemPage) return;
+              e.preventDefault();
+              onOpenItemPage();
+            }}
+          >{item.name}</a>
+        </h3>
 
         <div className="gw-card-prices">
           <div>
@@ -614,7 +574,7 @@ function GWCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInvent
   );
 }
 
-function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
+function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory, onOpenItemPage }) {
   const tier = deriveTier(item);
   const isPet = item.category === 'pets';
   const adoptme = item.current?.adoptme ?? {};
@@ -667,7 +627,18 @@ function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToI
       <div className="gw-card-body">
         <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
 
-        <h3 className="gw-card-name">{item.name}</h3>
+        <h3 className="gw-card-name">
+          <a
+            className="gw-item-name-link"
+            href={itemPagePath(item)}
+            onClick={e => {
+              e.stopPropagation();
+              if (isModifiedClick(e) || !onOpenItemPage) return;
+              e.preventDefault();
+              onOpenItemPage();
+            }}
+          >{item.name}</a>
+        </h3>
 
         <div className="gw-card-prices">
           <div>
@@ -723,7 +694,7 @@ function AdoptMeCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToI
   );
 }
 
-function GrowAGardenCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
+function GrowAGardenCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory, onOpenItemPage }) {
   const tier = deriveTier(item);
   const value = item.current?.supreme?.value ?? null;
   const demandRaw = item.current?.supreme?.demandRaw ?? 0;
@@ -762,7 +733,18 @@ function GrowAGardenCard({ item, isFavorite, onToggleFavorite, onOpenChart, onAd
       <div className="gw-card-body">
         <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
 
-        <h3 className="gw-card-name">{item.name}</h3>
+        <h3 className="gw-card-name">
+          <a
+            className="gw-item-name-link"
+            href={itemPagePath(item)}
+            onClick={e => {
+              e.stopPropagation();
+              if (isModifiedClick(e) || !onOpenItemPage) return;
+              e.preventDefault();
+              onOpenItemPage();
+            }}
+          >{item.name}</a>
+        </h3>
 
         <div className="gw-card-prices">
           <div>
@@ -808,7 +790,7 @@ function GWSparkline({ data, up, w = 120, h = 28 }) {
   );
 }
 
-function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory }) {
+function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart, onAddToInventory, onOpenItemPage }) {
   const tier = deriveTier(item);
   const trend = getItemTrend(item);
   const trendUp = trend >= 0;
@@ -840,7 +822,16 @@ function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart, onA
         </div>
       </td>
       <td className="l gw-row-name">
-        <span className="gw-item-name">{item.name}</span>
+        <a
+          className="gw-item-name gw-item-name-link"
+          href={itemPagePath(item)}
+          onClick={e => {
+            e.stopPropagation();
+            if (isModifiedClick(e) || !onOpenItemPage) return;
+            e.preventDefault();
+            onOpenItemPage();
+          }}
+        >{item.name}</a>
         <span className="gw-item-sym">#{serial}</span>
       </td>
       <td className="l gw-row-tier">
@@ -882,7 +873,7 @@ function GWListRow({ item, index, isFavorite, onToggleFavorite, onOpenChart, onA
   );
 }
 
-function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddToInventory }) {
+function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddToInventory, onOpenItemPage }) {
   return (
     <div className="gw-table-wrap">
       <table className="gw-table">
@@ -911,6 +902,7 @@ function GWListView({ items, favoriteIds, onToggleFavorite, onOpenChart, onAddTo
               onToggleFavorite={() => onToggleFavorite(item.id)}
               onOpenChart={() => onOpenChart(item.id)}
               onAddToInventory={onAddToInventory ? () => onAddToInventory(item.id) : undefined}
+              onOpenItemPage={onOpenItemPage ? () => onOpenItemPage(item.id) : undefined}
             />
           ))}
           {!items.length ? (
@@ -1130,6 +1122,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedChartItemId, setSelectedChartItemId] = useState(null);
+  const [itemPageId, setItemPageId] = useState(() => parseLocation().itemId ?? null);
   const [favoriteIds, setFavoriteIds] = useState(readStoredFavoriteIds);
   const [haveTradeSlots, setHaveTradeSlots] = useState(() => createEmptyTradeSide(getTradeSlotCount(readStoredGame())));
   const [wantTradeSlots, setWantTradeSlots] = useState(() => createEmptyTradeSide(getTradeSlotCount(readStoredGame())));
@@ -1236,9 +1229,41 @@ export default function App() {
     },
   };
 
+  function navigateToItem(itemId) {
+    window.history.pushState({}, "", buildItemPath(activeGameRef.current, itemId));
+    setItemPageId(itemId);
+    setActiveTab("item");
+    setSelectedChartItemId(null);
+    window.scrollTo(0, 0);
+  }
+
+  function itemLinkProps(itemId) {
+    return {
+      href: buildItemPath(activeGame, itemId),
+      onClick: (event) => {
+        if (isModifiedClick(event)) return;
+        event.preventDefault();
+        navigateToItem(itemId);
+      },
+    };
+  }
+
+  const itemPageItem = activeTab === "item" && itemPageId
+    ? itemLookup.get(itemPageId) ?? null
+    : null;
+
   useEffect(() => {
+    // Item pages set their meta below, once the item (and its name) is loaded;
+    // until then the prerendered tags stay untouched.
+    if (activeTab === "item") return;
     applyPageMeta(activeGame);
   }, [activeGame, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "item" && itemPageItem) {
+      applyPageMeta(activeGame, itemPageItem.name);
+    }
+  }, [activeTab, itemPageItem, activeGame]);
 
   // ── Accounts: session, profile, favorites sync, notifications ─────────────
 
@@ -1443,6 +1468,7 @@ export default function App() {
     const handlePopState = () => {
       const next = parseLocation();
       setActiveTab(next.tab);
+      setItemPageId(next.itemId ?? null);
       if (next.game && next.game !== activeGameRef.current) {
         // push: false — restoring history must not create a new entry
         changeGame(next.game, { push: false });
@@ -2752,6 +2778,129 @@ export default function App() {
     );
   }
 
+  function renderItemPage() {
+    const item = itemPageItem;
+
+    if (!item) {
+      return (
+        <section className="gw-item-page">
+          <nav className="gw-item-crumbs">
+            <a {...homeLinkProps}>Home</a>
+            <span>›</span>
+            <a {...linkTo('board')}>{gameConfig.label} values</a>
+          </nav>
+          <h1 className="gw-item-title">Item not found</h1>
+          <p className="gw-item-desc">
+            This item may have been renamed or removed.{' '}
+            <a className="gw-item-cta" {...linkTo('board')}>Browse the full {gameConfig.label} value list →</a>
+          </p>
+        </section>
+      );
+    }
+
+    const tier = deriveTier(item);
+    const isFav = favoriteIds.includes(item.id);
+    const ebayPrice = item.current?.ebay?.totalPrice;
+    const supValue = item.current?.supreme?.value;
+    const demand = item.current?.supreme?.demand ?? 0;
+    const rarity = item.current?.supreme?.rarity ?? 0;
+    const trend = getItemTrend(item);
+    const trendUp = trend >= 0;
+    const trendColor = trendUp ? 'var(--up)' : 'var(--down)';
+    const valueText = supValue != null ? formatValue(supValue) : null;
+    const description = getItemDescriptionText(item.game || 'mm2', item.name, {
+      valueText,
+      demandText: demand > 0 ? `${demand}/5` : null,
+      categoryText: item.category ? item.category.replace(/s$/, '') : null,
+    });
+    const related = items
+      .filter(other => other.id !== item.id && deriveTier(other).key === tier.key)
+      .slice(0, 6);
+
+    const stats = [
+      supValue != null ? { label: gameConfig.valueLabel, value: formatValue(supValue) } : null,
+      ebayPrice != null ? { label: 'eBay price', value: `€${ebayPrice.toFixed(2)}` } : null,
+      { label: '7d trend', value: `${trendUp ? '+' : '-'}${(Math.abs(trend) * 100).toFixed(1)}%`, color: trendColor },
+      demand > 0 ? { label: 'Demand', value: `${demand}/5` } : null,
+      rarity > 0 ? { label: 'Rarity', value: `${rarity}/5` } : null,
+    ].filter(Boolean);
+
+    return (
+      <section className="gw-item-page">
+        <nav className="gw-item-crumbs">
+          <a {...homeLinkProps}>Home</a>
+          <span>›</span>
+          <a {...linkTo('board')}>{gameConfig.label} values</a>
+          <span>›</span>
+          <span className="gw-item-crumb-current">{item.name}</span>
+        </nav>
+
+        <div className="gw-item-head">
+          <div
+            className="gw-item-art"
+            style={{ background: `radial-gradient(60% 50% at 50% 55%, ${tier.color}22, transparent 70%), var(--bg-deep)` }}
+          >
+            {item.imageUrl && (
+              <img
+                src={proxyImg(item.imageUrl)}
+                alt={item.name}
+                onError={e => { e.currentTarget.style.display = 'none'; }}
+              />
+            )}
+          </div>
+          <div className="gw-item-head-main">
+            <div className="gw-card-tier" style={{ color: tier.color }}>{tier.label}</div>
+            <h1 className="gw-item-title">
+              {item.name} <span className="gw-item-title-game">— {gameConfig.label} value</span>
+            </h1>
+            <div className="gw-item-stats">
+              {stats.map(stat => (
+                <div key={stat.label} className="gw-item-stat">
+                  <span className="gw-item-stat-label">{stat.label}</span>
+                  <span className="gw-item-stat-value" style={stat.color ? { color: stat.color } : undefined}>
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="gw-item-actions">
+              <button
+                className={`gw-item-fav${isFav ? ' active' : ''}`}
+                onClick={() => toggleFavorite(item.id)}
+              >
+                ★ {isFav ? 'Favorited' : 'Add to favorites'}
+              </button>
+              <a className="gw-item-cta" {...linkTo('trade-checker')}>Check a trade with {item.name} →</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="gw-item-chart">
+          <DualHistoryChart item={item} trendColor={trendColor} />
+        </div>
+
+        <p className="gw-item-desc">
+          {description}{' '}
+          <span className="gw-item-updated">Last checked {formatTimestamp(item.lastCheckedAt)}.</span>
+        </p>
+
+        {related.length > 0 && (
+          <div className="gw-item-related">
+            <h2>More {tier.label.toLowerCase()} items</h2>
+            <div className="gw-item-related-grid">
+              {related.map(other => (
+                <a key={other.id} className="gw-item-related-card" {...itemLinkProps(other.id)}>
+                  <span className="gw-item-related-name">{other.name}</span>
+                  <span className="gw-item-related-value">{formatValue(other.current?.supreme?.value)}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+    );
+  }
+
   const HERO_GAMES = ['MM2', 'Adopt Me', 'Grow a Garden'];
   const [heroGameIdx, setHeroGameIdx] = useState(0);
 
@@ -3190,6 +3339,7 @@ export default function App() {
                       onToggleFavorite={() => toggleFavorite(item.id)}
                       onOpenChart={() => setSelectedChartItemId(item.id)}
                       onAddToInventory={() => addInventoryItem(item.id)}
+                      onOpenItemPage={() => navigateToItem(item.id)}
                     />
                   );
                 })}
@@ -3206,6 +3356,7 @@ export default function App() {
                 onToggleFavorite={toggleFavorite}
                 onOpenChart={(id) => setSelectedChartItemId(id)}
                 onAddToInventory={addInventoryItem}
+                onOpenItemPage={navigateToItem}
               />
             )}
           </main>
@@ -3233,6 +3384,12 @@ export default function App() {
             </div>
           ) : null}
 
+          {activeTab === "item" ? (
+            <div className="gw-tab-content">
+              {renderItemPage()}
+            </div>
+          ) : null}
+
         </>
       ) : null}
 
@@ -3242,6 +3399,7 @@ export default function App() {
           isFavorite={favoriteIds.includes(selectedChartItem.id)}
           onToggleFavorite={() => toggleFavorite(selectedChartItem.id)}
           onClose={() => setSelectedChartItemId(null)}
+          onOpenItemPage={() => navigateToItem(selectedChartItem.id)}
         />
       ) : null}
 
@@ -3418,7 +3576,7 @@ function TrendChevron({ up }) {
 
 // ── Preserved existing components ────────────────────────────────────────────
 
-function ChartModal({ item, isFavorite, onToggleFavorite, onClose }) {
+function ChartModal({ item, isFavorite, onToggleFavorite, onClose, onOpenItemPage }) {
   const tier = deriveTier(item);
   const ebayPrice = item.current?.ebay?.totalPrice;
   const supValue = item.current?.supreme?.value;
@@ -3437,6 +3595,15 @@ function ChartModal({ item, isFavorite, onToggleFavorite, onClose }) {
             <h2 style={{ fontFamily: 'Saira Condensed,Arial Narrow,sans-serif', fontSize: 28, fontWeight: 600, color: 'var(--ink)', margin: 0, letterSpacing: '-0.005em' }}>{item.name}</h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <a
+              className="chart-modal-details"
+              href={itemPagePath(item)}
+              onClick={e => {
+                if (isModifiedClick(e) || !onOpenItemPage) return;
+                e.preventDefault();
+                onOpenItemPage();
+              }}
+            >Full details →</a>
             <button
               onClick={onToggleFavorite}
               style={{ fontSize: 28, background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: isFavorite ? '#f5c518' : 'rgba(255,255,255,0.3)', transition: 'color 120ms', lineHeight: 1, textShadow: isFavorite ? '0 0 12px rgba(245,197,24,0.5)' : 'none' }}
