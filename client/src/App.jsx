@@ -1176,6 +1176,7 @@ export default function App() {
   const [premiumSuccess, setPremiumSuccess] = useState(false);
   const premiumSessionRef = useRef(null);
   const serverFavsLoadedRef = useRef(false);
+  const pendingFavoriteRef = useRef(null);
 
   const gameConfig = getGameConfig(activeGame);
 
@@ -1372,13 +1373,21 @@ export default function App() {
     }
   }
 
-  function openAuth(mode) {
+  function openAuth(mode, notice = "") {
     setAuthMode(mode);
     setAuthError("");
-    setAuthNotice("");
+    setAuthNotice(notice);
     setAuthOpen(true);
     setAccountMenuOpen(false);
   }
+
+  // Apply the favorite the user clicked before being asked to sign in
+  useEffect(() => {
+    if (!session || !pendingFavoriteRef.current) return;
+    const itemId = pendingFavoriteRef.current;
+    pendingFavoriteRef.current = null;
+    setFavoriteIds((current) => (current.includes(itemId) ? current : [...current, itemId]));
+  }, [session]);
 
   async function handleSignOut() {
     setAccountMenuOpen(false);
@@ -1971,6 +1980,12 @@ export default function App() {
   }
 
   function toggleFavorite(itemId) {
+    // Favorites require a (free) account — the prompt doubles as a signup funnel.
+    if (accountsEnabled && !session) {
+      pendingFavoriteRef.current = itemId;
+      openAuth("signin", "Create a free account to save favorites.");
+      return;
+    }
     setFavoriteIds((current) =>
       current.includes(itemId)
         ? current.filter((id) => id !== itemId)
