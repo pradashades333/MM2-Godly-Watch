@@ -7,3 +7,6 @@ build/
 *.log
 new design/
 client/.npm-cache/
+
+.vercel
+client/dist-check*/

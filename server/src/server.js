@@ -4,6 +4,7 @@ const app = require("./app");
 const { buildMarketData } = require("./services/marketService");
 const adoptMeService = require("./services/adoptMeService");
 const growAGardenService = require("./services/growAGardenService");
+const notificationService = require("./services/notificationService");
 
 const PORT = process.env.PORT || 3000;
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
@@ -40,6 +41,12 @@ async function runRefresh() {
     console.log(`[auto-refresh] growagarden done`);
   } catch (err) {
     console.error("[auto-refresh] growagarden failed:", err.message);
+  }
+
+  try {
+    await notificationService.generateAlerts();
+  } catch (err) {
+    console.error("[auto-refresh] alerts failed:", err.message);
   }
 
   console.log(`[auto-refresh] all games done at ${new Date().toISOString()}`);

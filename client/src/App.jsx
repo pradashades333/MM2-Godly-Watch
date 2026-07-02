@@ -8,6 +8,16 @@ import { calculateMarketStats } from "./utils/calculateMarketStats";
 import { formatCurrency } from "./utils/formatCurrency";
 import { formatValue } from "./utils/formatValue";
 import { GAMES, GAME_LIST, DEFAULT_GAME, getGameConfig } from "./config/games";
+import { supabase, accountsEnabled } from "./api/supabaseClient";
+import {
+  getMe,
+  getFavorites,
+  putFavorites,
+  getNotifications,
+  markNotificationsRead,
+  createPremiumSession,
+  confirmPremium,
+} from "./api/accountApi";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const GAME_STORAGE_KEY = "mm2-goldywatch-game";
@@ -166,6 +176,126 @@ function parseLocation() {
   const game = GAME_ID_SET.has(parts[0]) ? parts[0] : null;
   const tab = SLUG_TO_TAB[parts[1]] || "home";
   return { game, tab };
+}
+
+// ── SEO: per-page titles, descriptions, canonical URLs ──────────────────────
+
+const SITE_URL = "https://godlywatch.com";
+
+const HOME_META = {
+  title: "GodlyWatch | MM2, Adopt Me & Grow a Garden Value Tracker",
+  description:
+    "GodlyWatch — live values and price tracking for MM2 (Murder Mystery 2), Adopt Me, and Grow a Garden on Roblox. Trade checker, inventory tracker, and marketplace. Updated daily.",
+};
+
+const GAME_META = {
+  mm2: {
+    home: {
+      title: "MM2 Values – Murder Mystery 2 Value List | GodlyWatch",
+      description:
+        "Live Murder Mystery 2 values updated daily. Check MM2 godly, chroma and ancient prices, track price history, and test trades with the free trade checker.",
+    },
+    board: {
+      title: "MM2 Value List – Live Godly & Chroma Values | GodlyWatch",
+      description:
+        "Full MM2 value list with live Supreme values and real eBay sold prices for every godly, chroma, ancient and set. Sort by value, demand and 7-day trend.",
+    },
+    "trade-checker": {
+      title: "MM2 Trade Checker – Win, Fair or Lose | GodlyWatch",
+      description:
+        "Free MM2 trade checker. Add up to 4 items per side and instantly see if your Murder Mystery 2 trade is a win, fair, or a loss based on live values.",
+    },
+    "inventory-tracker": {
+      title: "MM2 Inventory Tracker – Collection Value | GodlyWatch",
+      description:
+        "Track your MM2 inventory value over time. Add your godlies and chromas and watch your collection's total worth update with daily price changes.",
+    },
+    marketplace: {
+      title: "Buy MM2 Godlies – Safe MM2 Marketplace | GodlyWatch",
+      description:
+        "Buy MM2 godlies and chromas safely. Every listing is sold through eBay with buyer protection and compared against live market value before you pay.",
+    },
+  },
+  adoptme: {
+    home: {
+      title: "Adopt Me Values – Pet Value List | GodlyWatch",
+      description:
+        "Live Adopt Me pet values updated daily. Check values for every pet, including Neon and Mega variants with Fly & Ride potions, and test trades for free.",
+    },
+    board: {
+      title: "Adopt Me Value List – Live Pet Values | GodlyWatch",
+      description:
+        "Full Adopt Me value list with live values for every pet and vehicle — including Neon, Mega, Fly and Ride variants. Sorted by value and demand.",
+    },
+    "trade-checker": {
+      title: "Adopt Me Trade Calculator – Win, Fair or Lose | GodlyWatch",
+      description:
+        "Free Adopt Me trade calculator. Add up to 9 items per side, pick Neon/Mega and Fly/Ride variants, and see instantly if your trade is win, fair or lose.",
+    },
+    "inventory-tracker": {
+      title: "Adopt Me Inventory Tracker – Pet Collection Value | GodlyWatch",
+      description:
+        "Track the total value of your Adopt Me pet collection over time with live values for regular, Neon and Mega pets.",
+    },
+  },
+  growagarden: {
+    home: {
+      title: "Grow a Garden Values – Pet & Crop Value List | GodlyWatch",
+      description:
+        "Live Grow a Garden values updated daily. Check prices for every pet, crop, egg and gear, and test your trades with the free trade checker.",
+    },
+    board: {
+      title: "Grow a Garden Value List – Live Pet, Crop & Egg Values | GodlyWatch",
+      description:
+        "Full Grow a Garden value list with live values and demand for every pet, crop, egg and gear. Sorted by tier, value and 7-day trend.",
+    },
+    "trade-checker": {
+      title: "Grow a Garden Trade Checker – Win, Fair or Lose | GodlyWatch",
+      description:
+        "Free Grow a Garden trade checker. Add items to both sides and instantly see if your trade is a win, fair or a loss based on live values.",
+    },
+    "inventory-tracker": {
+      title: "Grow a Garden Inventory Tracker | GodlyWatch",
+      description:
+        "Track the total value of your Grow a Garden pets, crops and gear over time with live daily values.",
+    },
+  },
+};
+
+function setHeadTag(selector, attribute, value) {
+  const el = document.querySelector(selector);
+  if (el) el.setAttribute(attribute, value);
+}
+
+// Syncs title, meta description, canonical and OG tags with the current URL.
+// `fallbackGame` covers legacy game-less paths like /board.
+function applyPageMeta(fallbackGame) {
+  const { game, tab } = parseLocation();
+  const metaGame = game || (tab !== "home" ? fallbackGame : null);
+  const meta = (metaGame && (GAME_META[metaGame]?.[tab] || GAME_META[metaGame]?.home)) || HOME_META;
+  const canonicalPath = metaGame ? buildPath(metaGame, tab) : "/";
+  const canonicalUrl = `${SITE_URL}${canonicalPath === "/" ? "/" : canonicalPath}`;
+
+  document.title = meta.title;
+  setHeadTag('meta[name="description"]', "content", meta.description);
+  setHeadTag('link[rel="canonical"]', "href", canonicalUrl);
+  setHeadTag('meta[property="og:title"]', "content", meta.title);
+  setHeadTag('meta[property="og:description"]', "content", meta.description);
+  setHeadTag('meta[property="og:url"]', "content", canonicalUrl);
+  setHeadTag('meta[name="twitter:title"]', "content", meta.title);
+  setHeadTag('meta[name="twitter:description"]', "content", meta.description);
+}
+
+// Lets ctrl/cmd/middle clicks on internal <a> links open a new tab natively.
+function isModifiedClick(event) {
+  return (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  );
 }
 
 const FAVORITES_STORAGE_KEY = "mm2-goldywatch-favorites";
@@ -852,6 +982,133 @@ function GWSidebar({ items, gameConfig, activeTier, onTierChange, activeFilter, 
   );
 }
 
+// ── Account UI ───────────────────────────────────────────────────────────────
+
+const AUTH_TITLES = {
+  signin: "Sign in",
+  signup: "Create account",
+  reset: "Reset password",
+  newpassword: "Set new password",
+};
+
+const AUTH_SUBMIT_LABELS = {
+  signin: "Sign in",
+  signup: "Create account",
+  reset: "Send reset email",
+  newpassword: "Save password",
+};
+
+function AuthModal({ mode, onModeChange, onSubmit, onClose, busy, error, notice }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const needsEmail = mode !== "newpassword";
+  const needsPassword = mode !== "reset";
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    onSubmit(email.trim(), password);
+  }
+
+  return (
+    <div className="gw-auth-overlay" onClick={onClose}>
+      <div className="gw-auth-modal" onClick={(event) => event.stopPropagation()}>
+        <button className="gw-auth-close" onClick={onClose} title="Close">×</button>
+        <h2 className="gw-auth-title">{AUTH_TITLES[mode]}</h2>
+        <form className="gw-auth-form" onSubmit={handleSubmit}>
+          {needsEmail && (
+            <input
+              className="gw-auth-input"
+              type="email"
+              required
+              placeholder="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          )}
+          {needsPassword && (
+            <input
+              className="gw-auth-input"
+              type="password"
+              required
+              minLength={6}
+              placeholder={mode === "newpassword" ? "new password" : "password"}
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          )}
+          {error ? <div className="gw-auth-error">{error}</div> : null}
+          {notice ? <div className="gw-auth-notice">{notice}</div> : null}
+          <button className="gw-auth-submit" type="submit" disabled={busy}>
+            {busy ? "..." : AUTH_SUBMIT_LABELS[mode]}
+          </button>
+        </form>
+        <div className="gw-auth-links">
+          {mode === "signin" && (
+            <>
+              <button type="button" onClick={() => onModeChange("signup")}>Create account</button>
+              <button type="button" onClick={() => onModeChange("reset")}>Forgot password?</button>
+            </>
+          )}
+          {mode === "signup" && (
+            <button type="button" onClick={() => onModeChange("signin")}>Have an account? Sign in</button>
+          )}
+          {mode === "reset" && (
+            <button type="button" onClick={() => onModeChange("signin")}>Back to sign in</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotificationPanel({ notifications }) {
+  if (!notifications.length) {
+    return (
+      <div className="gw-notif-panel">
+        <div className="gw-notif-head">Price alerts</div>
+        <div className="gw-notif-empty">
+          No alerts yet. Favorite items with the ★ and you'll get an alert here when their value moves.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="gw-notif-panel">
+      <div className="gw-notif-head">Price alerts</div>
+      <div className="gw-notif-list">
+        {notifications.map((n) => {
+          const hasOld = n.old_value != null && Number(n.old_value) !== 0;
+          const pct = hasOld
+            ? ((Number(n.new_value) - Number(n.old_value)) / Number(n.old_value)) * 100
+            : null;
+          const up = (pct ?? 0) >= 0;
+          return (
+            <div key={n.id} className={`gw-notif-item${n.read ? "" : " unread"}`}>
+              <div className="gw-notif-item-head">
+                <strong>{n.item_name}</strong>
+                <span className="gw-notif-game">{GAMES[n.game]?.label ?? n.game}</span>
+              </div>
+              <div className="gw-notif-item-body">
+                <span>{formatValue(Number(n.old_value))} → {formatValue(Number(n.new_value))}</span>
+                {pct != null && (
+                  <span className={`gw-notif-pct ${up ? "up" : "down"}`}>
+                    {up ? "+" : ""}{pct.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              <div className="gw-notif-time">{compactDate(n.move_at)}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -902,6 +1159,24 @@ export default function App() {
   const [orderStatus, setOrderStatus] = useState('idle');
   const [orderRef, setOrderRef] = useState('');
 
+  // Accounts / premium
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('signin');
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [authNotice, setAuthNotice] = useState('');
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef(null);
+  const [notifData, setNotifData] = useState({ notifications: [], unreadCount: 0 });
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+  const [premiumBusy, setPremiumBusy] = useState(false);
+  const [premiumSuccess, setPremiumSuccess] = useState(false);
+  const premiumSessionRef = useRef(null);
+  const serverFavsLoadedRef = useRef(false);
+
   const gameConfig = getGameConfig(activeGame);
 
   const deferredQuery = useDeferredValue(query);
@@ -931,6 +1206,221 @@ export default function App() {
     setActiveTab(tabId);
   }
 
+  // SEO: internal navigation renders as real <a href> links so crawlers can
+  // discover routes; clicks are intercepted to keep SPA behavior.
+  function linkTo(tabId, gameId = activeGame) {
+    return {
+      href: buildPath(gameId, tabId),
+      onClick: (event) => {
+        if (isModifiedClick(event)) return;
+        event.preventDefault();
+        if (gameId !== activeGameRef.current) {
+          changeGame(gameId, { tab: tabId });
+          setActiveTab(tabId);
+        } else if (buildPath(gameId, tabId) !== window.location.pathname) {
+          navigateToTab(tabId);
+        }
+      },
+    };
+  }
+
+  const homeLinkProps = {
+    href: "/",
+    onClick: (event) => {
+      if (isModifiedClick(event)) return;
+      event.preventDefault();
+      window.history.pushState({}, "", "/");
+      setActiveTab("home");
+      applyPageMeta(activeGameRef.current);
+    },
+  };
+
+  useEffect(() => {
+    applyPageMeta(activeGame);
+  }, [activeGame, activeTab]);
+
+  // ── Accounts: session, profile, favorites sync, notifications ─────────────
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      setSession(nextSession ?? null);
+      if (event === "PASSWORD_RECOVERY") {
+        setAuthMode("newpassword");
+        setAuthError("");
+        setAuthNotice("");
+        setAuthOpen(true);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) {
+      setProfile(null);
+      setNotifData({ notifications: [], unreadCount: 0 });
+      serverFavsLoadedRef.current = false;
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const me = await getMe(session.access_token);
+        if (cancelled) return;
+        setProfile(me);
+        if (me.premium) {
+          const { favorites } = await getFavorites(session.access_token);
+          if (cancelled) return;
+          // Merge server favorites into local ones (union) before enabling push
+          setFavoriteIds((prev) => Array.from(new Set([...prev, ...favorites.map((f) => f.item_id)])));
+          serverFavsLoadedRef.current = true;
+          const notif = await getNotifications(session.access_token);
+          if (!cancelled) setNotifData(notif);
+        }
+      } catch (err) {
+        console.error("Account load failed:", err.message);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [session]);
+
+  // Push favorites for the active game to the server (premium only, debounced)
+  useEffect(() => {
+    if (!session || !profile?.premium || !serverFavsLoadedRef.current || !items.length) return;
+    const gameFavoriteIds = favoriteIds.filter((id) => itemLookup.has(id));
+    const timer = setTimeout(() => {
+      putFavorites(session.access_token, activeGameRef.current, gameFavoriteIds).catch(() => {});
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [favoriteIds, session, profile, itemLookup]);
+
+  // Returning from Stripe premium checkout: verify the session, then unlock
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("premium") === "success" && params.get("session_id")) {
+      premiumSessionRef.current = params.get("session_id");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (params.get("premium") === "cancel") {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!session || !premiumSessionRef.current) return;
+    const sessionId = premiumSessionRef.current;
+    premiumSessionRef.current = null;
+    (async () => {
+      try {
+        await confirmPremium(session.access_token, sessionId);
+        const me = await getMe(session.access_token);
+        setProfile(me);
+        setPremiumSuccess(true);
+      } catch (err) {
+        console.error("Premium confirmation failed:", err.message);
+      }
+    })();
+  }, [session]);
+
+  useEffect(() => {
+    if (!accountMenuOpen && !notifOpen) return;
+    function handleOutside(event) {
+      if (accountMenuOpen && accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+        setAccountMenuOpen(false);
+      }
+      if (notifOpen && notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [accountMenuOpen, notifOpen]);
+
+  async function handleAuthSubmit(email, password) {
+    if (!supabase) return;
+    setAuthBusy(true);
+    setAuthError("");
+    setAuthNotice("");
+    try {
+      if (authMode === "signup") {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        if (data.session) {
+          setAuthOpen(false);
+        } else {
+          setAuthNotice("Check your email to confirm your account, then sign in.");
+        }
+      } else if (authMode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        setAuthOpen(false);
+      } else if (authMode === "reset") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin,
+        });
+        if (error) throw error;
+        setAuthNotice("Password reset email sent — check your inbox.");
+      } else if (authMode === "newpassword") {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        setAuthOpen(false);
+      }
+    } catch (err) {
+      setAuthError(err.message || "Something went wrong");
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  function openAuth(mode) {
+    setAuthMode(mode);
+    setAuthError("");
+    setAuthNotice("");
+    setAuthOpen(true);
+    setAccountMenuOpen(false);
+  }
+
+  async function handleSignOut() {
+    setAccountMenuOpen(false);
+    setNotifOpen(false);
+    try { await supabase.auth.signOut(); } catch {}
+  }
+
+  async function startPremiumCheckout() {
+    if (!session) {
+      openAuth("signin");
+      return;
+    }
+    setPremiumBusy(true);
+    try {
+      const origin = window.location.origin;
+      const { url } = await createPremiumSession(
+        session.access_token,
+        `${origin}/?premium=success&session_id={CHECKOUT_SESSION_ID}`,
+        `${origin}/?premium=cancel`
+      );
+      window.location.href = url;
+    } catch (err) {
+      setPremiumBusy(false);
+      alert(err.message || "Could not start checkout");
+    }
+  }
+
+  async function toggleNotifPanel() {
+    const opening = !notifOpen;
+    setNotifOpen(opening);
+    setAccountMenuOpen(false);
+    if (opening && session) {
+      try {
+        const data = await getNotifications(session.access_token);
+        if (data.unreadCount > 0) {
+          markNotificationsRead(session.access_token).catch(() => {});
+        }
+        setNotifData({ ...data, unreadCount: 0 });
+      } catch {}
+    }
+  }
+
   useEffect(() => {
     loadDashboard();
   }, []);
@@ -945,8 +1435,10 @@ export default function App() {
       const next = parseLocation();
       setActiveTab(next.tab);
       if (next.game && next.game !== activeGameRef.current) {
-        changeGame(next.game);
+        // push: false — restoring history must not create a new entry
+        changeGame(next.game, { push: false });
       }
+      applyPageMeta(next.game || activeGameRef.current);
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -1073,7 +1565,7 @@ export default function App() {
     }
   }
 
-  function changeGame(gameId) {
+  function changeGame(gameId, { push = true, tab = activeTab } = {}) {
     if (gameId === activeGameRef.current || !GAMES[gameId]) return;
     setActiveGame(gameId);
     activeGameRef.current = gameId;
@@ -1089,7 +1581,7 @@ export default function App() {
     setHaveTradeSearch(createEmptyTradeSearch(slotCount));
     setWantTradeSearch(createEmptyTradeSearch(slotCount));
     try { localStorage.setItem(GAME_STORAGE_KEY, gameId); } catch {}
-    window.history.pushState({}, "", buildPath(gameId, activeTab));
+    if (push) window.history.pushState({}, "", buildPath(gameId, tab));
     loadDashboard(gameId);
   }
 
@@ -2104,9 +2596,9 @@ export default function App() {
               <button className="mkt-btn-primary" onClick={() => document.getElementById('mp-listings')?.scrollIntoView({ behavior: 'smooth' })}>
                 ↓ browse {SHOP_LISTINGS.length} listings
               </button>
-              <button className="mkt-btn-secondary" onClick={() => navigateToTab('board')}>
+              <a className="mkt-btn-secondary" {...linkTo('board')}>
                 open value board
-              </button>
+              </a>
             </div>
             <div className="mkt-hours">
               <span className="mkt-live-dot green" />
@@ -2282,15 +2774,15 @@ export default function App() {
       <section className="gw-home">
         <header className="gw-home-header">
           <div className="gw-home-header-inner">
-            <div className="gw-home-header-logo" onClick={() => navigateToTab('home')}>
+            <a className="gw-home-header-logo" {...homeLinkProps}>
               <span className="gw-home-header-icon">↗</span>
               <strong>godlywatch</strong>
-            </div>
+            </a>
             <nav className="gw-home-header-nav">
               {gameCards.map(g => (
-                <button key={g.id} onClick={() => { changeGame(g.game); navigateToTab('board'); }}>
+                <a key={g.id} {...linkTo('board', g.game)}>
                   {g.label}
-                </button>
+                </a>
               ))}
             </nav>
           </div>
@@ -2317,17 +2809,17 @@ export default function App() {
 
             <div className="gw-home-picker">
               {gameCards.map(g => (
-                <button
+                <a
                   key={g.id}
                   className="gw-home-picker-card"
-                  onClick={() => { changeGame(g.game); navigateToTab('board'); }}
+                  {...linkTo('board', g.game)}
                 >
                   <div>
                     <strong>{g.label}</strong>
                     <span>View values</span>
                   </div>
                   <span className="gw-home-picker-arrow">↗</span>
-                </button>
+                </a>
               ))}
             </div>
 
@@ -2374,15 +2866,15 @@ export default function App() {
             </div>
             <div className="gw-home-footer-links">
               <span>Product</span>
-              <button onClick={() => navigateToTab('board')}>Value Board</button>
-              <button onClick={() => navigateToTab('trade-checker')}>Trade Checker</button>
-              <button onClick={() => navigateToTab('marketplace')}>Marketplace</button>
-              <button onClick={() => navigateToTab('inventory-tracker')}>Inventory</button>
+              <a {...linkTo('board')}>Value Board</a>
+              <a {...linkTo('trade-checker')}>Trade Checker</a>
+              <a {...linkTo('marketplace')}>Marketplace</a>
+              <a {...linkTo('inventory-tracker')}>Inventory</a>
             </div>
             <div className="gw-home-footer-links">
               <span>Games</span>
               {gameCards.map(g => (
-                <button key={g.id} onClick={() => { changeGame(g.game); navigateToTab('board'); }}>{g.label}</button>
+                <a key={g.id} {...linkTo('board', g.game)}>{g.label}</a>
               ))}
             </div>
           </div>
@@ -2399,10 +2891,10 @@ export default function App() {
       {/* TopBar */}
       <header className="gw-topbar">
         <div className="gw-topbar-left">
-          <div className="gw-wordmark" onClick={() => navigateToTab('home')} style={{ cursor: 'pointer' }}>
+          <a className="gw-wordmark" {...homeLinkProps}>
             godly<span className="gw-wordmark-accent">watch</span>
             <span className="gw-wordmark-beta">BETA</span>
-          </div>
+          </a>
           <div className="gw-game-switcher-wrap" ref={gameMenuRef}>
             <button
               type="button"
@@ -2424,34 +2916,37 @@ export default function App() {
             </button>
             {gameMenuOpen && (
               <div className="gw-game-menu">
-                {GAME_LIST.map(game => (
-                  <button
-                    key={game.id}
-                    type="button"
-                    className={`gw-game-menu-item${game.id === activeGame ? ' active' : ''}`}
-                    onClick={() => { changeGame(game.id); setGameMenuOpen(false); }}
-                  >
-                    <span className="gw-game-badge" style={{ background: game.color }}>
-                      {game.icon
-                        ? <img className="gw-game-badge-img" src={game.icon} alt="" />
-                        : game.shortLabel}
-                    </span>
-                    <span className="gw-game-menu-name">{game.label}</span>
-                  </button>
-                ))}
+                {GAME_LIST.map(game => {
+                  const link = linkTo(activeTab, game.id);
+                  return (
+                    <a
+                      key={game.id}
+                      className={`gw-game-menu-item${game.id === activeGame ? ' active' : ''}`}
+                      href={link.href}
+                      onClick={event => { link.onClick(event); setGameMenuOpen(false); }}
+                    >
+                      <span className="gw-game-badge" style={{ background: game.color }}>
+                        {game.icon
+                          ? <img className="gw-game-badge-img" src={game.icon} alt="" />
+                          : game.shortLabel}
+                      </span>
+                      <span className="gw-game-menu-name">{game.label}</span>
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
         <nav className="gw-nav">
           {TABS.map(tab => (
-            <button
+            <a
               key={tab.id}
               className={`gw-nav-pill${activeTab === tab.id ? ' active' : ''}`}
-              onClick={() => navigateToTab(tab.id)}
+              {...linkTo(tab.id)}
             >
               {tab.label}
-            </button>
+            </a>
           ))}
         </nav>
         <div className="gw-topbar-right">
@@ -2466,8 +2961,74 @@ export default function App() {
           />
           <span className="gw-keycap">⌘K</span>
         </div>
+        {accountsEnabled && session && profile?.premium && (
+          <div className="gw-notif-wrap" ref={notifRef}>
+            <button
+              className="gw-notif-bell"
+              onClick={toggleNotifPanel}
+              title="Price alerts"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+              </svg>
+              {notifData.unreadCount > 0 && (
+                <span className="gw-notif-badge">{notifData.unreadCount > 9 ? "9+" : notifData.unreadCount}</span>
+              )}
+            </button>
+            {notifOpen && <NotificationPanel notifications={notifData.notifications} />}
+          </div>
+        )}
+        {accountsEnabled && (
+          <div className="gw-account-wrap" ref={accountMenuRef}>
+            {session ? (
+              <button
+                className={`gw-account-btn${profile?.premium ? " premium" : ""}`}
+                onClick={() => { setAccountMenuOpen(open => !open); setNotifOpen(false); }}
+                title={session.user?.email || "Account"}
+              >
+                {(session.user?.email || "?")[0].toUpperCase()}
+              </button>
+            ) : (
+              <button className="gw-signin-btn" onClick={() => openAuth("signin")}>
+                Sign in
+              </button>
+            )}
+            {accountMenuOpen && session && (
+              <div className="gw-account-menu">
+                <div className="gw-account-email">{session.user?.email}</div>
+                {profile?.premium ? (
+                  <div className="gw-premium-active">★ Premium — favorites sync &amp; price alerts on</div>
+                ) : (
+                  <div className="gw-premium-upsell">
+                    <div className="gw-premium-perks">
+                      <span>★ Favorites synced across devices</span>
+                      <span>🔔 Price alerts when your items move</span>
+                    </div>
+                    <button className="gw-premium-buy" onClick={startPremiumCheckout} disabled={premiumBusy}>
+                      {premiumBusy ? "..." : "Unlock Premium — $5 one-time"}
+                    </button>
+                  </div>
+                )}
+                <button className="gw-account-signout" onClick={handleSignOut}>Sign out</button>
+              </div>
+            )}
+          </div>
+        )}
         </div>
       </header>
+
+      {authOpen && (
+        <AuthModal
+          mode={authMode}
+          onModeChange={(mode) => { setAuthMode(mode); setAuthError(""); setAuthNotice(""); }}
+          onSubmit={handleAuthSubmit}
+          onClose={() => setAuthOpen(false)}
+          busy={authBusy}
+          error={authError}
+          notice={authNotice}
+        />
+      )}
 
       {/* Ticker */}
       <div className="gw-ticker">
@@ -2492,6 +3053,12 @@ export default function App() {
       {/* Banners */}
       {error ? <div className="gw-banner error">{error}</div> : null}
       {loading ? <div className="gw-banner">Fetching latest {gameConfig.label} prices...</div> : null}
+      {premiumSuccess ? (
+        <div className="gw-banner success">
+          ★ Premium unlocked — your favorites now sync and price alerts are on.
+          <button className="gw-banner-dismiss" onClick={() => setPremiumSuccess(false)}>×</button>
+        </div>
+      ) : null}
 
       {!loading && activeTab === 'home' ? (
         <div className="gw-tab-content">
