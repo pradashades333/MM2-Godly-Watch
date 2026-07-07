@@ -1,0 +1,479 @@
+== GODLYWATCH HOMEPAGE CODE ==
+File: client/src/App.jsx, lines 2205-2635
+
+This is the renderHome() function that renders the homepage.
+The CSS classes all start with "gw-home-".
+The CSS is in client/src/index.css.
+
+== CURRENT STRUCTURE ==
+
+1. HERO SECTION (gw-home-hero-shell)
+   - Left side: live pill, title, subtitle, CTA buttons, subnote
+   - Right side: "Live market" card showing top movers with prices/trends
+
+2. STATS BAR (gw-home-stats-bar)
+   - 4 stat cells: Items tracked, eBay coverage, Movers today, Live updates
+
+3. FEATURES SECTION (gw-home-feature-grid)
+   - 4 feature cards: Trade Checker, Marketplace, Inventory Tracker, Board
+   - Each has: icon, eyebrow, title, description, preview rows, CTA link
+
+4. HOW IT WORKS (gw-home-how)
+   - 3 steps: Pick an item, Compare live prices, Trade or list smarter
+
+5. BOARD SHOWCASE (gw-home-board-showcase)
+   - Left: copy about the board
+   - Right: interactive tier tabs (Chroma/Godly/Ancient) with sample rows
+
+6. CTA PANEL (gw-home-cta-panel)
+   - "Stop guessing. Start trading smarter." with CTA buttons
+
+7. FOOTER (gw-home-footer)
+   - Brand, Product links, Resources links, Company links
+   - Bottom bar with copyright
+
+== JSX CODE ==
+
+function renderHome() {
+    const jumpHomeSection = (id) => {
+      const node = document.getElementById(id);
+      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const cheapestListing = [...SHOP_LISTINGS]
+      .map((listing) => {
+        const marketItem = findMarketplaceItem(items, listing);
+        const price = listing.price ?? marketItem?.current?.ebay?.totalPrice ?? null;
+        return { ...listing, price };
+      })
+      .filter((listing) => listing.price != null)
+      .sort((a, b) => a.price - b.price)[0];
+
+    const bestValueGap = [...SHOP_LISTINGS]
+      .map((listing) => {
+        const marketItem = findMarketplaceItem(items, listing);
+        const boardPrice = marketItem?.current?.ebay?.totalPrice ?? null;
+        const listingPrice = listing.price ?? boardPrice;
+        if (boardPrice == null || listingPrice == null || boardPrice <= 0 || listingPrice >= boardPrice) return null;
+        return {
+          name: listing.name,
+          gapPct: Math.round(((boardPrice - listingPrice) / boardPrice) * 100),
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.gapPct - a.gapPct)[0];
+
+    const inventoryPreview = inventoryItems.reduce(
+      (acc, entry) => {
+        const item = itemLookup.get(entry.id);
+        acc.count += entry.qty;
+        acc.value += (item?.current?.ebay?.totalPrice ?? 0) * entry.qty;
+        return acc;
+      },
+      { count: 0, value: 0 }
+    );
+
+    const sampleTrade = {
+      have: haveTradeSlots.reduce((sum, slot) => {
+        const item = slot.itemId ? itemLookup.get(slot.itemId) : null;
+        return sum + (item?.current?.supreme?.value ?? 0);
+      }, 0),
+      want: wantTradeSlots.reduce((sum, slot) => {
+        const item = slot.itemId ? itemLookup.get(slot.itemId) : null;
+        return sum + (item?.current?.supreme?.value ?? 0);
+      }, 0),
+    };
+    const tradeResult = sampleTrade.have === sampleTrade.want ? 'Even' : sampleTrade.have > sampleTrade.want ? 'Win' : 'Loss';
+
+    const previewCandidates = recentMoves.length ? recentMoves : items.slice(0, 8);
+    const marketPreviewRows = previewCandidates.slice(0, 4).map((item, index) => {
+      const tier = deriveTier(item);
+      const ebayPrice = item.current?.ebay?.totalPrice;
+      const trend = getItemTrend(item);
+      const trendUp = trend >= 0;
+      const trendPct = `${trendUp ? '+' : '-'}${Math.abs(trend * 100).toFixed(1)}%`;
+      const fallbackNames = ['Hallowgun', 'Chroma Seer', 'Eternal', "Nik's Scythe"];
+      const fallbackTiers = ['Godly', 'Chroma', 'Ancient', 'Vintage'];
+      const fallbackPrices = ['EUR 1.16', 'EUR 42.50', 'EUR 88.00', 'EUR 12.30'];
+      const fallbackChange = ['+4.2%', '+1.8%', '-2.1%', '+0.6%'];
+
+      return {
+        name: item?.name ?? fallbackNames[index] ?? 'Market item',
+        tierLabel: item ? tier.label : fallbackTiers[index] ?? 'Godly',
+        tierColor: item ? tier.color : (
+          index === 1 ? 'var(--tier-chroma)' :
+          index === 2 ? 'var(--tier-ancient)' :
+          index === 3 ? 'var(--ink-faint)' :
+          'var(--tier-godly)'
+        ),
+        price: ebayPrice != null ? `EUR ${ebayPrice.toFixed(2)}` : (fallbackPrices[index] ?? '--'),
+        trend: item ? trendPct : (fallbackChange[index] ?? '--'),
+        trendUp: item ? trendUp : !(fallbackChange[index] ?? '').startsWith('-'),
+      };
+    });
+
+    const homeStats = [
+      { value: `${homeTrackedItems ?? '--'}`, label: 'Items tracked' },
+      { value: `${ebayCoveragePct ?? '--'}%`, label: 'eBay coverage' },
+      { value: `${homeRecentMoves ?? '--'}`, label: 'Movers today' },
+      { value: '24/7', label: 'Live updates' },
+    ];
+
+    const homeCards = [
+      {
+        id: 'trade-checker',
+        eyebrow: 'Trade',
+        title: 'Check a Trade',
+        desc: 'Add items to both sides and see who is winning fast.',
+        preview: [
+          { label: 'Your side', value: sampleTrade.have ? `SV ${sampleTrade.have.toLocaleString()}` : 'Add items' },
+          { label: 'Their side', value: sampleTrade.want ? `SV ${sampleTrade.want.toLocaleString()}` : 'Compare live' },
+          { label: 'Result', value: tradeResult },
+        ],
+        cta: 'Live Supreme comparison',
+      },
+      {
+        id: 'marketplace',
+        eyebrow: 'Market',
+        title: 'Find Cheap Items',
+        desc: 'Jump to the lowest live eBay listings without digging around.',
+        preview: [
+          { label: 'Item', value: cheapestListing?.name ?? 'Loading' },
+          { label: 'Price', value: cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--' },
+          { label: 'Listings', value: `${SHOP_LISTINGS.length} live` },
+        ],
+        cta: 'Direct eBay listings',
+      },
+      {
+        id: 'inventory-tracker',
+        eyebrow: 'Inventory',
+        title: 'Value My Inventory',
+        desc: 'Total every item against current prices in one pass.',
+        preview: [
+          { label: 'Total', value: `EUR ${inventoryPreview.value.toFixed(2)}` },
+          { label: 'Items', value: `${inventoryPreview.count} tracked` },
+          { label: 'Source', value: 'Live eBay' },
+        ],
+        cta: 'Portfolio value check',
+      },
+      {
+        id: 'board',
+        eyebrow: 'Board',
+        title: 'Browse the Board',
+        desc: 'Track values, movement, and underpriced items across the main tiers.',
+        preview: [
+          { label: 'Tracked', value: `${homeTrackedItems ?? '--'} items` },
+          { label: 'Filters', value: 'Chroma | Godly | Ancient' },
+          { label: 'Updated', value: marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--' },
+        ],
+        cta: 'Filters and live movement',
+      },
+    ];
+
+    const howSteps = [
+      {
+        num: '01',
+        title: 'Pick an item',
+        desc: 'Search any MM2, Adopt Me, or Grow a Garden item and pull its live value instantly.',
+      },
+      {
+        num: '02',
+        title: 'Compare live prices',
+        desc: 'See the cheapest eBay listings and the value gap side by side.',
+      },
+      {
+        num: '03',
+        title: 'Trade or list smarter',
+        desc: 'Confirm a fair trade or list at the right price with confidence.',
+      },
+    ];
+
+    const showcaseRows = {
+      chroma: [
+        { name: 'Full Chroma Set', sublabel: 'SETS', price: 'EUR 1.16', change: '—', up: true },
+        { name: 'Chroma Luger', sublabel: 'CHROMA', price: 'EUR 0.90', change: '—', up: true },
+        { name: 'Chroma Seer', sublabel: 'CHROMA', price: 'EUR 1.40', change: '↘', up: false },
+        { name: 'Chroma Gemstone', sublabel: 'CHROMA', price: 'EUR 2.10', change: '—', up: true },
+      ],
+      godly: [
+        { name: 'Luger Set', sublabel: 'SETS', price: 'EUR 6.25', change: '↗', up: true },
+        { name: 'Iceblaster', sublabel: 'GODLY', price: 'EUR 4.90', change: '↗', up: true },
+        { name: 'Hallowgun', sublabel: 'GODLY', price: 'EUR 1.16', change: '↗', up: true },
+        { name: 'Heart Wand', sublabel: 'GODLY', price: 'EUR 6.69', change: '—', up: true },
+      ],
+      ancient: [
+        { name: 'Bat', sublabel: 'ANCIENT', price: 'EUR 4.40', change: '↗', up: true },
+        { name: 'Eternal', sublabel: 'ANCIENT', price: 'EUR 88.00', change: '↘', up: false },
+        { name: 'Icepiercer', sublabel: 'ANCIENT', price: 'EUR 4.40', change: '—', up: true },
+        { name: 'Harvester Bundle', sublabel: 'ANCIENT', price: 'EUR 12.50', change: '↗', up: true },
+      ],
+    };
+
+    return (
+      <section className="gw-home">
+        <section className="gw-home-section gw-home-hero-shell">
+          <div className="gw-home-glow" aria-hidden="true" />
+          <div className="gw-home-hero">
+            <div className="gw-home-copy">
+              <span className="gw-home-live-pill">
+                <span className="gw-home-live-dot" />
+                MM2, Adopt Me &amp; Grow a Garden values tracked live
+              </span>
+              <h1 className="gw-home-title">
+                Know what every item is <span>really worth.</span>
+              </h1>
+              <p className="gw-home-sub">
+                Compare live values for MM2, Adopt Me, and Grow a Garden — plus eBay prices and trade totals — all in one place. Spot underpriced listings and value your whole inventory in seconds.
+              </p>
+              <div className="gw-home-cta-row">
+                <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
+                  Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
+                </button>
+                <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
+                  Check a Trade
+                </button>
+              </div>
+              <div className="gw-home-subnote">
+                Free to use · No account needed · Updated {marketData.refreshedAt ? formatCheckedShort(marketData.refreshedAt) : '--'}
+              </div>
+            </div>
+
+            <aside className="gw-home-market-card" id="market">
+              <div className="gw-home-market-head">
+                <div>
+                  <span className="gw-home-kicker">Live market</span>
+                  <p className="gw-home-market-subhead">Top movers today</p>
+                </div>
+                <span className="gw-home-market-live">
+                  <span className="gw-home-market-live-dot" />
+                  Live
+                </span>
+              </div>
+
+              <div className="gw-home-market-list">
+                {marketPreviewRows.map((row) => (
+                  <div key={row.name} className="gw-home-market-row">
+                    <div className="gw-home-market-item">
+                      <strong>{row.name}</strong>
+                      <span style={{ color: row.tierColor }}>{row.tierLabel}</span>
+                    </div>
+                    <div className="gw-home-market-side">
+                      <strong>{row.price}</strong>
+                      <span className={`gw-home-market-trend${row.trendUp ? ' up' : ' down'}`}>
+                        <span>{row.trendUp ? '↗' : '↘'}</span>
+                        <span>{row.trend}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="gw-home-market-foot">
+                <span>eBay coverage</span>
+                <strong>{ebayCoveragePct != null ? `${ebayCoveragePct}%` : '--'}</strong>
+              </div>
+
+              <div className="gw-home-floating-stat">
+                <span>Cheapest listing</span>
+                <strong>{cheapestListing ? `EUR ${cheapestListing.price.toFixed(2)}` : '--'}</strong>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="gw-home-stats-bar">
+          <div className="gw-home-stats-grid">
+            {homeStats.map((stat) => (
+              <div key={stat.label} className="gw-home-stat-cell">
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="gw-home-section" id="features">
+          <div className="gw-home-section-head gw-home-section-head-center">
+            <span className="gw-home-kicker">Everything in one board</span>
+            <h2 className="gw-home-section-title">Built for traders who hate guessing.</h2>
+            <p className="gw-home-section-copy">
+              Stop bouncing between random value lists, marketplace pages, and eBay tabs just to price one trade.
+            </p>
+          </div>
+
+          <div className="gw-home-feature-grid">
+            {homeCards.map((card) => (
+              <button
+                key={card.id}
+                className="gw-home-feature-card"
+                onClick={() => navigateToTab(card.id)}
+              >
+                <div className="gw-home-feature-icon">{card.eyebrow.slice(0, 1)}</div>
+                <span className="gw-home-feature-eyebrow">{card.eyebrow}</span>
+                <h3 className="gw-home-feature-title">{card.title}</h3>
+                <p className="gw-home-feature-desc">{card.desc}</p>
+                <div className="gw-home-card-preview">
+                  {card.preview.map((row) => (
+                    <div key={row.label} className="gw-home-card-preview-row">
+                      <span className="gw-home-card-preview-label">{row.label}</span>
+                      <span className="gw-home-card-preview-value">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <span className="gw-home-feature-link">
+                  {card.cta} <span className="gw-home-inline-arrow">-&gt;</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="gw-home-how-wrap" id="how-it-works">
+          <div className="gw-home-section gw-home-how">
+            <div className="gw-home-section-head gw-home-section-head-center">
+              <span className="gw-home-kicker">How it works</span>
+              <h2 className="gw-home-section-title">From guess to gain.</h2>
+              <p className="gw-home-section-copy">
+                Search the item, compare the live prices, then make the trade or listing call with real numbers.
+              </p>
+            </div>
+
+            <div className="gw-home-how-grid">
+              {howSteps.map((step) => (
+                <div key={step.num} className="gw-home-how-card">
+                  <span className="gw-home-how-num">{step.num}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="gw-home-section gw-home-board-showcase" id="board-preview">
+          <div className="gw-home-board-layout">
+            <div className="gw-home-board-copy">
+              <span className="gw-home-kicker">The board</span>
+              <h2 className="gw-home-section-title">Every tier, one live table.</h2>
+              <p className="gw-home-section-copy">
+                Track Chroma, Godly, and Ancient tiers in one place and compare values against live market movement without leaving the board.
+              </p>
+              <button className="gw-home-board-link" onClick={() => navigateToTab('board')}>
+                Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
+              </button>
+            </div>
+
+            <div className="gw-home-board-card">
+              <div className="gw-home-board-tabs" role="tablist" aria-label="Board tiers">
+                {[
+                  ['chroma', 'Chroma'],
+                  ['godly', 'Godly'],
+                  ['ancient', 'Ancient'],
+                ].map(([key, label]) => (
+                  <button
+                    key={key}
+                    role="tab"
+                    aria-selected={homeBoardTier === key}
+                    className={`gw-home-board-tab${homeBoardTier === key ? ' active' : ''}`}
+                    onClick={() => setHomeBoardTier(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="gw-home-board-rows">
+                {showcaseRows[homeBoardTier].map((row) => (
+                  <div key={row.name} className="gw-home-board-row">
+                    <div className="gw-home-board-row-left">
+                      <strong>{row.name}</strong>
+                      <span>{row.sublabel}</span>
+                    </div>
+                    <div className="gw-home-board-row-right">
+                      <strong>{row.price}</strong>
+                      <span className={`gw-home-board-chip${row.up ? ' up' : ' down'}`}>{row.change}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="gw-home-section" id="pricing">
+          <div className="gw-home-cta-panel">
+            <div className="gw-home-glow" aria-hidden="true" />
+            <span className="gw-home-kicker">Ready?</span>
+            <h2 className="gw-home-cta-title">Stop guessing. Start trading smarter.</h2>
+            <p className="gw-home-section-copy">
+              Open the board, compare the live numbers, and move faster without bouncing between tabs.
+            </p>
+            <div className="gw-home-cta-row gw-home-cta-row-center">
+              <button className="gw-home-primary" onClick={() => navigateToTab('board')}>
+                Open Value Board <span className="gw-home-inline-arrow">-&gt;</span>
+              </button>
+              <button className="gw-home-secondary" onClick={() => navigateToTab('trade-checker')}>
+                Check a Trade
+              </button>
+            </div>
+            <div className="gw-home-subnote">Free to use · No account needed</div>
+          </div>
+        </section>
+
+        <footer className="gw-home-footer">
+          <div className="gw-home-footer-grid">
+            <div className="gw-home-footer-brand">
+              <div className="gw-home-footer-logo">
+                <span className="gw-home-footer-logo-box">↗</span>
+                <strong>godlywatch</strong>
+              </div>
+              <p>
+                Live values and trade tools for MM2, Adopt Me, and Grow a Garden. Not affiliated with Roblox.
+              </p>
+            </div>
+
+            <div className="gw-home-footer-links">
+              <span>Product</span>
+              <button onClick={() => navigateToTab('board')}>Value Board</button>
+              <button onClick={() => navigateToTab('trade-checker')}>Check a Trade</button>
+              <button onClick={() => navigateToTab('marketplace')}>Find Cheap Items</button>
+              <button onClick={() => navigateToTab('inventory-tracker')}>Inventory Value</button>
+            </div>
+
+            <div className="gw-home-footer-links">
+              <span>Resources</span>
+              <button onClick={() => jumpHomeSection('how-it-works')}>How it works</button>
+              <button onClick={() => jumpHomeSection('board-preview')}>Tier guide</button>
+              <button onClick={() => jumpHomeSection('market')}>Changelog</button>
+              <button onClick={() => jumpHomeSection('pricing')}>Updates</button>
+            </div>
+
+            <div className="gw-home-footer-links">
+              <span>Company</span>
+              <button onClick={() => navigateToTab('home')}>About</button>
+              <button onClick={() => jumpHomeSection('pricing')}>Privacy</button>
+              <button onClick={() => jumpHomeSection('pricing')}>Contact</button>
+              <button onClick={() => jumpHomeSection('pricing')}>Terms</button>
+            </div>
+          </div>
+
+          <div className="gw-home-footer-bottom">
+            <span>© 2026 godlywatch. Not affiliated with Roblox.</span>
+            <span>Updated 06 JUN · 21:29</span>
+          </div>
+        </footer>
+      </section>
+    );
+  }
+
+== IMPORTANT CONTEXT ==
+
+- This is inside a React component (App), so it has access to state like:
+  activeGame, items, marketData, recentMoves, favoriteIds, inventoryItems,
+  haveTradeSlots, wantTradeSlots, navigateToTab(), etc.
+- All CSS classes start with "gw-home-"
+- The site uses CSS variables: --tier-chroma, --tier-godly, --tier-ancient,
+  --tier-legend, --tier-vintage, --ink-faint, --ink-soft, --surface-2, etc.
+- Dark theme only (background ~#0f1117)
+- Fonts: Saira Condensed (headings), JetBrains Mono (numbers), Space Grotesk (UI)
+- The site tracks 3 games: MM2, Adopt Me, Grow a Garden

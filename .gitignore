@@ -10,3 +10,24 @@ client/.npm-cache/
 
 .vercel
 client/dist-check*/
+
+# codex-auto-ignore
+build/
+dist/
+out/
+target/
+bin/
+obj/
+node_modules/
+vendor/
+.next/
+coverage/
+.cache/
+.venv/
+venv/
+.gradle/
+.idea/
+*.pdb
+*.ilk
+*.obj
+*.idb
