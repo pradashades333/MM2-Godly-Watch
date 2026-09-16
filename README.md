@@ -1,28 +1,39 @@
 # MM2 Godly Watch
 
-Live value tracker for **Murder Mystery 2** godlies — current values, eBay pricing, and item history in one place.
+Live value tracker for Murder Mystery 2 godlies: current values, eBay pricing, and item history in one place.
 
-🔗 **Live site:** [www.godlywatch.com](https://www.godlywatch.com/)
+## Stack
 
-## Features
+- React + Vite
+- Supabase
+- Node data/import scripts
+- Vercel
 
-- Up-to-date godly values
-- eBay price references
-- Item value history
-- Accounts & premium (optional)
+## Live
 
-## Tech
+- https://godlywatch.com
 
-React (Vite) client · Node API · Supabase · Stripe
+## Screenshot
 
-## Development
+![MM2 Godly Watch eBay proof](ebay%20proof.png)
 
-```bash
-# client
+## What it does
+
+- Tracks MM2 godly values and item pages.
+- Shows historical item context and price references.
+- Uses item image assets and prerendered pages for SEO-friendly discovery.
+
+## Run locally
+
+```powershell
 cd client
-cp .env.example .env   # add your Supabase keys
 npm install
 npm run dev
 ```
 
-See `SETUP-ACCOUNTS.md` for account/premium setup.
+Production build:
+
+```powershell
+cd client
+npm run build
+```
