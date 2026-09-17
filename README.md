@@ -13,10 +13,6 @@ Live value tracker for Murder Mystery 2 godlies: current values, eBay pricing, a
 
 - https://godlywatch.com
 
-## Screenshot
-
-![MM2 Godly Watch eBay proof](ebay%20proof.png)
-
 ## What it does
 
 - Tracks MM2 godly values and item pages.
